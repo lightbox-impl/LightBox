@@ -11,8 +11,8 @@
 #include <stdlib.h>
 
 //#define SGX_PAGING
-//#define CONNECTION 0
-//#define CAIDA 0
+#define CONNECTION 0
+#define CAIDA 1
 #define LKUP_DUAL
 
 /* statistics of lb_state */
@@ -27,7 +27,7 @@ struct cuckoo_hash cache_lkup_table;
 #define LKUP_STORE_POW 18 //
 struct cuckoo_hash store_lkup_table;
 
-#define CACHE_CAP 8192 //
+#define CACHE_CAP (1<<LKUP_CACHE_POW) //4096
 state_entry_t *_state_cache = 0;
 state_entry_t *_state_cache_front = 0, *_state_cache_rear = 0; // LRU
 int state_cache_used = 0; // for cold start

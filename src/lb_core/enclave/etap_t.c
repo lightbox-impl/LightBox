@@ -12,13 +12,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define LIVE
 
 #define CROSS_RECORD
 
 //#define NON_SWITCHING
+
 #define LOCKLESS
-#define CACHE_EFFICIENT
 
 #define PKT_RINFBUF_CAP 256
 
@@ -65,6 +64,15 @@ rbuf_pkt_t in_rbuf[PKT_RINFBUF_CAP];
 //int etap_stopping = 0;
 //sgx_thread_mutex_t stop_mutex = SGX_THREAD_MUTEX_INITIALIZER;
 
+time_t time_now;
+void get_clock(time_t * ts)
+{
+	if (time_now)
+		*ts = time_now;
+	else
+		*ts = 0;
+}
+
 #ifdef LOCKLESS
 #ifdef CACHE_EFFICIENT
 void read_pkt(uint8_t *pkt, int *size, time_t *ts)
@@ -88,6 +96,8 @@ void read_pkt(uint8_t *pkt, int *size, time_t *ts)
 	//eprintf("reader: read %d write %d size %d!\n", read, write, *size);
 }
 
+
+
 void write_pkt(const uint8_t *pkt, int pkt_size, time_t ts)
 {
 	int afterNextWrite = NEXT(nextWrite);
@@ -108,6 +118,8 @@ void write_pkt(const uint8_t *pkt, int pkt_size, time_t ts)
 	in_rbuf[nextWrite].size = pkt_size;
 	in_rbuf[nextWrite].ts = ts;
 
+	time_now = ts;
+
 	nextWrite = afterNextWrite;
 	wBatch++;
 	if (wBatch >= batchSize) {
@@ -121,6 +133,7 @@ void write_pkt(const uint8_t *pkt, int pkt_size, time_t ts)
 	if (write_cnt++ == 5)
 		abort();*/
 }
+
 #else
 void read_pkt(uint8_t *pkt, int *size, time_t *ts)
 {
@@ -153,6 +166,8 @@ void write_pkt(const uint8_t *pkt, int pkt_size, time_t ts)
     memcpy(&in_rbuf[write].pkt, pkt, pkt_size);
 	in_rbuf[write].size = pkt_size;
 	in_rbuf[write].ts = ts;
+
+	time_now = ts;
 
     write = NEXT(write);
 
@@ -424,7 +439,7 @@ double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
 // this should be called only once
 double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
 {
-	//eprintf("etapn started record %d rec_per_bat %d!\n", lbn_record_size, lbn_record_per_batch);
+	eprintf("etapn started record %d rec_per_bat %d!\n", lbn_record_size, lbn_record_per_batch);
 	/*etap_rx_queue.read = 0;
 	etap_rx_queue.write = 0;*/
 
@@ -485,7 +500,7 @@ double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
 		for (rec_idx = 0; rec_idx < lbn_record_per_batch; ++rec_idx) {
 			/* decrypt and verify */
 			if (!veri_dec(crt_record, lbn_record_size, dec_record, crt_mac)) {
-				eprintf("veri_dec() fail!\n");
+				eprintf("veri_dec() fail, dec mac offset %d!\n", crt_mac- crt_record);
 				abort();
 			}
 
@@ -574,19 +589,38 @@ double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
 			crt_record += lbn_record_size + MAC_SIZE;
 			crt_mac = crt_record + lbn_record_size;
 
+			extern int  cacheMissFlow;
+			extern int  cacheHitFlow;
+			extern int DoCallTimes;
+
 			// print round stats
 #define ETAP_TEST_ITVL 1000000
 			if (unlikely(pkt_count >= ETAP_TEST_ITVL)) {
 				ocall_get_time(&end_s, &end_ns);
 				double elapsed_us = (end_s - start_s)*1000000.0 + (end_ns - start_ns) / 1000.0;
 
+				if (cacheMissFlow != 0)
+				{
+					eprintf("Round %d - delay %f - tput %f, Miss Rate %lf%%, #dfc:%d.\n",
+						++round_idx, elapsed_us / pkt_count, total_byte*8.0 / elapsed_us,
+						(cacheMissFlow)*100.0 / (cacheHitFlow + cacheMissFlow), DoCallTimes);
+				}
+				else
+				{
+					eprintf("Round %d - delay %f - tput %f, #dfc:%d.\n",
+						++round_idx, elapsed_us / pkt_count, total_byte*8.0 / elapsed_us, DoCallTimes);
+				}
+
+
 				//eprintf("Round %d - delay %f - tput %f - flow %d\n",
 				//	++round_idx, elapsed_us / pkt_count, total_byte*8.0 / elapsed_us,
-    //                exp_stats->current_stream);
+				//	exp_stats->current_stream);
 
 				pkt_count = 0;
 				total_byte = 0;
-
+				cacheMissFlow = 0;
+				cacheHitFlow = 0;
+				DoCallTimes = 0;
 				ocall_get_time(&start_s, &start_ns);
 			}
 		}

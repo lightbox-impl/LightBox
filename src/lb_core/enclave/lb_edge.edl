@@ -10,10 +10,10 @@ enclave {
         public double ecall_etap_start(int record_size, int record_per_batch);
 
 		// lwIDS
-		public void ecall_lb_lwids_run();
-        public void ecall_lwids_init([user_check]void *param, [user_check]void *exp_data);
-        public void ecall_lwids_deinit();
-        public void ecall_process_test_round([user_check]void *pkt, [user_check]void *hdr);
+		//public void ecall_lb_lwids_run();
+        //public void ecall_lwids_init([user_check]void *param, [user_check]void *exp_data);
+        //public void ecall_lwids_deinit();
+        //public void ecall_process_test_round([user_check]void *pkt, [user_check]void *hdr);
 
 		// PRADS
     };

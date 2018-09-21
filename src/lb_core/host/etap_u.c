@@ -37,7 +37,7 @@ int get_conf_from_peer()
 	int conf = 0;
 	int ret = recv(srv_fd, &conf, sizeof(conf), 0);
 	if (ret != sizeof(conf)) {
-		printf("%s : no excuse for failing to receive such small piece of data!\n", __func__);
+		printf("%s : no excuse for failing to receive such small piece %d of data!\n", __func__, ret);
 		etap_deinit();
 		exit(1);
 	}
@@ -138,7 +138,6 @@ void etap_init()
 		close(sockfd); // we don't need the listener anymore
 		break;
 	}
-
 	configure_etap();
 }
 

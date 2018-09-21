@@ -1,0 +1,15 @@
+
+enclave {
+    trusted { 
+        public int ecall_auth_enc([user_check]uint8_t *src, int src_len, 
+                                  [user_check]uint8_t *dst, [user_check]uint8_t *mac);
+		//public int ecall_veri_dec([user_check]uint8_t *src, int src_len, 
+        //                          [user_check]uint8_t *dst, [user_check]const uint8_t *mac);
+		public void ecall_init_aes_gcm();
+    };
+
+    untrusted {
+		void ocall_print_string([in, string] const char *str);
+    };
+
+};

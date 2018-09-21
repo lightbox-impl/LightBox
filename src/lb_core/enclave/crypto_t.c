@@ -44,7 +44,8 @@ int veri_dec(void *src, int src_len, void *dst, const void *in_mac) {
                                      p_iv, NIST_IV_LEN,
                                      0, 0, // no additional authentication data
 									 in_mac);
-    if (ret == SGX_SUCCESS) {
+    if (ret == SGX_SUCCESS)
+	{
         return 1;
     }
     else {
