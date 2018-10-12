@@ -32,8 +32,8 @@
 #define TEST_ITVL 100000
 
 
-#undef LIVE
-#undef MICRO
-#define CAIDA
+//#undef LIVE
+//#undef MICRO
+//#undef CAIDA
 
 #endif

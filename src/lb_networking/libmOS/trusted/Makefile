@@ -133,8 +133,7 @@ Enclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefau
 	-Wl,--version-script=$(Enclave_Version_Script)
 
 
-Enclave_Name := ../enclave.so
-Signed_Enclave_Name := ../enclave.signed.so
+Enclave_Name := ../liblb_mos_t.a
 Enclave_Config_File := $(Enclave_Dir)/Enclave.config.xml
 
 ifeq ($(SGX_MODE), HW)
@@ -155,7 +154,7 @@ else
 endif
 endif
 
-all: $(Signed_Enclave_Name)
+all: $(Enclave_Name)
 
 ######## Enclave Objects ########
 
@@ -175,18 +174,9 @@ $(Enclave_Dir)/dfc/%.o: $(Enclave_Dir)/dfc/%.cpp
 	@$(CXX) $(Enclave_Cpp_Flags) -c $< -o $@
 	@echo "CXX  <=  $<"
 
-$(Enclave_Name): $(Enclave_Dir)/Enclave_t.o $(Enclave_Cpp_Objects) $(MTCP_LIB) $(DFC_Cpp_Objects)
-	@$(CXX) $^ -o $@ $(Enclave_Link_Flags) 
-	@echo "LINK =>  $@"
-
-$(Signed_Enclave_Name): $(Enclave_Name)
-	@$(SGX_ENCLAVE_SIGNER) sign -key $(Enclave_Dir)/Enclave_private.pem -enclave $(Enclave_Name) -out $@ -config $(Enclave_Config_File)
-	@echo "SIGN =>  $@"
-	
-	
-$(MTCP_LIB): $(MOS_C_Objs)
-	@echo "MOS_AR  <=  $<"
-	@ar crs $(MTCP_LIB) $(MOS_C_Objs)
+$(Enclave_Name): $(Enclave_Dir)/Enclave_t.o $(Enclave_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp_Objects)
+	@ar crs -o $(Enclave_Name) $^
+	@echo "AR =>  $@"
 
 $(MOS_C_Objs): %.o: %.c
 	@echo "MOS_CC  <=  $<"

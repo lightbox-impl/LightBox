@@ -1,12 +1,17 @@
 #include "log_agency_u.h"
 
-#include "../prads/prads.h"
-#include "../prads/config.h"
-#include "../prads/sys_func.h"
+#include "../../lb_instance/prads/prads_host/prads.h"
+#include "../../lb_instance/prads/prads_host/config.h"
+#include "../../lb_instance/prads/prads_host/sys_func.h"
+//#include "../prads/prads.h"
+//#include "../prads/config.h"
+//#include "../prads/sys_func.h"
 
-#include "../../sg-box/sgbox_config.h"
+//#include "../../sg-box/sgbox_config.h"
+#include "../../lb_instance/prads/sg-box/sgbox_config.h"
 
-#include "../prads_u.h"
+//#include "../prads_u.h"
+#include "../../lb_instance/prads/prads_host/prads_u.h"
 
 #include <stdio.h>
 #include <string.h>

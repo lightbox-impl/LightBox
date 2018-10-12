@@ -81,7 +81,7 @@ endif
 
 App_Cpp_Objects := $(App_Cpp_Files:.cpp=.o)
 
-App_Name := ../app
+App_Name := ../liblb_mos_u.a
 
 MOS_C_Flags = -m64 -Wall -fgnu89-inline
 MOS_C_Flags += -g -DNETSTAT -DINFO -DDBGERR -DDBGCERR #-DNDEBUG -O3 
@@ -144,8 +144,8 @@ $(DFC_Cpp_Objects): %.o: %.cpp
 #	@$(CC) $(MOS_C_Flags) $(MOS_C_Include) -c $< -o $@
 
 $(App_Name): $(App_Dir)/Enclave_u.o $(App_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp_Objects)#$(App_Dir)/mosTest.o
-	@$(CXX) $^ -o $@ $(App_Link_Flags)
-	@echo "LINK =>  $@"
+	@ar crs -o $(App_Name) $^
+	@echo "AR =>  $@"
 
 .config_$(Build_Mode)_$(SGX_ARCH): ../enclave.signed.so
 	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_Cpp_Objects) $(App_Dir)/Enclave_u.* $(Enclave_Cpp_Objects) $(Enclave_Ntoh_C_Objects) trusted/Enclave_t.*

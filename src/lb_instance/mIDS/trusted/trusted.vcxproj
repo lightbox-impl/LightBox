@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x86">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x86">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{686cfc2e-b856-4cce-9677-a7525251e7b0}</ProjectGuid>
+    <Keyword>Linux</Keyword>
+    <RootNamespace>trusted</RootNamespace>
+    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+    <ApplicationType>Linux</ApplicationType>
+    <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
+    <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
+    <LinuxProjectType>{2238F9CD-F817-4ECC-BD14-2524D2669B35}</LinuxProjectType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <IncludePath>D:\package\c++\include\pcap;D:\cygwin64\home\linglan\sgxmOs\trusted\src\include\bpf;D:\cygwin64\home\linglan\sgxmOs\trusted\src\include;D:\cygwin64\home\linglan\sgxmOs\trusted\include;D:\package\c++\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Xml Include="Enclave.config.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dfc\dfc.cpp" />
+    <ClCompile Include="dfc\dfc_adaptor.cpp" />
+    <ClCompile Include="ecalls.cpp" />
+    <ClCompile Include="Enclave.cpp" />
+    <ClCompile Include="Enclave_t.c" />
+    <ClCompile Include="src\addr_pool.c" />
+    <ClCompile Include="src\api.c" />
+    <ClCompile Include="src\arp.c" />
+    <ClCompile Include="src\bpf\main.c" />
+    <ClCompile Include="src\bpf\sfbpf-int.c" />
+    <ClCompile Include="src\bpf\sf_bpf_filter.c" />
+    <ClCompile Include="src\bpf\sf_gencode.c" />
+    <ClCompile Include="src\bpf\sf_grammar.c" />
+    <ClCompile Include="src\bpf\sf_nametoaddr.c" />
+    <ClCompile Include="src\bpf\sf_optimize.c" />
+    <ClCompile Include="src\bpf\sf_scanner.c" />
+    <ClCompile Include="src\config.c" />
+    <ClCompile Include="src\core.c" />
+    <ClCompile Include="src\cpu.c" />
+    <ClCompile Include="src\debug.c" />
+    <ClCompile Include="src\eth_in.c" />
+    <ClCompile Include="src\eth_out.c" />
+    <ClCompile Include="src\eventpoll.c" />
+    <ClCompile Include="src\event_callback.c" />
+    <ClCompile Include="src\fhash.c" />
+    <ClCompile Include="src\icmp.c" />
+    <ClCompile Include="src\ip_in.c" />
+    <ClCompile Include="src\ip_out.c" />
+    <ClCompile Include="src\key_value_store.c" />
+    <ClCompile Include="src\logger.c" />
+    <ClCompile Include="src\memory_mgt.c" />
+    <ClCompile Include="src\mos_api.c" />
+    <ClCompile Include="src\pcap_module.c" />
+    <ClCompile Include="src\pipe.c" />
+    <ClCompile Include="src\scalable_event.c" />
+    <ClCompile Include="src\sgx\sgxFunc.c" />
+    <ClCompile Include="src\socket.c" />
+    <ClCompile Include="src\tcp.c" />
+    <ClCompile Include="src\tcp_in.c" />
+    <ClCompile Include="src\tcp_out.c" />
+    <ClCompile Include="src\tcp_rb.c" />
+    <ClCompile Include="src\tcp_rb_frag_queue.c" />
+    <ClCompile Include="src\tcp_sb_queue.c" />
+    <ClCompile Include="src\tcp_send_buffer.c" />
+    <ClCompile Include="src\tcp_stream.c" />
+    <ClCompile Include="src\tcp_stream_queue.c" />
+    <ClCompile Include="src\tcp_util.c" />
+    <ClCompile Include="src\timer.c" />
+    <ClCompile Include="src\util.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Enclave.edl" />
+    <None Include="Enclave.lds" />
+    <None Include="Enclave_debug.lds" />
+    <None Include="Enclave_private.pem" />
+    <None Include="Makefile" />
+    <None Include="src\bpf\Makefile" />
+    <None Include="src\Makefile.in" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dfc\dfc.h" />
+    <ClInclude Include="dfc\dfc_adaptor.h" />
+    <ClInclude Include="dfc\dfc_framework.h" />
+    <ClInclude Include="Enclave.h" />
+    <ClInclude Include="Enclave_t.h" />
+    <ClInclude Include="src\include\addr_pool.h" />
+    <ClInclude Include="src\include\arp.h" />
+    <ClInclude Include="src\include\bpf\arcnet.h" />
+    <ClInclude Include="src\include\bpf\atmuni31.h" />
+    <ClInclude Include="src\include\bpf\ethertype.h" />
+    <ClInclude Include="src\include\bpf\gencode.h" />
+    <ClInclude Include="src\include\bpf\ieee80211.h" />
+    <ClInclude Include="src\include\bpf\ipnet.h" />
+    <ClInclude Include="src\include\bpf\llc.h" />
+    <ClInclude Include="src\include\bpf\namedb.h" />
+    <ClInclude Include="src\include\bpf\nlpid.h" />
+    <ClInclude Include="src\include\bpf\ppp.h" />
+    <ClInclude Include="src\include\bpf\sf-redefines.h" />
+    <ClInclude Include="src\include\bpf\sfbpf-int.h" />
+    <ClInclude Include="src\include\bpf\sfbpf.h" />
+    <ClInclude Include="src\include\bpf\sfbpf_dlt.h" />
+    <ClInclude Include="src\include\bpf\sll.h" />
+    <ClInclude Include="src\include\bpf\sunatmpos.h" />
+    <ClInclude Include="src\include\bpf\tokdefs.h" />
+    <ClInclude Include="src\include\config.h" />
+    <ClInclude Include="src\include\cpu.h" />
+    <ClInclude Include="src\include\debug.h" />
+    <ClInclude Include="src\include\eth_in.h" />
+    <ClInclude Include="src\include\eth_out.h" />
+    <ClInclude Include="src\include\eventpoll.h" />
+    <ClInclude Include="src\include\event_callback.h" />
+    <ClInclude Include="src\include\fhash.h" />
+    <ClInclude Include="src\include\icmp.h" />
+    <ClInclude Include="src\include\io_module.h" />
+    <ClInclude Include="src\include\ip_in.h" />
+    <ClInclude Include="src\include\ip_out.h" />
+    <ClInclude Include="src\include\key_value_store.h" />
+    <ClInclude Include="src\include\logger.h" />
+    <ClInclude Include="src\include\memory_mgt.h" />
+    <ClInclude Include="src\include\mos_api.h" />
+    <ClInclude Include="src\include\mtcp.h" />
+    <ClInclude Include="src\include\mtcp_api.h" />
+    <ClInclude Include="src\include\mtcp_epoll.h" />
+    <ClInclude Include="src\include\mtcp_util.h" />
+    <ClInclude Include="src\include\netmap.h" />
+    <ClInclude Include="src\include\netmap_user.h" />
+    <ClInclude Include="src\include\pipe.h" />
+    <ClInclude Include="src\include\proxy_tcp.h" />
+    <ClInclude Include="src\include\scalable_event.h" />
+    <ClInclude Include="src\include\sgx\sgxdef.h" />
+    <ClInclude Include="src\include\sgx\sgxFunc.h" />
+    <ClInclude Include="src\include\socket.h" />
+    <ClInclude Include="src\include\stat.h" />
+    <ClInclude Include="src\include\sys\sysgloab.h" />
+    <ClInclude Include="src\include\tcp.h" />
+    <ClInclude Include="src\include\tcp_in.h" />
+    <ClInclude Include="src\include\tcp_out.h" />
+    <ClInclude Include="src\include\tcp_rb.h" />
+    <ClInclude Include="src\include\tcp_rb_frag_queue.h" />
+    <ClInclude Include="src\include\tcp_ring_buffer.h" />
+    <ClInclude Include="src\include\tcp_sb_queue.h" />
+    <ClInclude Include="src\include\tcp_send_buffer.h" />
+    <ClInclude Include="src\include\tcp_stream.h" />
+    <ClInclude Include="src\include\tcp_stream_queue.h" />
+    <ClInclude Include="src\include\tcp_util.h" />
+    <ClInclude Include="src\include\timer.h" />
+    <ClInclude Include="src\include\tree.h" />
+    <ClInclude Include="src\include\util.h" />
+  </ItemGroup>
+  <ItemDefinitionGroup />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

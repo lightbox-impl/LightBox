@@ -1,7 +1,8 @@
 #include "sgbox_utils_u.h"
 #include "sgx_urts.h"
 
-#include "../../sg-box/sgbox_config.h"
+//#include "../../sg-box/sgbox_config.h"
+#include "../../lb_instance/prads/sg-box/sgbox_config.h"
 
 mem_pool_node os_asset_pool;
 mem_pool_node serv_asset_pool;

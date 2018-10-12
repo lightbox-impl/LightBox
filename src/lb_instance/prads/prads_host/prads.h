@@ -30,7 +30,7 @@
 #include <pcre.h>
 
 // SGBOX
-#include "../../sg-box/sgbox_config.h"
+#include "../sg-box/sgbox_config.h"
 
 /*  D E F I N E S  ************************************************************/
 #ifndef RELEASE

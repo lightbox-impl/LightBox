@@ -1,5 +1,5 @@
 ######## LightBox Settings ########
-LightBox ?= 0
+LightBox ?= 1
 CAIDA ?= 0
 CONNECTION ?= 0
 MSG64 ?= 0

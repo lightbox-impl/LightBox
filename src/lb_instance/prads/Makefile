@@ -1,7 +1,7 @@
 ######## SGX SDK Settings ########
 
 ### LightBox switches ###
-LightBox ?= 0
+LightBox ?= 1
 CAIDA ?= 0
 CONNECTION ?= 0
 MSG64 ?= 0
@@ -59,8 +59,8 @@ else
 	Urts_Library_Name := sgx_urts
 endif
 
-App_C_Files := $(wildcard prads_host/*.c) $(wildcard prads_host/prads/*.c) $(wildcard prads_host/prads/*/*.c) $(wildcard prads_host/sg-box/*.c)
-App_Include_Paths := -I$(SGX_SDK)/include -I/usr/include
+App_C_Files := $(wildcard prads_host/*.c) $(wildcard prads_host/servicefp/*.c) $(wildcard ../../utils/host/*.c) 
+App_Include_Paths := -I$(SGX_SDK)/include -I/usr/include -I. -I.. -I../..
 
 App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
 
@@ -92,7 +92,7 @@ App_Name := lb_prads
 ###### PRADS ######
 # refer to code
 PRADS_CFLAGS=-D__USE_GNU -DCONFDIR='"/usr/local/etc/prads/"' -DSGBOX=$(SGBOX) -DTRACE_TRICK=$(TRACE_TRICK) -DLOG_AGENCY=$(LOG_AGENCY) -DNO_BUNDLE=$(NO_BUNDLE) -DCAIDA=$(CAIDA) -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DMSG64=$(MSG64)
-PRADS_Link_Flags=-lpcap -lresolv -lpcre
+PRADS_Link_Flags=-lpcap -lresolv -lpcre -L../../lb_core -llb_core_u
 ###### End PRADS ######
 	
 ifneq ($(SGX_MODE), HW)
@@ -216,6 +216,14 @@ prads_host/prads_u.o: prads_host/prads_u.c
 	@echo "CC   <=  $<"
 	
 prads_host/%.o: prads_host/%.c
+	@$(CC) $(App_C_Flags) $(PRADS_CFLAGS) -c $< -o $@
+	@echo "CC  <=  $<"
+
+prads_host/servicefp/%.o: prads_host/servicefp/%.c
+	@$(CC) $(App_C_Flags) $(PRADS_CFLAGS) -c $< -o $@
+	@echo "CC  <=  $<"
+
+../../utils/host/%.o: ../../utils/host/%.c
 	@$(CC) $(App_C_Flags) $(PRADS_CFLAGS) -c $< -o $@
 	@echo "CC  <=  $<"
 

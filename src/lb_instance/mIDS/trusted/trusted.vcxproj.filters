@@ -1,0 +1,402 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="res">
+      <UniqueIdentifier>{a322c868-4d96-48fe-925c-193331c828d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{d9d1297d-7a5a-4aa7-913b-ecd71467a85c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\bpf">
+      <UniqueIdentifier>{7facfc84-3d69-403c-b355-3c6704c8fd44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\include">
+      <UniqueIdentifier>{b617dac3-8992-41f3-8c93-e27e60bc355f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\include\bpf">
+      <UniqueIdentifier>{9099e5f6-a6fe-4cc3-9029-099c5402c0fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sgx">
+      <UniqueIdentifier>{e4ae472e-82c4-459a-b872-f83569e2116c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\include\sys">
+      <UniqueIdentifier>{337012b1-7883-47a6-9941-756312de166b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dfc">
+      <UniqueIdentifier>{585cbc3b-4149-4ea0-90ea-4ec3b8109ff0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Enclave_private.pem">
+      <Filter>res</Filter>
+    </None>
+    <None Include="Enclave_debug.lds">
+      <Filter>res</Filter>
+    </None>
+    <None Include="Enclave.lds">
+      <Filter>res</Filter>
+    </None>
+    <None Include="src\bpf\Makefile">
+      <Filter>src\bpf</Filter>
+    </None>
+    <None Include="src\Makefile.in">
+      <Filter>src</Filter>
+    </None>
+    <None Include="Makefile">
+      <Filter>res</Filter>
+    </None>
+    <None Include="Enclave.edl">
+      <Filter>res</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Enclave.config.xml">
+      <Filter>res</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Enclave.cpp" />
+    <ClCompile Include="Enclave_t.c" />
+    <ClCompile Include="ecalls.cpp" />
+    <ClCompile Include="src\bpf\main.c">
+      <Filter>src\bpf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bpf\sf_bpf_filter.c">
+      <Filter>src\bpf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bpf\sf_gencode.c">
+      <Filter>src\bpf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bpf\sf_grammar.c">
+      <Filter>src\bpf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bpf\sf_nametoaddr.c">
+      <Filter>src\bpf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bpf\sf_optimize.c">
+      <Filter>src\bpf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bpf\sf_scanner.c">
+      <Filter>src\bpf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bpf\sfbpf-int.c">
+      <Filter>src\bpf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\addr_pool.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\api.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arp.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cpu.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\debug.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\eth_in.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\eth_out.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\event_callback.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\eventpoll.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fhash.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\icmp.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ip_in.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ip_out.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\key_value_store.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\logger.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory_mgt.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mos_api.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pcap_module.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pipe.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scalable_event.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\socket.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tcp.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tcp_in.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tcp_out.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tcp_rb.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tcp_rb_frag_queue.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tcp_sb_queue.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tcp_send_buffer.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tcp_stream.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tcp_stream_queue.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tcp_util.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\timer.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sgx\sgxFunc.c">
+      <Filter>sgx</Filter>
+    </ClCompile>
+    <ClCompile Include="dfc\dfc.cpp">
+      <Filter>dfc</Filter>
+    </ClCompile>
+    <ClCompile Include="dfc\dfc_adaptor.cpp">
+      <Filter>dfc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Enclave.h" />
+    <ClInclude Include="Enclave_t.h" />
+    <ClInclude Include="src\include\bpf\arcnet.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\atmuni31.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\ethertype.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\gencode.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\ieee80211.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\ipnet.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\llc.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\namedb.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\nlpid.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\ppp.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\sfbpf.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\sfbpf_dlt.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\sfbpf-int.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\sf-redefines.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\sll.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\sunatmpos.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\bpf\tokdefs.h">
+      <Filter>src\include\bpf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\addr_pool.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\arp.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\config.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\cpu.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\debug.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\eth_in.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\eth_out.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\event_callback.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\eventpoll.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\fhash.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\icmp.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\io_module.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\ip_in.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\ip_out.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\key_value_store.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\logger.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\memory_mgt.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\mos_api.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\mtcp.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\mtcp_api.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\mtcp_epoll.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\mtcp_util.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\netmap.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\netmap_user.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\pipe.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\proxy_tcp.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\scalable_event.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\socket.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\stat.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp_in.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp_out.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp_rb.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp_rb_frag_queue.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp_ring_buffer.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp_sb_queue.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp_send_buffer.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp_stream.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp_stream_queue.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tcp_util.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\timer.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\tree.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\util.h">
+      <Filter>src\include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\sys\sysgloab.h">
+      <Filter>src\include\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\sgx\sgxFunc.h">
+      <Filter>sgx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\sgx\sgxdef.h">
+      <Filter>sgx</Filter>
+    </ClInclude>
+    <ClInclude Include="dfc\dfc.h">
+      <Filter>dfc</Filter>
+    </ClInclude>
+    <ClInclude Include="dfc\dfc_adaptor.h">
+      <Filter>dfc</Filter>
+    </ClInclude>
+    <ClInclude Include="dfc\dfc_framework.h">
+      <Filter>dfc</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1112,33 +1112,5 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 	
 	return TRUE;
 }
-/*----------------------------------------------------------------------------*/
 
-// some debug gdb command 
-//p pctx->p
-//p *cur_stream
-//p *cur_stream->sndvar
-//p *cur_stream->rcvvar
-//p *cur_stream->rcvvar->rcvbuf
-//p *cur_stream->pair_stream
-//p *cur_stream->pair_stream->sndvar
-//p *cur_stream->pair_stream->rcvvar
-//p *cur_stream->pair_stream->rcvvar->rcvbuf
-//c
-//echo
-//
-//p pctx->p
-//p *cur_stream
-//p *cur_stream->sndvar
-//p *cur_stream->pair_stream
-//p *cur_stream->pair_stream->rcvvar
-//p *cur_stream->pair_stream->rcvvar->rcvbuf
-//p *cur_stream->pair_stream->rcvvar->rcvbuf->frags.tqh_first
-//p *cur_stream->pair_stream->msocks.tqh_first->sock->monitor_stream
-//c
-//echo
-//
-//p *cur_stream->rcvvar->rcvbuf
-//p *cur_stream->rcvvar->rcvbuf->frags.tqh_first
-//echo
 

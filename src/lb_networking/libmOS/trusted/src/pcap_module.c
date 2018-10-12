@@ -14,7 +14,9 @@
 #include "config.h"
 
 #include <string.h>
-#include <pcap.h>
+//#include <pcap.h>
+
+#include "../../../libpcap/pcap.h"
 
 /*----------------------------------------------------------------------------*/
 struct pcap_private_context {

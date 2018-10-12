@@ -22,11 +22,11 @@
 #include "sgx_urts.h"
 #include "prads_u.h"
 
-#include "prads/prads.h"
-#include "prads/config.h"
-#include "prads/sys_func.h"
+#include "prads.h"
+#include "config.h"
+#include "sys_func.h"
 #if SGBOX==1
-#include "sg-box/state_orchestrator_u.h"
+#include "sg-box/state_orchestrator.h"
 #endif
 #if LOG_AGENCY==1
 #include "sg-box/log_agency_u.h"
@@ -402,7 +402,7 @@ void on_packet_arrival(u_char * useless, const struct pcap_pkthdr *pheader,
 
 extern int nets;
 extern fmask network[MAX_NETS];
-#include "sg-box/sgbox_utils_u.h"
+#include "utils/host/sgbox_utils_u.h"
 extern mem_pool_node os_asset_pool;
 extern mem_pool_node serv_asset_pool;
 extern mem_pool_node asset_pool;
