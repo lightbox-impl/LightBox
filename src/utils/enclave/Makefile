@@ -3,7 +3,7 @@ SGX_SDK ?= /opt/intel/sgxsdk
 SGX_MODE ?= HW
 SGX_ARCH ?= x64
 SGX_DEBUG ?= 0
-SGX_PRERELEASE ?= 1
+SGX_PRERELEASE ?= 0
 
 ifeq ($(shell getconf LONG_BIT), 32)
 	SGX_ARCH := x86
@@ -66,19 +66,25 @@ Enclave_Include_Paths := -IInclude -I$(Enclave_Dir) -I$(SGX_SDK)/include -I$(SGX
 Enclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fstack-protector $(Enclave_Include_Paths)
 Enclave_Cpp_Flags := $(Enclave_C_Flags) -nostdinc++ -std=c++11 -Wno-write-strings
 
-SGXPcap_Dir := $(Enclave_Dir)
+Pcap_Dir := $(Enclave_Dir)
+LightBox_Dir := $(Enclave_Dir)
 
-SGXPcap_Include_Paths := -I$(SGXPcap_Dir) 
-SGXPcap_C_Files := $(wildcard $(SGXPcap_Dir)/*.c) 
-SGXPcap_C_Objects := $(SGXPcap_C_Files:.c=.o)
+LightBox_Include_Paths := -I$(LightBox_Dir)  -I../..
+LightBox_EDL = $(LightBox_Dir)/lb_edge.edl
+LightBox_C_Files := $(wildcard $(LightBox_Dir)/*.c) 
+LightBox_C_Objects := $(LightBox_C_Files:.c=.o)
 
-SGXPcap_FLAGS = $(SGXPcap_Include_Paths)
-SGXPcap_FLAGS += $(Enclave_C_Flags)
-SGXPcap_FLAGS += -DPCAP_SELF_TIME
+LightBox ?= 1
+CAIDA ?= 0
+CONNECTION ?= 0
+MSG64 ?= 0
+
+LightBox_FLAGS = -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DMSG64=$(MSG64)
+LightBox_FLAGS += $(LightBox_Include_Paths)
+LightBox_FLAGS += $(Enclave_C_Flags)
 
 
-
-Enclave_Name := liblb_pcap_t.a
+Enclave_Name := ../liblb_util_t.a
 
 ifeq ($(SGX_MODE), HW)
 ifeq ($(SGX_DEBUG), 1)
@@ -102,17 +108,17 @@ all: $(Enclave_Name)
 
 ######## Enclave Objects ########
 
-$(SGXPcap_C_Objects):  %.o: %.c
-	@$(CC) $(SGXPcap_FLAGS) -c $< -o $@
+$(LightBox_C_Objects):  %.o: %.c
+	@$(CC) $(LightBox_FLAGS) -c $< -o $@
 	@echo "CC  <=  $<"
 
-$(Enclave_Name): $(SGXPcap_C_Objects) 
-	@ar crs -o $(Enclave_Name) $(SGXPcap_C_Objects) 
+$(Enclave_Name): $(LightBox_C_Objects) 
+	@ar crs -o $(Enclave_Name) $(LightBox_C_Objects) 
 	@echo "AR =>  $@"
-
+#$(Enclave_Dir)/lb_edge_t.o
 
 .PHONY: clean
 
 clean:
-	@rm -f $(Enclave_Name) $(SGXPcap_C_Objects)
+	@rm -f $(Enclave_Name) $(LightBox_C_Objects)
 

@@ -852,7 +852,7 @@ void test_insertion(const fid_t fid_list[], int num_fid)
 	flow_tracking_status status = ft_init;
 	int cached = 0, stored = 0, missed = 0;
 
-	int start_s, start_ns, end_s, end_ns;
+	long long  start_s, start_ns, end_s, end_ns;
 	time_t ts = 0;
 
 	/* Initial insertion */
@@ -1037,7 +1037,7 @@ void test_deletion(const fid_t fid_list[], int num_fid, int test_size)
 
 void test_timing()
 {
-	int start_s, start_ns, end_s, end_ns;
+	long long  start_s, start_ns, end_s, end_ns;
 	int tri = 1000000;
 	int i;
 	double prec = 0;

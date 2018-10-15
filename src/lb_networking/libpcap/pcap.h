@@ -4,7 +4,15 @@
 #include "stdint.h"
 
 //#include "time.h"
-#include "../libmOS/trusted/src/include/sgx/sgxFunc.h"
+// You need use your time port instead of this.
+#ifdef PCAP_SELF_TIME
+struct timeval
+{
+	__time_t tv_sec;		/* Seconds.  */
+	__time_t tv_usec;	/* Microseconds.  */
+};
+#endif // !timeval
+
 
 #ifndef USE_ETAP
 #define USE_ETAP
@@ -22,7 +30,7 @@ struct pcap_pkthdr {
 };
 
 const uint8_t *pcap_next(pcap_t * handle, struct pcap_pkthdr *header);
-int	pcap_inject(pcap_t *handle, const void * data, size_t len);
+int	pcap_inject(pcap_t *handle, const void * data, unsigned long len);
 
 int	pcap_set_buffer_size(pcap_t *handle, int size);
 void	pcap_close(pcap_t * handle);

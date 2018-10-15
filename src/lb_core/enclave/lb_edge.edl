@@ -9,13 +9,6 @@ enclave {
 		public void ecall_init_aes_gcm();
         public double ecall_etap_start(int record_size, int record_per_batch);
 
-		// lwIDS
-		//public void ecall_lb_lwids_run();
-        //public void ecall_lwids_init([user_check]void *param, [user_check]void *exp_data);
-        //public void ecall_lwids_deinit();
-        //public void ecall_process_test_round([user_check]void *pkt, [user_check]void *hdr);
-
-		// PRADS
     };
 
     untrusted {
@@ -27,8 +20,8 @@ enclave {
 
 		// Util OCALLs
 		void ocall_print_string([in, string] const char *str);
-        void ocall_get_time([out, size=4] int *second,
-							[out, size=4] int *nanosecond);
+        void ocall_get_time([out, size=8] int *second,
+							[out, size=8] int *nanosecond);
 		void ocall_sleep(long time_ns);
 		void ocall_random([out, size=4]uint32_t *r);
     };

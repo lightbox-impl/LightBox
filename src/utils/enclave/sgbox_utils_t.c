@@ -1,10 +1,15 @@
 #include "sgbox_utils_t.h"
 
-#include "../../sg-box/sgbox_config.h"
-#include "../prads/prads.h"
+#include "../../lb_instance/prads/sg-box/sgbox_config.h"
+//#include "../../sg-box/sgbox_config.h"
 
-#include "../enclave_utils.h"
-#include "../prads_t.h"
+// Huayi: Which one is prads_t? This prads.h have <pcre>
+//#include "../../lb_instance/prads/prads_enclave/prads.h"
+//#include "../prads/prads.h"
+
+#include "sgbox_utils_t.h"
+//#include "../../lb_instance/prads/prads_enclave/prads.h"
+//#include "../prads_t.h"
 
 os_asset *os_asset_pool;
 serv_asset *serv_asset_pool;

@@ -3,7 +3,7 @@ SGX_SDK ?= /opt/intel/sgxsdk
 SGX_MODE ?= HW
 SGX_ARCH ?= x64
 SGX_DEBUG ?= 0
-SGX_PRERELEASE ?= 0
+SGX_PRERELEASE ?= 1
 LightBox ?=1
 
 ifeq ($(shell getconf LONG_BIT), 32)
@@ -174,8 +174,8 @@ $(Enclave_Dir)/dfc/%.o: $(Enclave_Dir)/dfc/%.cpp
 	@$(CXX) $(Enclave_Cpp_Flags) -c $< -o $@
 	@echo "CXX  <=  $<"
 
-$(Enclave_Name): $(Enclave_Dir)/Enclave_t.o $(Enclave_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp_Objects)
-	@ar crs -o $(Enclave_Name) $^
+$(Enclave_Name): $(Enclave_Dir)/Enclave_t.c $(Enclave_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp_Objects)
+	@ar crs -o $(Enclave_Name) $(Enclave_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp_Objects)
 	@echo "AR =>  $@"
 
 $(MOS_C_Objs): %.o: %.c

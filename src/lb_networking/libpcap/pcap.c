@@ -23,7 +23,7 @@ const uint8_t * pcap_next(pcap_t * handle, struct pcap_pkthdr * header)
 #endif
 }
 
-int pcap_inject(pcap_t * handle, const void * data, size_t len)
+int pcap_inject(pcap_t * handle, const void * data, unsigned long len)
 {
 	// TODO: send one packet
 	return len;

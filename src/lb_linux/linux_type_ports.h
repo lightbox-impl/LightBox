@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 /*** Start <bits/time.h> ***/
-typedef long __suseconds_t;
+typedef long long __suseconds_t;
 /* A time value that is accurate to the nearest
 microsecond but also has a range of years.  */
 struct timeval

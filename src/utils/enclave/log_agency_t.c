@@ -1,10 +1,15 @@
 #include "log_agency_t.h"
 
-#include "../../sg-box/sgbox_config.h"
+#include "../../lb_instance/prads/sg-box/sgbox_config.h"
+//#include "../../sg-box/sgbox_config.h"
+#include "../../lb_core/enclave/crypto_t.h"
+//\
 #include "crypto_t.h"
 
-#include "../enclave_utils.h"
-#include "../prads_t.h"
+#include "sgbox_utils_t.h"
+//#include "../enclave_utils.h"
+#include "../../lb_instance/prads/prads_enclave/prads.h"
+//#include "../prads_t.h"
 
 #include <string.h>
 

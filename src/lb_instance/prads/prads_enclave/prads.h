@@ -28,10 +28,10 @@
 //#include "common.h"
 //#include <netinet/in.h>
 #include "bstrlib.h"
-#include <pcre.h>
+//#include <pcre.h>
 
 // SGBOX
-#include "../../sg-box/sgbox_config.h"
+#include "../sg-box/sgbox_config.h"
 
 /*  D E F I N E S  ************************************************************/
 #ifndef RELEASE

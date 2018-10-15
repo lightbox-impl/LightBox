@@ -3,7 +3,7 @@ SGX_SDK ?= /opt/intel/sgxsdk
 SGX_MODE ?= HW
 SGX_ARCH ?= x64
 SGX_DEBUG ?= 0
-SGX_PRERELEASE ?= 0
+SGX_PRERELEASE ?= 1
 LightBox ?= 1
 
 ifeq ($(shell getconf LONG_BIT), 32)
@@ -106,7 +106,7 @@ DFC_Cpp_Objects = $(DFC_Cpp_Files:.cpp=.o)
 App_Link_Flags += -L.. -Llib -lmtcp_org -lpcap -lpthread -lnuma
 
 
-all: .config_$(Build_Mode)_$(SGX_ARCH) $(App_Name)
+all:  $(App_Name)
 
 
 ######## App Objects ########
@@ -143,13 +143,13 @@ $(DFC_Cpp_Objects): %.o: %.cpp
 #	@echo "MOS_CC  <=  $<"
 #	@$(CC) $(MOS_C_Flags) $(MOS_C_Include) -c $< -o $@
 
-$(App_Name): $(App_Dir)/Enclave_u.o $(App_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp_Objects)#$(App_Dir)/mosTest.o
-	@ar crs -o $(App_Name) $^
+$(App_Name): $(App_Dir)/Enclave_u.c $(App_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp_Objects)#$(App_Dir)/mosTest.o
+	@ar crs -o $(App_Name) $(App_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp_Objects)
 	@echo "AR =>  $@"
 
-.config_$(Build_Mode)_$(SGX_ARCH): ../enclave.signed.so
-	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_Cpp_Objects) $(App_Dir)/Enclave_u.* $(Enclave_Cpp_Objects) $(Enclave_Ntoh_C_Objects) trusted/Enclave_t.*
-	@touch .config_$(Build_Mode)_$(SGX_ARCH)
+#.config_$(Build_Mode)_$(SGX_ARCH): ../enclave.signed.so
+#	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_Cpp_Objects) $(App_Dir)/Enclave_u.* $(Enclave_Cpp_Objects) $(Enclave_Ntoh_C_Objects) trusted/Enclave_t.*
+#	@touch .config_$(Build_Mode)_$(SGX_ARCH)
 	
 .PHONY: clean edl
 

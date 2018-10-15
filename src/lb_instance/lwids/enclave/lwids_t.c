@@ -456,7 +456,7 @@ typedef	u_int bpf_u_int32;
 #endif
 
 /* From <bits/types.h> */
-typedef long int __suseconds_t;
+//typedef long int __suseconds_t;
 /* A time value that is accurate to the nearest
 microsecond but also has a range of years.  */
 typedef struct _timeval
@@ -495,7 +495,7 @@ void ecall_process_test_round(void *_pkt_buffer, void *_pkt_hdr)
     packet_t *pkt_list = (packet_t *)_pkt_buffer;
     pcap_pkthdr *hdr_list = (pcap_pkthdr *)_pkt_hdr;
 
-    int start_s, start_ns, end_s, end_ns;
+    long long  start_s, start_ns, end_s, end_ns;
     int i = 0;
 
     wall_clock.tv_usec = 0;

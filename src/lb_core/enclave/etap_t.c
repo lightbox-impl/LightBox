@@ -289,7 +289,7 @@ double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
 	time_t pending_pkt_ts = 0;
     
     double total_byte = 0;
-    int start_s, start_ns, end_s, end_ns;
+    long long start_s, start_ns, end_s, end_ns;
 
 	// record tracking
 	int rec_idx = 0;
@@ -476,7 +476,7 @@ double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
 	time_t pending_pkt_ts = 0;
 
 	double total_byte = 0;
-	int start_s, start_ns, end_s, end_ns;
+	long long  start_s, start_ns, end_s, end_ns;
 
 	int pkt_count = 0;
 	int round_idx = 0;

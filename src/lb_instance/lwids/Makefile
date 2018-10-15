@@ -6,17 +6,13 @@ MSG64 ?= 0
 
 LightBox_FLAGS = -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DMSG64=$(MSG64)
 
-LightBox_DIR = $(PWD)/../..
-LB_CORE_DIR = $(LightBox_DIR)/lb_core
-LightBox_C_Files_U = $(LB_CORE_DIR)/host/etap_u.c $(LB_CORE_DIR)/host/state_mgmt_u.c $(LB_CORE_DIR)/host/utils_u.c $(LB_CORE_DIR)/host/lightbox.c
-LightBox_C_Objects_U := $(LightBox_C_Files_U:.c=.o) 
-LightBox_C_Files_T = $(LB_CORE_DIR)/enclave/etap_t.c $(LB_CORE_DIR)/enclave/state_mgmt_t.c $(LB_CORE_DIR)/enclave/crypto_t.c $(LB_CORE_DIR)/enclave/utils_t.c $(wildcard $(LB_CORE_DIR)/enclave/cuckoo/*.c) 
-LightBox_C_Objects_T := $(LightBox_C_Files_T:.c=.o)
-LightBox_EDL = $(LB_CORE_DIR)/enclave/lb_edge.edl
-LightBox_Edge_T = $(LB_CORE_DIR)/enclave/lb_edge_t.c
-LightBox_Edge_TO = $(LB_CORE_DIR)/enclave/lb_edge_t.o
-LightBox_Edge_U = $(LB_CORE_DIR)/host/lb_edge_u.c
-LightBox_Edge_UO = $(LB_CORE_DIR)/host/lb_edge_u.o
+LightBox_DIR = ../../lb_core
+Lwids_DIR = $(PWD)
+Lwids_EDL = $(Lwids_DIR)/enclave/lwids.edl
+Lwids_Edge_T = $(Lwids_DIR)/enclave/lwids_edl_t.c
+Lwids_Edge_TO = $(Lwids_DIR)/enclave/lwids_edl_t.o
+Lwids_Edge_U = $(Lwids_DIR)/host/lwids_edl_u.c
+Lwids_Edge_UO = $(Lwids_DIR)/host/lwids_edl_u.o
 
 TRUSTED_LIB_DIR = $(PWD)/../../../trusted_lib
 
@@ -70,7 +66,7 @@ endif
 App_C_Files := host/host.c host/lwids_u.c
 App_Include_Paths := -I$(SGX_SDK)/include -I/usr/include -I$(LightBox_DIR)
 
-App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
+App_C_Flags = $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
 
 # Three configuration modes - Debug, prerelease, release
 #   Debug - Macro DEBUG enabled.
@@ -84,13 +80,25 @@ else
         App_C_Flags += -DNDEBUG -UEDEBUG -UDEBUG
 endif
 
-App_Link_Flags := $(SGX_COMMON_CFLAGS) -L$(SGX_LIBRARY_PATH) -l$(Urts_Library_Name) -lpthread -lpcap
+
+
+App_Link_Flags = $(SGX_COMMON_CFLAGS) -L$(SGX_LIBRARY_PATH) -l$(Urts_Library_Name) -lpthread -lpcap
 
 ifneq ($(SGX_MODE), HW)
 	App_Link_Flags += -lsgx_uae_service_sim
 else
 	App_Link_Flags += -lsgx_uae_service
 endif
+
+
+LightBox_Dir := ../../../src/lb_core
+LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../
+LightBox_Lib := $(LightBox_Dir)/liblb_core_u.a
+LightBox_Lib_T := $(LightBox_Dir)/liblb_core_t.a
+
+
+App_C_Flags += $(LightBox_Include)
+App_Link_Flags += $(LightBox_Lib)
 
 App_C_Objects := $(App_C_Files:.c=.o)
 
@@ -107,8 +115,8 @@ else
 endif
 Crypto_Library_Name := sgx_tcrypto
 
-Enclave_C_Files := enclave/lwids_t.c enclave/pattern_matching.c $(LightBox_DIR)/lb_linux/linux_type_ports.c $(wildcard $(LightBox_DIR)/lb_networking/libntoh/*.c) 
-Enclave_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK) -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -I/usr/include -I$(LightBox_DIR)
+Enclave_C_Files := enclave/lwids_t.c enclave/pattern_matching.c $(LightBox_DIR)/../lb_linux/linux_type_ports.c #$(wildcard $(LightBox_DIR)/../lb_networking/libntoh/*.c) 
+Enclave_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK) -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -I/usr/include -I$(LightBox_DIR) -I$(LightBox_DIR)/..
 
 Enclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fstack-protector $(Enclave_Include_Paths)
 
@@ -121,11 +129,13 @@ Enclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fst
 # Otherwise, you may get some undesirable errors.
 Enclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) -L$(services_lib) \
 	-Wl,--whole-archive -l$(Trts_Library_Name) -Wl,--no-whole-archive \
-	-Wl,--start-group -lsgx_tstdc -lsgx_tstdcxx -l$(Crypto_Library_Name) -l$(Service_Library_Name) $(TRUSTED_LIB_DIR)/libpcre.a -Wl,--end-group \
+	-Wl,--start-group -lsgx_tstdc -lsgx_tstdcxx -l$(Crypto_Library_Name) -l$(Service_Library_Name) $(TRUSTED_LIB_DIR)/libpcre.a \
+	../../lb_networking/libntoh/liblb_Ntoh_t.a $(LightBox_Lib_T) -Wl,--end-group \
 	-Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
 	-Wl,-pie,-eenclave_entry -Wl,--export-dynamic  \
 	-Wl,--defsym,__ImageBase=0 \
 	-Wl,--version-script=enclave/Enclave.lds
+
 
 Enclave_C_Objects := $(Enclave_C_Files:.c=.o)
 
@@ -184,37 +194,37 @@ ifneq ($(Build_Mode), HW_RELEASE)
 endif
 
 ######## LigtBox host ########
-$(LightBox_Edge_U): $(SGX_EDGER8R) $(LightBox_EDL)
-	@cd $(LB_CORE_DIR)/host && $(SGX_EDGER8R) --untrusted ../enclave/lb_edge.edl --search-path $(SGX_SDK)/include
+$(Lwids_Edge_U): $(SGX_EDGER8R) $(Lwids_EDL)
+	@cd $(Lwids_DIR)/host && $(SGX_EDGER8R) --untrusted ../enclave/lwids_edl.edl --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 	
-$(LightBox_Edge_UO): $(LightBox_Edge_U)
+$(Lwids_Edge_UO): $(Lwids_Edge_U)
 	@$(CC) $(App_C_Flags) $(LightBox_FLAGS) -c $< -o $@
 	@echo "CC   <=  $<"
 	
-$(LightBox_C_Objects_U): %.o: %.c
-	@$(CC) $(App_C_Flags) $(LightBox_FLAGS) -c $< -o $@
-	@echo "CC  <=  $<"
-	
+#$(LightBox_C_Objects_U): %.o: %.c
+#	@$(CC) $(App_C_Flags) $(LightBox_FLAGS) -c $< -o $@
+#	@echo "CC  <=  $<"
+#	
 ######## LigtBox enclave ########
-$(LightBox_Edge_T): $(SGX_EDGER8R) $(LightBox_EDL)
-	@cd $(LB_CORE_DIR)/enclave && $(SGX_EDGER8R) --trusted lb_edge.edl --search-path $(SGX_SDK)/include
+$(Lwids_Edge_T): $(SGX_EDGER8R) $(Lwids_EDL)
+	@cd $(Lwids_DIR)/enclave && $(SGX_EDGER8R) --trusted lwids_edl.edl --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
-$(LightBox_Edge_TO): $(LightBox_Edge_T)
+$(Lwids_Edge_TO): $(Lwids_Edge_T)
 	@$(CC) $(Enclave_C_Flags) $(LightBox_FLAGS) -c $< -o $@
 	@echo "CC   <=  $<"
 
-$(LightBox_C_Objects_T): %.o: %.c
-	@$(CC) $(Enclave_C_Flags) $(LightBox_FLAGS) -c $< -o $@
-	@echo "CC  <=  $<"
-	
+#$(LightBox_C_Objects_T): %.o: %.c
+#	@$(CC) $(Enclave_C_Flags) $(LightBox_FLAGS) -c $< -o $@
+#	@echo "CC  <=  $<"
+#	
 ######## App Objects ########
 $(App_C_Objects): %.o: %.c 
 	@$(CC) $(App_C_Flags) $(LightBox_FLAGS) -c $< -o $@
 	@echo "CC  <=  $<"
 
-$(App_Name): $(LightBox_Edge_UO) $(LightBox_C_Objects_U) $(App_C_Objects)
+$(App_Name): $(Lwids_Edge_UO) $(App_C_Objects)
 	@$(CC) $^ -o $@ $(App_Link_Flags)
 	@echo "LINK =>  $@"
 
@@ -224,8 +234,8 @@ $(Enclave_C_Objects): %.o: %.c
 	@$(CC) $(Enclave_C_Flags) $(LightBox_FLAGS) -c $< -o $@
 	@echo "CC  <=  $<"
 
-$(Enclave_Name): $(LightBox_Edge_TO) $(LightBox_C_Objects_T) $(Enclave_C_Objects)
-	@$(CC) $^ -o $@ $(Enclave_Link_Flags)
+$(Enclave_Name): $(Lwids_Edge_TO) $(Enclave_C_Objects)
+	@g++ $^ -o $@ $(Enclave_Link_Flags)
 	@echo "LINK =>  $@"
 
 $(Signed_Enclave_Name): $(Enclave_Name)

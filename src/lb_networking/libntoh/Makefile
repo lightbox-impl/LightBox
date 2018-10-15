@@ -76,7 +76,7 @@ SGXNtoh_FLAGS = $(SGXNtoh_Include_Paths)
 SGXNtoh_FLAGS += $(Enclave_C_Flags)
 
 
-Enclave_Name := liblb_Ntoh_t.a
+Enclave_Name := liblb_ntoh_t.a
 
 ifeq ($(SGX_MODE), HW)
 ifeq ($(SGX_DEBUG), 1)

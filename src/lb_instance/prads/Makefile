@@ -59,7 +59,7 @@ else
 	Urts_Library_Name := sgx_urts
 endif
 
-App_C_Files := $(wildcard prads_host/*.c) $(wildcard prads_host/servicefp/*.c) $(wildcard ../../utils/host/*.c) 
+App_C_Files := $(wildcard prads_host/*.c) $(wildcard prads_host/servicefp/*.c) 
 App_Include_Paths := -I$(SGX_SDK)/include -I/usr/include -I. -I.. -I../..
 
 App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
@@ -220,10 +220,6 @@ prads_host/%.o: prads_host/%.c
 	@echo "CC  <=  $<"
 
 prads_host/servicefp/%.o: prads_host/servicefp/%.c
-	@$(CC) $(App_C_Flags) $(PRADS_CFLAGS) -c $< -o $@
-	@echo "CC  <=  $<"
-
-../../utils/host/%.o: ../../utils/host/%.c
 	@$(CC) $(App_C_Flags) $(PRADS_CFLAGS) -c $< -o $@
 	@echo "CC  <=  $<"
 
