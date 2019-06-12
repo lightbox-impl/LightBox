@@ -19,7 +19,9 @@
 #include "timer.h"
 #include "ip_in.h"
 #include "config.h"
-
+// #include "tcp_rb.h"
+// void frags_insert(tcprb_t *rb, tcpfrag_t *f);
+// tcpfrag_t * frags_new(void);
 //#include "tcp_stream.h"
 //extern tcp_stream *
 //AttachServerTCPStream(mtcp_manager_t mtcp, tcp_stream *cs, int type,
@@ -61,8 +63,13 @@ DetectStreamType(mtcp_manager_t mtcp, struct pkt_ctx *pctx,
 			/* if pctx hits the filter rule, handle the passive monitor socket */
 			fcode = walk->stream_syn_fcode;
 			if (!(ISSET_BPFFILTER(fcode) && pctx &&
+#if CAIDA == 0
 				EVAL_BPFFILTER(fcode, (uint8_t *)pctx->p.iph - sizeof(struct ethhdr),
 							   pctx->p.ip_len + sizeof(struct ethhdr)) == 0)) {
+#else
+				EVAL_BPFFILTER(fcode, (uint8_t *)pctx->p.iph, 
+							   pctx->p.ip_len) == 0)) {
+#endif
 				walk->is_stream_syn_filter_hit = 1;// set the 'filter hit' flag to 1
 				cnt_match++; // count the number of matched sockets
 			}
@@ -281,7 +288,7 @@ CreateStream(mtcp_manager_t mtcp, struct pkt_ctx *pctx, unsigned int *hash)
 		//	return cur_stream;
 		//}
 #endif
-		TRACE_DBG("Weird packet comes.\n");
+		//TRACE_DBG("Weird packet comes.\n");
 #ifdef DBGMSG
 		DumpIPPacket(mtcp, iph, pctx->p.ip_len);
 #endif
@@ -501,6 +508,9 @@ HandleMonitorStream(mtcp_manager_t mtcp, struct tcp_stream *sendside_stream,
 }
 int cacheMissFlow = 0;
 int cacheHitFlow = 0;
+int client_new_stream = 0;
+int server_new_stream = 0;
+extern struct timeval trace_clock;
 /*----------------------------------------------------------------------------*/
 int
 ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
@@ -516,6 +526,13 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 	tcph = (struct tcphdr *)((u_char *)pctx->p.iph + (pctx->p.iph->ihl << 2));
 	
 	FillPacketContextTCPInfo(pctx, tcph);
+
+#ifdef SGX_HANDLE_WEIRD_PKT
+	if (!pctx->p.payloadlen)
+	{
+		return TRUE;
+	}
+#endif
 
 	/* callback for monitor raw socket */
 	TAILQ_FOREACH(walk, &mtcp->monitors, link)
@@ -551,7 +568,6 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 #endif
 	events |= MOS_ON_PKT_IN;
 
-
 	/* Check whether a packet is belong to any stream */
 
 #if LightBox == 1 
@@ -562,14 +578,18 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 	fid.src_port = pctx->p.tcph->dest;
 	fid.dst_port = pctx->p.tcph->source;
 	fid.proto = PF_INET;
-	struct timeval cur_ts = { 0 };
+	struct timeval cur_ts = { 0, 0 };
+#if TRACE_CLOCK == 0
 	gettimeofday(&cur_ts, NULL);
+#else
+	cur_ts = trace_clock;
+#endif
 	state_entry_t* state_entry;
-	flow_tracking_status rlt = flow_tracking(&fid, &state_entry, cur_ts.tv_sec, 0);
+	// no creation of new stream here
+	flow_tracking_status rlt = flow_tracking_no_creation(&fid, &state_entry, cur_ts.tv_sec, 0);
 
 	if (rlt == ft_miss)
 	{
-		stop_tracking(&fid);
 		cur_stream = 0;
 	}
 	else
@@ -652,6 +672,7 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 			}
 		}
 
+		// also bring pair in enclave
 		if (cur_stream->pair_stream)
 		{
 			fid_t pairFid = fid;
@@ -746,14 +767,21 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 				}
 			}
 		}
+
+		if(cur_stream->saddr != cur_stream->pair_stream->daddr)
+		printf("hell %d %d %d %d\npair %d %d %d %d\n",
+			cur_stream->saddr, cur_stream->daddr, cur_stream->sport, cur_stream->dport,
+			cur_stream->pair_stream->saddr, cur_stream->pair_stream->daddr, cur_stream->pair_stream->sport, cur_stream->pair_stream->dport);
 	}
 
 #else
 	cur_stream = FindStream(mtcp, pctx, &hash);
 #endif
 
-	if (cur_stream)
+
+/*	if (cur_stream)
 	{
+        printf("curstream found!\n");
 		if (cur_stream->side)
 		{
 			cur_stream->side = 0;
@@ -764,11 +792,14 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 			}
 		}
 	}
-
+*/
 #ifdef SGX_HANDLE_WEIRD_PKT
+//    printf("payloadlen %d %p\n", pctx->p.payloadlen, cur_stream);
 
-	if (pctx->p.payloadlen > 0 && (!cur_stream || cur_stream->state != TCP_ST_ESTABLISHED))
+	//if (pctx->p.payloadlen > 0 && (!cur_stream || cur_stream->state != TCP_ST_ESTABLISHED))
+	if (!cur_stream || cur_stream->state != TCP_ST_ESTABLISHED)
 	{
+        //printf("new wierd!\n");
 		if (!cur_stream)
 		{
 			events = MOS_ON_PKT_IN;
@@ -787,8 +818,13 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 								  /* if pctx hits the filter rule, handle the passive monitor socket */
 					fcode = walk->stream_syn_fcode;
 					if (!(ISSET_BPFFILTER(fcode) && pctx &&
+#if CAIDA == 0
 						EVAL_BPFFILTER(fcode, (uint8_t *)pctx->p.iph - sizeof(struct ethhdr),
 							pctx->p.ip_len + sizeof(struct ethhdr)) == 0)) 
+#else
+						EVAL_BPFFILTER(fcode, (uint8_t *)pctx->p.iph,
+							pctx->p.ip_len) == 0)) 
+#endif
 					{
 						walk->is_stream_syn_filter_hit = 1;// set the 'filter hit' flag to 1
 					}
@@ -805,8 +841,9 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 			{
 				TRACE_ERROR("Create cur_stream failed.\n");
 			}
+			++client_new_stream;
 		}
-		assert(cur_stream->side == MOS_SIDE_CLI);
+	//	assert(cur_stream->side == MOS_SIDE_CLI);
 		tcp_stream* stream = cur_stream;
 		tcp_stream* pair_stream = stream->pair_stream;
 
@@ -829,6 +866,7 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 			{
 				TRACE_ERROR("Create pair_stream failed.\n");
 			}
+			++server_new_stream;
 			/* update recv context */
 			pair_stream->sndvar->peer_wnd = pctx->p.window;
 			pair_stream->sndvar->cwnd = pair_stream->sndvar->mss * 2;
@@ -839,9 +877,12 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 		pair_stream->state = TCP_ST_ESTABLISHED;
 		pair_stream->cb_events = 0;
 		pair_stream->actions = 16;
+
+        //if(cur_stream)
+        //    printf("wired handled!\n");
 	}
 
-	static long long pktNo = 0;
+	/*static long long pktNo = 0;
 	if (FALSE && ++pktNo)
 	{
 		printf("pkt: %d, arrived, pload len is %d.\n", pktNo, pctx->p.payloadlen);
@@ -895,15 +936,16 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 			}
 		}
 
-	}
+	}*/
 
-	assert(cur_stream->side == MOS_SIDE_CLI);
-	if ((cur_stream->pair_stream->rcv_nxt != pctx->p.seq 
+	//assert(cur_stream->side == MOS_SIDE_CLI);
+	if (cur_stream && (cur_stream->pair_stream->rcv_nxt != pctx->p.seq 
 		|| cur_stream->snd_nxt != pctx->p.seq
 		|| cur_stream->pair_stream->snd_nxt != pctx->p.ack_seq
 		|| cur_stream->rcv_nxt != pctx->p.ack_seq
 		) &&cur_stream->pair_stream->rcvvar->rcvbuf
-		&&pctx->p.payloadlen>0)
+		//&&pctx->p.payloadlen>0)
+        )
 	{
 		tcp_stream* stream = cur_stream;
 		tcp_stream* pair_stream = stream->pair_stream;
@@ -911,31 +953,33 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 
 		if (cur_stream->snd_nxt != cur_stream->pair_stream->rcv_nxt)
 		{
-			TRACE_ERROR("Stream already error!\n");
+		    //TRACE_ERROR("Stream already error 111!\n");
 			cur_stream->snd_nxt = cur_stream->pair_stream->rcv_nxt;
 			find_error = 1;
 		}
 		if (cur_stream->rcv_nxt != cur_stream->pair_stream->snd_nxt)
 		{
-			TRACE_ERROR("Stream already error!\n");
+		    //TRACE_ERROR("Stream already error 222!\n");
 			cur_stream->rcv_nxt = cur_stream->pair_stream->snd_nxt;
 			find_error = 1;
 		}
 
 		if (pair_stream->rcvvar->irs != stream->sndvar->iss)
 		{
-			TRACE_ERROR("Stream already error!\n");
+            //TRACE_ERROR("Stream already error 333!\n");
 			stream->sndvar->iss = pair_stream->rcvvar->irs;
 			find_error = 1;
 		}
 
 		tcprb_t* rb = pair_stream->rcvvar->rcvbuf;
-		const int rcv_buf_len = 8192;
+
+		//const int rcv_buf_len = 8192;
+		const int rcv_buf_len = 4096;
 		if (rb&&(rb->len != rcv_buf_len || rb->metalen != rcv_buf_len
 			|| rb->pile<rb->head
 			|| rb->pile-rb->head>rcv_buf_len))
 		{
-			TRACE_ERROR("Stream rb already error!\n");
+			//TRACE_ERROR("Stream rb already error!\n");
 			rb->len = rcv_buf_len;
 			rb->metalen = rcv_buf_len;
 			rb->pile = rb->head;
@@ -943,11 +987,28 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 		}
 
 		struct _tcpfrag_t* frag = TAILQ_FIRST(&rb->frags);
+        if(frag == NULL)
+        {
+            printf("frag null!\n");
+// #if LightBox == 1
+//             if(rb->current_frag_no == MAX_FRAG_COUNT)
+//             {
+//                 TRACE_ERROR("tcpfrag_t_buffer is full.\n");
+//                 rb->frag_used = 0;
+//             }
+//             rb->current_frag_no++;
+//             new = &rb->tcpfrag_t_buffer(findEmptyLoc(&rb->frag_used));
+//             memset(frag, 0, sizeof(*frag));
+// #else
+//             frag = frags_new();
+// #endif
+//             frags_insert(rb, frag);
+        }
 		if(frag &&(rb->head !=frag->head || frag->tail<frag->head
 			|| rb->pile > frag->tail
 			|| frag->tail- frag->head > rb->len))
 		{
-			TRACE_ERROR("Stream frag seq already error!\n");
+            //TRACE_ERROR("Stream frag seq already error!\n");
 			frag->tail = frag->head;
 			frag->head = rb->head;
 			rb->pile = frag->tail;
@@ -957,7 +1018,7 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 		struct mon_stream * moni = cur_stream->msocks.tqh_first->sock->monitor_stream;
 		if (moni && moni->peek_offset[1] > rb->head + rb->len)
 		{
-			TRACE_ERROR("Stream moni peek already error!\n");
+			//TRACE_ERROR("Stream moni peek already error!\n");
 			moni->peek_offset[1] = rb->head + rb->len;
 			find_error = 1;
 		}
@@ -1011,7 +1072,6 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 				stream->sndvar->iss = pctx->p.seq - 1;
 				pair_stream->rcvvar->irs = stream->sndvar->iss;
 
-
 				frag->tail = pair_stream->rcv_nxt - pair_stream->rcvvar->irs -1;
 				frag->head = frag->tail;
 				rb->head = frag->head;
@@ -1038,6 +1098,7 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 #endif
 
 	if (!cur_stream) {
+        printf("about to create stream!\n");
 		/*
 		* No need to create stream for monitor.
 		*  But do create 1 for client case!
@@ -1052,6 +1113,7 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 		cur_stream = CreateStream(mtcp, pctx, &hash);
 		if (!cur_stream)
 			events = MOS_ON_ORPHAN;
+        printf("stream created!\n");
 	}
 
 	if (cur_stream) {
@@ -1087,8 +1149,13 @@ ProcessInTCPPacket(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 			 * - apply stream orphan filter to every pkt before raising ORPHAN event */
 			fcode = walk->stream_orphan_fcode;
 			if (!(ISSET_BPFFILTER(fcode) && pctx &&
+#if CAIDA == 0
 				EVAL_BPFFILTER(fcode, (uint8_t *)pctx->p.iph - sizeof(struct ethhdr),
 							   pctx->p.ip_len + sizeof(struct ethhdr)) == 0)) {
+#else
+				EVAL_BPFFILTER(fcode, (uint8_t *)pctx->p.iph,
+							   pctx->p.ip_len) == 0)) {
+#endif
 				HandleCallback(mtcp, MOS_NULL, walk->socket, MOS_SIDE_BOTH,
 					       pctx, events);
 			}

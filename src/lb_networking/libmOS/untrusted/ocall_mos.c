@@ -134,22 +134,22 @@ void ocall_pcap_next(char** pkt, char* pkthdr)
 
 	static long long pktSize = 0;
 	static long long pktCount = 0;
+    struct timespec start, end;
+
+    if(pktSize==0)
+        clock_gettime(CLOCK_REALTIME, &start);
+
 	pktSize += head.caplen +24;
 	pktCount += 1;
 
-	int now = time(0);
-	static int printTime = 0;
-	if (!printTime)
+#define TEST_ITVL 200000
+	if (pktCount == TEST_ITVL)
 	{
-		printTime = now;
-	}
-
-	if (printTime != now)
-	{
-		printf("ocall pcap throuthput is %lf Mbps/s. #pkt:%lld.\n", pktSize*8.0 / 1000 / 1000  , pktCount);
+        clock_gettime(CLOCK_REALTIME, &end);
+        double elapse_us = (end.tv_sec - start.tv_sec) * 1000000.0 + (end.tv_nsec - start.tv_nsec) / 1000.0;
+		printf("ocall pcap delay %f throuthput %lf Mbps/s. #pkt:%lld.\n", elapse_us / pktCount, pktSize*8.0 / elapse_us, pktCount);
 
 		pktSize = pktCount = 0;
-		printTime = now;
 	}
 
 	//if (*pkt&&no++%500==0)

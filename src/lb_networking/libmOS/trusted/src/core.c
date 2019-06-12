@@ -35,6 +35,7 @@
 #include "tcp_stream.h"
 #include "io_module.h"
 
+#include "../../../lb_core/enclave/etap_t.h"
 
 #ifdef ENABLE_DPDK
 /* for launching rte thread */
@@ -695,7 +696,7 @@ HandleApplicationCalls(mtcp_manager_t mtcp, uint32_t cur_ts)
 	/* reset handling */
 	while ((stream = StreamDequeue(mtcp->resetq))) {
 		stream->sndvar->on_resetq = FALSE;
-		
+	
 		if (g_config.mos->tcp_timeout > 0)
 			RemoveFromTimeoutList(mtcp, stream);
 
@@ -854,6 +855,8 @@ RunPassiveLoop(mtcp_manager_t mtcp)
 
 
 /*----------------------------------------------------------------------------*/
+uint32_t last_check_ts = 0;
+extern struct timeval trace_clock;
 void RunMainLoop(struct mtcp_thread_context *ctx)
 {
 	static struct mtcp_thread_context *saved_ctx;
@@ -909,7 +912,11 @@ void RunMainLoop(struct mtcp_thread_context *ctx)
 
 		STAT_COUNT(mtcp->runstat.rounds);
 		recv_cnt = 0;
+#if TRACE_CLOCK == 0
 		gettimeofday(&cur_ts, NULL);
+#else
+		cur_ts = trace_clock;
+#endif
 #if TIME_STAT
 		/* measure the inter-round delay */
 		UpdateStatCounter(&mtcp->rtstat.round, TimeDiffUs(&cur_ts, &prev_ts));
@@ -918,6 +925,9 @@ void RunMainLoop(struct mtcp_thread_context *ctx)
 
 		ts = TIMEVAL_TO_TS(&cur_ts);
 		mtcp->cur_ts = ts;
+
+		if(last_check_ts == 0)
+			last_check_ts = ts;
 
 		if (g_config.mos->netdev_table->num == 0)
 		{
@@ -928,7 +938,7 @@ void RunMainLoop(struct mtcp_thread_context *ctx)
 		for (rx_inf = 0; rx_inf < g_config.mos->netdev_table->num; rx_inf++) 
 		{
 			recv_cnt = mtcp->iom->recv_pkts(ctx, rx_inf);
-			
+            
 			if (recv_cnt == 0)
 			{
 				printf("can`t recv pkt in recv_cnt(), exit.\n");
@@ -948,6 +958,8 @@ void RunMainLoop(struct mtcp_thread_context *ctx)
 			}
 
 		}
+        etap_set_flow(mtcp->flow_cnt);
+        //printf("mtcp->flow_cnt %d\n", mtcp->flow_cnt);
 		STAT_COUNT(mtcp->runstat.rounds_rx);
 
 		//const int printPktLoop = 100000;
@@ -993,31 +1005,14 @@ void RunMainLoop(struct mtcp_thread_context *ctx)
 			DelTimer(mtcp, walk);
 		}
 
-#if LightBox == 1
-		//extern struct cuckoo_hash store_lkup_table;
-		//void tcp_check_timeouts(pntoh_tcp_session_t session)
-		//{
-		//	struct cuckoo_hash_item *it;
-		//	for (cuckoo_hash_each(it, &store_lkup_table))
-		//	{
-		//		state_entry_t *state = it->value;
-		//		time_t state_time = state->last_access_time;
-		//		if ((wall_clock.tv_sec - state_time) > DEFAULT_TCP_ESTABLISHED_TIMEOUT) {
-		//			// skip the processing
-		//			/*send_peer_segments(session, stream, &stream->client, 0, 0, 0, 0, 0);
-		//			++session->max_streams;*/
-		//			exp_stats->pm_time_out += 1;
-		//			exp_stats->current_stream -= 1;
-		//			// safe to remove while iterating
-		//			cuckoo_hash_remove(&store_lkup_table, state->lkup);
-		//			ocall_state_store_free(state);
-		//		}
-		//	}
-		//}
-
-
-#else
 		/* interaction with application */
+        //static time_t etap_clock_crt = 0, last_check = 0;
+
+       // get_clock(&etap_clock_crt);
+        
+       // if(last_check == 0)
+       //     last_check = etap_clock_crt;
+        
 		if (mtcp->flow_cnt > 0)
 		{
 			/* check retransmission timeout and timewait expire */
@@ -1032,9 +1027,16 @@ void RunMainLoop(struct mtcp_thread_context *ctx)
 			CheckRtmTimeout(mtcp, ts, thresh);
 			CheckTimewaitExpire(mtcp, ts, thresh);
 
+#if FIX_TIMEOUT == 0
 			if (g_config.mos->tcp_timeout > 0 && ts != ts_prev) {
 				CheckConnectionTimeout(mtcp, ts, thresh);
 			}
+#else
+			if (g_config.mos->tcp_timeout > 0 && g_config.mos->tcp_timeout < (ts-last_check_ts)) {
+				CheckConnectionTimeout(mtcp, ts, thresh);
+				last_check_ts = ts;
+			}
+#endif
 
 #if TIME_STAT
 		}
@@ -1045,8 +1047,7 @@ void RunMainLoop(struct mtcp_thread_context *ctx)
 		if (mtcp->flow_cnt > 0) {
 #endif /* TIME_STAT */
 
-	}
-#endif
+		}
 
 
 		/* 
@@ -1398,10 +1399,10 @@ InitializeMTCPManager(struct mtcp_thread_context* ctx)
 	}
 		
 	mtcp->rto_store = InitRTOHashstore();
-#if LightBox == 0
+
 	TAILQ_INIT(&mtcp->timewait_list);
 	TAILQ_INIT(&mtcp->timeout_list);
-#endif
+
 	return mtcp;
 }
 /*----------------------------------------------------------------------------*/

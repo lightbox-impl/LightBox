@@ -103,7 +103,7 @@ ValidateSequence(mtcp_manager_t mtcp, tcp_stream *cur_stream,
 				(tcph->doff << 2) - TCP_HEADER_LEN)) {
 			/* if there is no timestamp */
 			/* TODO: implement here */
-			TRACE_DBG("No timestamp found.\n");
+			//TRACE_DBG("No timestamp found.\n");
 			return FALSE;
 		}
 
@@ -111,18 +111,18 @@ ValidateSequence(mtcp_manager_t mtcp, tcp_stream *cur_stream,
 		if (TCP_SEQ_LT(ts.ts_val, cur_stream->rcvvar->ts_recent)) {
 			/* TODO: ts_recent should be invalidated 
 					 before timestamp wraparound for long idle flow */
-			TRACE_DBG("PAWS Detect wrong timestamp. "
+			/*TRACE_DBG("PAWS Detect wrong timestamp. "
 					"seq: %u, ts_val: %u, prev: %u\n", 
-					pctx->p.seq, ts.ts_val, cur_stream->rcvvar->ts_recent);
+					pctx->p.seq, ts.ts_val, cur_stream->rcvvar->ts_recent);*/
 			cur_stream->actions |= MOS_ACT_SEND_ACK_NOW;
 			return FALSE;
 		} else {
 			/* valid timestamp */
 			if (TCP_SEQ_GT(ts.ts_val, cur_stream->rcvvar->ts_recent)) {
-				TRACE_TSTAMP("Timestamp update. cur: %u, prior: %u "
+			/*	TRACE_TSTAMP("Timestamp update. cur: %u, prior: %u "
 					"(time diff: %uus)\n", 
 					ts.ts_val, cur_stream->rcvvar->ts_recent, 
-					TS_TO_USEC(pctx->p.cur_ts - cur_stream->rcvvar->ts_last_ts_upd));
+					TS_TO_USEC(pctx->p.cur_ts - cur_stream->rcvvar->ts_last_ts_upd));*/
 				cur_stream->rcvvar->ts_last_ts_upd = pctx->p.cur_ts;
 			}
 
@@ -145,8 +145,8 @@ ValidateSequence(mtcp_manager_t mtcp, tcp_stream *cur_stream,
 		{
 			/* check if it is to get window advertisement */
 			if (pctx->p.seq + 1 == cur_stream->rcv_nxt) {
-				TRACE_DBG("Window update request. (seq: %u, rcv_wnd: %u)\n", 
-						pctx->p.seq, cur_stream->rcvvar->rcv_wnd);
+			/*	TRACE_DBG("Window update request. (seq: %u, rcv_wnd: %u)\n", 
+						pctx->p.seq, cur_stream->rcvvar->rcv_wnd);*/
 				cur_stream->actions |= MOS_ACT_SEND_ACK_AGG;
 				return FALSE;
 			}
@@ -158,8 +158,8 @@ ValidateSequence(mtcp_manager_t mtcp, tcp_stream *cur_stream,
 			}
 		} else {
 			if (cur_stream->state == TCP_ST_TIME_WAIT) {
-				TRACE_DBG("Stream %d: tw expire update to %u\n", 
-						cur_stream->id, cur_stream->rcvvar->ts_tw_expire);
+				//TRACE_DBG("Stream %d: tw expire update to %u\n", 
+				//		cur_stream->id, cur_stream->rcvvar->ts_tw_expire);
 				AddtoTimewaitList(mtcp, cur_stream, pctx->p.cur_ts);
 			}
 			cur_stream->actions |= MOS_ACT_SEND_CONTROL;
@@ -175,7 +175,7 @@ ValidateSequence(mtcp_manager_t mtcp, tcp_stream *cur_stream,
 static inline void 
 NotifyConnectionReset(mtcp_manager_t mtcp, tcp_stream *cur_stream)
 {
-	TRACE_DBG("Stream %d: Notifying connection reset.\n", cur_stream->id);
+	//TRACE_DBG("Stream %d: Notifying connection reset.\n", cur_stream->id);
 	/* TODO: implement this function */
 	/* signal to user "connection reset" */
 }
@@ -303,10 +303,10 @@ EstimateRTT(mtcp_manager_t mtcp, tcp_stream *cur_stream, uint32_t mrtt)
 		rcvvar->rtt_seq = cur_stream->snd_nxt;
 	}
 
-	TRACE_RTT("mrtt: %u (%uus), srtt: %u (%ums), mdev: %u, mdev_max: %u, "
-			"rttvar: %u, rtt_seq: %u\n", mrtt, mrtt * TIME_TICK, 
-			rcvvar->srtt, TS_TO_MSEC((rcvvar->srtt) >> 3), rcvvar->mdev, 
-			rcvvar->mdev_max, rcvvar->rttvar, rcvvar->rtt_seq);
+	//TRACE_RTT("mrtt: %u (%uus), srtt: %u (%ums), mdev: %u, mdev_max: %u, "
+	//		"rttvar: %u, rtt_seq: %u\n", mrtt, mrtt * TIME_TICK, 
+	//		rcvvar->srtt, TS_TO_MSEC((rcvvar->srtt) >> 3), rcvvar->mdev, 
+	//		rcvvar->mdev_max, rcvvar->rttvar, rcvvar->rtt_seq);
 }
 /*----------------------------------------------------------------------------*/
 static inline void
@@ -341,10 +341,10 @@ ProcessACK(mtcp_manager_t mtcp, tcp_stream *cur_stream,
 	
 	/* If ack overs the sending buffer, return */
 	if (TCP_SEQ_GT(ack_seq, sndvar->sndbuf->head_seq + sndvar->sndbuf->len)) {
-		TRACE_DBG("Stream %d (%s): invalid acknologement. "
-				"ack_seq: %u, possible max_ack_seq: %u\n", cur_stream->id, 
-				TCPStateToString(cur_stream), ack_seq, 
-				sndvar->sndbuf->head_seq + sndvar->sndbuf->len);
+		//TRACE_DBG("Stream %d (%s): invalid acknologement. "
+		//		"ack_seq: %u, possible max_ack_seq: %u\n", cur_stream->id, 
+		//		TCPStateToString(cur_stream), ack_seq, 
+		//		sndvar->sndbuf->head_seq + sndvar->sndbuf->len);
 		return;
 	}
 
@@ -570,7 +570,7 @@ ProcessTCPPayload(mtcp_manager_t mtcp, tcp_stream *cur_stream,
 	/* if seq and segment length is lower than rcv_nxt, ignore and send ack */
 	if (TCP_SEQ_LT(pctx->p.seq + pctx->p.payloadlen, cur_stream->rcv_nxt))
 	{
-		TRACE_ERROR("if seq and segment length is lower than rcv_nxt, ignore and send ack");
+		//TRACE_ERROR("if seq and segment length is lower than rcv_nxt, ignore and send ack %d %d %d\n", pctx->p.seq, pctx->p.payloadlen, cur_stream->rcv_nxt);
 		return FALSE;
 	}
 
@@ -596,8 +596,8 @@ ProcessTCPPayload(mtcp_manager_t mtcp, tcp_stream *cur_stream,
 					       pctx, MOS_ON_ERROR);
 			} SOCKQ_FOREACH_END;
 		}
-		TRACE_ERROR("Right Call :  pctx->p.seq(%d) + pctx->p.payloadlen(%d) > cur_stream->rcv_nxt(%d) + rcvvar->rcv_wnd(%d)\n",
-			pctx->p.seq, pctx->p.payloadlen, cur_stream->rcv_nxt, rcvvar->rcv_wnd);
+		//TRACE_ERROR("Right Call :  pctx->p.seq(%d) + pctx->p.payloadlen(%d) > cur_stream->rcv_nxt(%d) + rcvvar->rcv_wnd(%d)\n",
+	//		pctx->p.seq, pctx->p.payloadlen, cur_stream->rcv_nxt, rcvvar->rcv_wnd);
 		return FALSE;
 	}
 
@@ -950,20 +950,19 @@ Handle_TCP_ST_SYN_RCVD (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 		if (g_config.mos->tcp_timeout > 0)
 			if (HAS_STREAM_TYPE(cur_stream, MOS_SOCK_STREAM))
 				AddtoTimeoutList(mtcp, cur_stream);
-
 	} else {
 		/* Handle retransmitted SYN packet */
 		if (HAS_STREAM_TYPE(cur_stream, MOS_SOCK_MONITOR_STREAM_ACTIVE) &&
 			tcph->syn) {
 			if (pctx->p.seq == cur_stream->pair_stream->sndvar->iss) {
-				TRACE_DBG("syn retransmit! (p.seq = %u / iss = %u)\n",
-						  pctx->p.seq, cur_stream->pair_stream->sndvar->iss);
-				cur_stream->cb_events |= MOS_ON_REXMIT;
+				//TRACE_DBG("syn retransmit! (p.seq = %u / iss = %u)\n",
+				//		  pctx->p.seq, cur_stream->pair_stream->sndvar->iss);
+				//cur_stream->cb_events |= MOS_ON_REXMIT;
 			}
 		}
 
-		TRACE_DBG("Stream %d (TCP_ST_SYN_RCVD): No ACK.\n", 
-				cur_stream->id);
+		//TRACE_DBG("Stream %d (TCP_ST_SYN_RCVD): No ACK.\n", 
+		//		cur_stream->id);
 		/* retransmit SYN/ACK */
 		cur_stream->snd_nxt = sndvar->iss;
 		cur_stream->actions |= MOS_ACT_SEND_CONTROL;
@@ -982,16 +981,16 @@ Handle_TCP_ST_ESTABLISHED (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 		if (HAS_STREAM_TYPE(cur_stream, MOS_SOCK_MONITOR_STREAM_ACTIVE) &&
 			tcph->ack) {
 			if (pctx->p.seq == cur_stream->pair_stream->sndvar->iss) {
-				TRACE_DBG("syn/ack retransmit! (p.seq = %u / iss = %u)\n",
-						pctx->p.seq, cur_stream->pair_stream->sndvar->iss);
+				//TRACE_DBG("syn/ack retransmit! (p.seq = %u / iss = %u)\n",
+				//		pctx->p.seq, cur_stream->pair_stream->sndvar->iss);
 				cur_stream->cb_events |= MOS_ON_REXMIT;
 			}
 		}
 
-		TRACE_DBG("Stream %d (TCP_ST_ESTABLISHED): weird SYN. "
-				"seq: %u, expected: %u, ack_seq: %u, expected: %u\n", 
-				cur_stream->id, pctx->p.seq, cur_stream->rcv_nxt, 
-				pctx->p.ack_seq, cur_stream->snd_nxt);
+		//TRACE_DBG("Stream %d (TCP_ST_ESTABLISHED): weird SYN. "
+		//		"seq: %u, expected: %u, ack_seq: %u, expected: %u\n", 
+		//		cur_stream->id, pctx->p.seq, cur_stream->rcv_nxt, 
+		//		pctx->p.ack_seq, cur_stream->snd_nxt);
 		cur_stream->snd_nxt = pctx->p.ack_seq;
 		cur_stream->actions |= MOS_ACT_SEND_CONTROL;
 		return;
@@ -1053,9 +1052,9 @@ Handle_TCP_ST_CLOSE_WAIT (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 		struct pkt_ctx *pctx)
 {
 	if (TCP_SEQ_LT(pctx->p.seq, cur_stream->rcv_nxt)) {
-		TRACE_DBG("Stream %d (TCP_ST_CLOSE_WAIT): "
-				"weird seq: %u, expected: %u\n", 
-				cur_stream->id, pctx->p.seq, cur_stream->rcv_nxt);
+		//TRACE_DBG("Stream %d (TCP_ST_CLOSE_WAIT): "
+		//		"weird seq: %u, expected: %u\n", 
+		//		cur_stream->id, pctx->p.seq, cur_stream->rcv_nxt);
 		cur_stream->actions |= MOS_ACT_SEND_CONTROL;
 		return;
 	}
@@ -1072,9 +1071,9 @@ Handle_TCP_ST_LAST_ACK (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 	const struct tcphdr* tcph = pctx->p.tcph;
 
 	if (TCP_SEQ_LT(pctx->p.seq, cur_stream->rcv_nxt)) {
-		TRACE_DBG("Stream %d (TCP_ST_LAST_ACK): "
-				"weird seq: %u, expected: %u\n", 
-				cur_stream->id, pctx->p.seq, cur_stream->rcv_nxt);
+		//TRACE_DBG("Stream %d (TCP_ST_LAST_ACK): "
+		//		"weird seq: %u, expected: %u\n", 
+		//		cur_stream->id, pctx->p.seq, cur_stream->rcv_nxt);
 		return;
 	}
 
@@ -1086,8 +1085,8 @@ Handle_TCP_ST_LAST_ACK (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 		if (!cur_stream->sndvar->is_fin_sent) {
 			/* the case that FIN is not sent yet */
 			/* this is not ack for FIN, ignore */
-			TRACE_DBG("Stream %d (TCP_ST_LAST_ACK): "
-					"No FIN sent yet.\n", cur_stream->id);
+			//TRACE_DBG("Stream %d (TCP_ST_LAST_ACK): "
+			//		"No FIN sent yet.\n", cur_stream->id);
 #ifdef DBGMSG
 			DumpIPPacket(mtcp, pctx->p.iph, pctx->p.ip_len);
 #endif
@@ -1110,15 +1109,15 @@ Handle_TCP_ST_LAST_ACK (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 					cur_stream->id);
 			cur_stream->actions |= MOS_ACT_DESTROY;
 		} else {
-			TRACE_DBG("Stream %d (TCP_ST_LAST_ACK): Not ACK of FIN. "
-					"ack_seq: %u, expected: %u\n", 
-					cur_stream->id, pctx->p.ack_seq, cur_stream->sndvar->fss + 1);
+			//TRACE_DBG("Stream %d (TCP_ST_LAST_ACK): Not ACK of FIN. "
+			//		"ack_seq: %u, expected: %u\n", 
+			//		cur_stream->id, pctx->p.ack_seq, cur_stream->sndvar->fss + 1);
 			//cur_stream->snd_nxt = cur_stream->sndvar->fss;
 			cur_stream->actions |= MOS_ACT_SEND_CONTROL;
 		}
 	} else {
-		TRACE_DBG("Stream %d (TCP_ST_LAST_ACK): No ACK\n", 
-			  cur_stream->id);
+		//TRACE_DBG("Stream %d (TCP_ST_LAST_ACK): No ACK\n", 
+		//	  cur_stream->id);
 		//cur_stream->snd_nxt = cur_stream->sndvar->fss;
 		cur_stream->actions |= MOS_ACT_SEND_CONTROL;
 	}
@@ -1155,9 +1154,9 @@ Handle_TCP_ST_FIN_WAIT_1 (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 #endif
 			cur_stream->sndvar->snd_una = pctx->p.ack_seq;
 			if (TCP_SEQ_GT(pctx->p.ack_seq, cur_stream->snd_nxt)) {
-				TRACE_DBG("Stream %d: update snd_nxt to %u\n", 
-						cur_stream->id, pctx->p.ack_seq);
-				cur_stream->snd_nxt = pctx->p.ack_seq;
+				//TRACE_DBG("Stream %d: update snd_nxt to %u\n", 
+				//		cur_stream->id, pctx->p.ack_seq);
+				//cur_stream->snd_nxt = pctx->p.ack_seq;
 			}
 			//cur_stream->sndvar->snd_una++;
 			//UpdateRetransmissionTimer(mtcp, cur_stream, cur_ts);
@@ -1187,8 +1186,8 @@ Handle_TCP_ST_FIN_WAIT_1 (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 				pctx->p.tcph->urg ? "U" : "",
 				pctx->p.tcph->ack ? "A" : "");
 
-		TRACE_DBG("Stream %d: does not contain an ack!\n", 
-				cur_stream->id);
+		//TRACE_DBG("Stream %d: does not contain an ack!\n", 
+		//		cur_stream->id);
 		return;
 	}
 
@@ -1248,8 +1247,8 @@ Handle_TCP_ST_FIN_WAIT_2 (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 			ProcessACK(mtcp, cur_stream, pctx); 
 		}
 	} else {
-		TRACE_DBG("Stream %d: does not contain an ack!\n", 
-				cur_stream->id);
+		//TRACE_DBG("Stream %d: does not contain an ack!\n", 
+		//		cur_stream->id);
 		return;
 	}
 
@@ -1281,10 +1280,10 @@ Handle_TCP_ST_FIN_WAIT_2 (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 			cur_stream->actions |= MOS_ACT_SEND_CONTROL;
 		}
 	} else {
-		TRACE_DBG("Stream %d (TCP_ST_FIN_WAIT_2): No FIN. "
-				"seq: %u, ack_seq: %u, snd_nxt: %u, snd_una: %u\n", 
-				cur_stream->id, pctx->p.seq, pctx->p.ack_seq, 
-				cur_stream->snd_nxt, cur_stream->sndvar->snd_una);
+		//TRACE_DBG("Stream %d (TCP_ST_FIN_WAIT_2): No FIN. "
+		//		"seq: %u, ack_seq: %u, snd_nxt: %u, snd_una: %u\n", 
+		//		cur_stream->id, pctx->p.seq, pctx->p.ack_seq, 
+		//		cur_stream->snd_nxt, cur_stream->sndvar->snd_una);
 #if DBGMSG
 		DumpIPPacket(mtcp, pctx->p.iph, pctx->p.ip_len);
 #endif
@@ -1304,8 +1303,8 @@ Handle_TCP_ST_CLOSING (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 		}
 
 		if (!cur_stream->sndvar->is_fin_sent) {
-			TRACE_DBG("Stream %d (TCP_ST_CLOSING): "
-					"No FIN sent yet.\n", cur_stream->id);
+			//TRACE_DBG("Stream %d (TCP_ST_CLOSING): "
+			//		"No FIN sent yet.\n", cur_stream->id);
 			return;
 		}
 
@@ -1334,8 +1333,8 @@ Handle_TCP_ST_CLOSING (mtcp_manager_t mtcp, tcp_stream* cur_stream,
 		AddtoTimewaitList(mtcp, cur_stream, pctx->p.cur_ts);
 
 	} else {
-		TRACE_DBG("Stream %d (TCP_ST_CLOSING): Not ACK\n",
-			  cur_stream->id);
+		//TRACE_DBG("Stream %d (TCP_ST_CLOSING): Not ACK\n",
+		//	  cur_stream->id);
 		return;
 	}
 }
@@ -1362,8 +1361,8 @@ UpdateRecvTCPContext(mtcp_manager_t mtcp, struct tcp_stream *cur_stream,
 		
 		if (!ret) {
 
-			TRACE_DBG("Stream %d: Unexpected sequence: %u, expected: %u\n",
-					cur_stream->id, pctx->p.seq, cur_stream->rcv_nxt);
+			//TRACE_DBG("Stream %d: Unexpected sequence: %u, expected: %u\n",
+		//			cur_stream->id, pctx->p.seq, cur_stream->rcv_nxt);
 #ifdef DBGMSG
 			DumpIPPacket(mtcp, pctx->p.iph, pctx->p.ip_len);
 #endif
@@ -1403,8 +1402,8 @@ UpdateRecvTCPContext(mtcp_manager_t mtcp, struct tcp_stream *cur_stream,
 			cur_stream->state == TCP_ST_TIME_WAIT) {
 			/* Handle retransmitted FIN packet */
 			if (pctx->p.seq == cur_stream->pair_stream->sndvar->fss) {
-				TRACE_DBG("FIN retransmit! (seq = %u / fss = %u)\n",
-						pctx->p.seq, cur_stream->pair_stream->sndvar->fss);
+				//TRACE_DBG("FIN retransmit! (seq = %u / fss = %u)\n",
+				//		pctx->p.seq, cur_stream->pair_stream->sndvar->fss);
 				cur_stream->cb_events |= MOS_ON_REXMIT;
 			}
 		}

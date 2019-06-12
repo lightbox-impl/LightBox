@@ -113,7 +113,7 @@ ForwardEthernetFrame(struct mtcp_manager *mtcp, struct pkt_ctx *pctx)
 			g_config.mos->nic_forward_table->nic_fwd_table[pctx->p.in_ifidx];
 
 		if (pctx->out_ifidx == -1) {
-			TRACE_DBG("Could not find outgoing index (index)!\n");
+			//TRACE_DBG("Could not find outgoing index (index)!\n");
 			return;
 		}
 

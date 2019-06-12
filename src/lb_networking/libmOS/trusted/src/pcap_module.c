@@ -48,7 +48,9 @@ pcap_recv_pkts(struct mtcp_thread_context *ctxt, int ifidx)
 
 	if ((ppc->rdata = pcap_next(ppc->handle[ifidx], &ppc->phdr)) == NULL)
 		return 0;
-	
+
+    //printf("caplen %d len %d\n", ppc->phdr.caplen, ppc->phdr.len);
+    
 	if (ppc->phdr.caplen != ppc->phdr.len)
 	{
 		return 0;
@@ -63,6 +65,14 @@ pcap_recv_pkts(struct mtcp_thread_context *ctxt, int ifidx)
 	/* sanity check */
 	if (ppc->rdata == NULL)
 		return 0;
+
+    /*static int aaa = 0;
+    if(aaa++ < 2)
+    {
+        printf("caplen %d len %d\n", ppc->phdr.caplen, ppc->phdr.len);
+        for(int m=0; m<20; ++m)
+            printf("byte %d %x\n", m, ppc->rdata[m]);
+    }*/
 
 	return 1; /* PCAP always receives only one packet */
 }

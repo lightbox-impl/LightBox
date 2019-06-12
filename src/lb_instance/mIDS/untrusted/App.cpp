@@ -252,6 +252,16 @@ void *etap_thread(void *tput)
 	pthread_exit(NULL);
 }
 
+void *mIDS_thread(void *useless)
+{
+    sgx_status_t ret = ecall_mos_test(global_eid, "hello");
+	if (ret != SGX_SUCCESS) {
+		printf("[*] ecall_init_aes_gcm fail with error %d\n", ret);
+		pthread_exit(NULL);
+	}
+    pthread_exit(NULL);
+}
+
 /* Application entry */
 int SGX_CDECL main(int argc, char *argv[])
 {
@@ -267,7 +277,6 @@ int SGX_CDECL main(int argc, char *argv[])
 		pcap_file_name = "eth0";
 	}
 
-
     /* Initialize the enclave */
     if(initialize_enclave() < 0){
         printf("Enter a character before exit ...\n");
@@ -275,32 +284,44 @@ int SGX_CDECL main(int argc, char *argv[])
         return -1; 
     }
 
-	sgx_status_t ret;
-#ifdef USE_ETAP
-	pthread_t mb_trd;
-	etap_init();
+	sgx_status_t ret = SGX_ERROR_UNEXPECTED;
 	/* AES_GCM keys */
-	ret = SGX_ERROR_UNEXPECTED;
 	ret = ecall_init_aes_gcm(global_eid);
 	if (ret != SGX_SUCCESS) {
 		printf("[*] ecall_init_aes_gcm fail with error %d\n", ret);
 		exit(1);
+    } 
+
+    // start mb thread
+	pthread_t mb_trd; 
+    int rc = pthread_create(&mb_trd, NULL, mIDS_thread, NULL);
+	if (rc) {
+		printf("Fail to create thread %lu\n!", mb_trd);
+		exit(1);
 	}
-	if (etap_testrun()) 
+
+
+#ifdef USE_ETAP
+	etap_init();
+
+	while (etap_testrun()) 
 	{
 		pthread_t etap_trd;
 		double tput;
-		int rc = pthread_create(&etap_trd, NULL, etap_thread, &tput);
+		rc = pthread_create(&etap_trd, NULL, etap_thread, &tput);
 		if (rc) {
 			printf("Fail to create thread %lu\n!", etap_trd);
 			exit(1);
 		}
-		//rc = pthread_join(etap_trd, NULL);
-		//if (rc) {
-		//	printf("Fail to join thread %lu\n!", etap_trd);
-		//	exit(1);
-		//}
+		rc = pthread_join(etap_trd, NULL);
+	    if (rc) {
+			printf("Fail to join thread %lu\n!", etap_trd);
+			exit(1);
+		}
 	}
+    
+    printf("etap finished!\n");
+
 	//printf("Enter a character after etap init ...\n");
 	//getchar();
 #endif
@@ -311,11 +332,6 @@ int SGX_CDECL main(int argc, char *argv[])
 	//	exit(1);
 	//}
 
-	ret = ecall_mos_test(global_eid, "hello");
-	if (ret != SGX_SUCCESS) {
-		printf("[*] ecall_init_aes_gcm fail with error %d\n", ret);
-		exit(1);
-	}
     
     /* Destroy the enclave */
     ret = sgx_destroy_enclave(global_eid);

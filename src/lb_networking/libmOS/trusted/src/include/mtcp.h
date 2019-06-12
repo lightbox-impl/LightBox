@@ -278,12 +278,9 @@ struct mtcp_manager
 
 	/* lists related to timeout */
 	struct rto_hashstore* rto_store;
-#if LightBox == 1
 
-#else
 	TAILQ_HEAD (timewait_head, tcp_stream) timewait_list;
 	TAILQ_HEAD (timeout_head, tcp_stream) timeout_list;
-#endif
 
 	TAILQ_HEAD (timer_head, timer) timer_list;
 

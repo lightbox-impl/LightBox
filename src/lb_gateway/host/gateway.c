@@ -20,10 +20,9 @@ extern sgx_enclave_id_t global_eid;
 
 pcap_t *pcap_handle;
 
-
-
-#ifdef CAIDA
-#define POOL_SIZE 700000000 // 2GB/3
+#if CAIDA == 1
+//#define POOL_SIZE 700000000 // 2GB/3
+#define POOL_SIZE 1000000000 // large enough for 1M packets
 #else
 #define POOL_SIZE 1024*1024*1024*2L // 2GB
 #endif
@@ -56,9 +55,11 @@ void send_crt_batch()
 	}
 }
 
-#ifdef MICRO
+#if MICRO == 1
 int data_source_init(int rec_size, int rec_per_bat, int pkt_size) 
 {
+    printf("MICRO!\n");
+
 	batch_size = (rec_size + MAC_SIZE)*rec_per_bat;
 	int max_num_batch = POOL_SIZE / batch_size;
 
@@ -184,37 +185,29 @@ int data_source_send(int batch_to_send)
 		return 1;
 	}
 	else {
-#ifdef MICRO
-#define MICRO_TRIAL 10
-		int i = 0;
-		for (; i < MICRO_TRIAL; ++i) {
-			printf("Round %d\n", i);
-#endif
-			/* tell peer how many batches to send in this round for precise timing */
-			send_conf_to_peer(batch_to_send);
+		/* tell peer how many batches to send in this round for precise timing */
+		send_conf_to_peer(batch_to_send);
 
-			/* send test data */
-			int i = 0;
-			for (; i < batch_to_send; ++i) {
-				crt_batch = raw_pool + i*batch_size;
-				send_crt_batch();
-			}
-			sleep(1);
-#ifdef MICRO
+		/* send test data */
+		int i = 0;
+		for (; i < batch_to_send; ++i) {
+			crt_batch = raw_pool + i*batch_size;
+			send_crt_batch();
 		}
-#endif
+		sleep(1);
 		return 0;
 	}
 }
-#else
-#ifdef CAIDA
+#elif CAIDA == 1
 int data_source_init(int rec_size, int rec_per_bat, int pkt_size)
 {
+    //printf("CAIDA!\n");
+
 	batch_size = (rec_size + MAC_SIZE)*rec_per_bat;
-	int max_num_batch = POOL_SIZE / batch_size;
+	//int max_num_batch = POOL_SIZE / batch_size;
 
 	static int pkt_cnt = 0;
-	const char trace[] = "../trace/CAIDA_100M.pcap";
+	const char trace[] = "/home/conggroup/trace/CAIDA_100M.pcap";
 	if (!pcap_handle) {
 		char errbuf[PCAP_ERRBUF_SIZE];
 		pcap_handle = pcap_open_offline(trace, errbuf);
@@ -240,9 +233,17 @@ int data_source_init(int rec_size, int rec_per_bat, int pkt_size)
 	uint16_t sized_pkt_remain = 0;
 #endif
 	int pkt_idx = 0;
-	int b_idx, r_idx;
-	for (b_idx = 0; b_idx < max_num_batch; ++b_idx) {
+	int b_idx = 0, r_idx;
+	//for (b_idx = 0; b_idx < max_num_batch; ++b_idx) {
 		//printf("batch %d %d\n", num_batch, b_idx);
+	static int correction_rounds = 0, correction_pkt_num = 999800;
+	// if(correction_rounds++ == 5) {
+	// 	correction_rounds = 0;
+	// 	correction_pkt_num = 999000;
+	// }
+	while(pkt_idx < correction_pkt_num) {
+		// correction_pkt_num = 1000000;
+		
 		for (r_idx = 0; r_idx < rec_per_bat; ++r_idx) {
 			/* Append record */
 			uint8_t *record = crt_pool_pos;
@@ -260,14 +261,10 @@ int data_source_init(int rec_size, int rec_per_bat, int pkt_size)
 				record_free -= sized_pkt_remain;
 			}
 #endif
-			const int eth_len = sizeof(struct ethhdr);
-			static struct ethhdr eth_header;
-			eth_header.h_proto = ETH_P_IP;
 
 			// new sized_packets
 			while (1) {
 				pkt = pcap_next(pcap_handle, &pheader);
-
 
 				// 0) insert eth_header
 				static char new_pkt_buffer[4096];
@@ -281,24 +278,19 @@ int data_source_init(int rec_size, int rec_per_bat, int pkt_size)
 					return b_idx;
 				}
 
+				++pkt_idx;
 				++pkt_cnt;
 
 				time_t ts = pheader.ts.tv_sec;
-				uint16_t pkt_ts_len = sizeof(ts) + eth_len + pheader.caplen;
+				uint16_t pkt_ts_len = sizeof(ts) + pheader.caplen;
 				sized_pkt_length = sizeof(pkt_ts_len) + pkt_ts_len;
 				//printf("new sized_pkt_length %d\n", sized_pkt_length);
 				// 1) add pkt and ts sizes
 				memcpy(sized_pkt, &pkt_ts_len, sizeof(pkt_ts_len));
 				// 2) pkt timestamp
 				memcpy(sized_pkt + sizeof(pkt_ts_len), &ts, sizeof(ts));
-				
 				// 3) pkt itself
-				int pkt_offset = sizeof(pkt_ts_len) + sizeof(ts);
-				memcpy(sized_pkt + pkt_offset, &eth_header, eth_len);
-				pkt_offset += eth_len;
-				memcpy(sized_pkt + pkt_offset, pkt, pheader.caplen);
-				pheader.caplen += eth_len;
-				pheader.len = pheader.caplen;
+				memcpy(sized_pkt + sizeof(pkt_ts_len) + sizeof(ts), pkt, pheader.caplen);
 
 				/*if ((crt_pool_pos - record + record_free) != LBN_RECORD_SIZE)
 				printf("aaa %d\n", crt_pool_pos - record + record_free - LBN_RECORD_SIZE);*/
@@ -361,13 +353,15 @@ int data_source_init(int rec_size, int rec_per_bat, int pkt_size)
 			}
 			crt_pool_pos += MAC_SIZE;
 			}
+
+			b_idx++;
 		}
 
 	//printf("prepared %d batch size %dB\n", pkt_idx, LBN_BATCH_SIZE);
 	/*printf(" Pool prepared ---> ");
 	fflush(stdout);*/
 	printf("pkt cnt %d\n", pkt_cnt);
-	return max_num_batch;
+	return b_idx;
 }
 void data_source_deinit()
 {
@@ -385,34 +379,26 @@ int data_source_send(int batch_to_send)
 		return 1;
 	}
 	else {
-#ifdef MICRO
-#define MICRO_TRIAL 10
-		int i = 0;
-		for (; i < MICRO_TRIAL; ++i) {
-			printf("Round %d\n", i);
-#endif
-			/* tell peer how many batches to send in this round for precise timing */
-			send_conf_to_peer(batch_to_send);
+		/* tell peer how many batches to send in this round for precise timing */
+		send_conf_to_peer(batch_to_send);
 
-			/* send test data */
-			int i = 0;
-			for (; i < batch_to_send; ++i) {
-				crt_batch = raw_pool + i*batch_size;
-				send_crt_batch();
-			}
-			sleep(1);
-#ifdef MICRO
+		/* send test data */
+		int i = 0;
+		for (; i < batch_to_send; ++i) {
+			crt_batch = raw_pool + i*batch_size;
+			send_crt_batch();
 		}
-#endif
+		sleep(1);
 		return 0;
 	}
 }
-#else
-#ifdef LIVE
+#elif LIVE == 1
 int record_size = 0;
 int rec_per_bat = 0;
 int data_source_init(int _rec_size, int _rec_per_bat, int pkt_size)
 {
+    printf("LIVE!\n");
+
 	record_size = _rec_size;
 	rec_per_bat = _rec_per_bat;
 	batch_size = (record_size + MAC_SIZE)*rec_per_bat;
@@ -629,8 +615,6 @@ void data_source_init()
 void data_source_deinit()
 {
 }
-#endif
-#endif
 #endif
 
 void send_conf_to_peer(int conf)

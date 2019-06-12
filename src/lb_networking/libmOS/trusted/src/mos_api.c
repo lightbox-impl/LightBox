@@ -1056,7 +1056,12 @@ mtcp_setlastpkt(mctx_t mctx, int sock, int side, off_t offset,
 		/* validity test */
 		if (cur_pkt_ctx->p.ethh == NULL ||
 		    cur_pkt_ctx->p.ethh->h_proto != ntohs(ETH_P_IP) ||
+#if CAIDA == 0
 		    (iph=(struct iphdr *)(cur_pkt_ctx->p.ethh + 1)) == NULL) {
+#else
+		    (iph=(struct iphdr *)(cur_pkt_ctx->p.ethh)) == NULL) {
+#endif
+                
 			TRACE_ERROR("ethh or iph are out of bounds\n");
 			errno = EACCES;
 			return -1;
@@ -1088,7 +1093,11 @@ mtcp_setlastpkt(mctx_t mctx, int sock, int side, off_t offset,
 			/* update iph total length */
 			cur_pkt_ctx->p.ip_len = ntohs(iph->tot_len);
 			/* update eth frame length */
+#if CAIDA == 0
 			cur_pkt_ctx->p.eth_len = cur_pkt_ctx->p.ip_len + sizeof(struct ethhdr);
+#else
+			cur_pkt_ctx->p.eth_len = cur_pkt_ctx->p.ip_len;
+#endif
 		} else if (option & MOS_INSERT) {
 			memmove((uint8_t *)iph + offset + datalen,
 				(uint8_t *)iph + offset + 1,
@@ -1108,12 +1117,20 @@ mtcp_setlastpkt(mctx_t mctx, int sock, int side, off_t offset,
 			/* update iph total length */
 			cur_pkt_ctx->p.ip_len = ntohs(iph->tot_len);
 			/* update eth frame length */
+#if CAIDA == 0
 			cur_pkt_ctx->p.eth_len = cur_pkt_ctx->p.ip_len + sizeof(struct ethhdr);
+#else
+			cur_pkt_ctx->p.eth_len = cur_pkt_ctx->p.ip_len; 
+#endif
 		}
 		/* can't update payloadlen because we don't know tcph->doff */
 	} else if (option & MOS_TCP_HDR) {
 		/* validity test */
+#if CAIDA == 0
 		iph = (struct iphdr *)(cur_pkt_ctx->p.ethh + 1);
+#else
+		iph = (struct iphdr *)(cur_pkt_ctx->p.ethh);
+#endif
 		if (iph == NULL ||
 		    iph->protocol != IPPROTO_TCP ||
 		    (tcph=(struct tcphdr *)((uint8_t *)iph + (iph->ihl<<2))) == NULL) {
@@ -1159,7 +1176,11 @@ mtcp_setlastpkt(mctx_t mctx, int sock, int side, off_t offset,
 			cur_pkt_ctx->p.payload = (uint8_t *)tcph + (tcph->doff<<2);
 		}
 	} else if (option & MOS_TCP_PAYLOAD) {
+#if CAIDA == 0
 		iph = (struct iphdr *)(cur_pkt_ctx->p.ethh + 1);
+#else
+		iph = (struct iphdr *)(cur_pkt_ctx->p.ethh);
+#endif
 		tcph = (struct tcphdr *)((uint8_t *)iph + (iph->ihl<<2));
 		payload = (uint8_t *)tcph + (tcph->doff<<2);
 		if (option & MOS_OVERWRITE) {
@@ -1197,14 +1218,22 @@ mtcp_setlastpkt(mctx_t mctx, int sock, int side, off_t offset,
 
 	/* update ip checksum */
 	if (option & MOS_UPDATE_IP_CHKSUM) {
+#if CAIDA == 0
 		iph = (struct iphdr *)(cur_pkt_ctx->p.ethh + 1);
+#else
+		iph = (struct iphdr *)(cur_pkt_ctx->p.ethh);
+#endif
 		iph->check = 0;
 		iph->check = ip_fast_csum(iph, iph->ihl);
 	}
 	
 	/* update tcp checksum */
 	if (option & MOS_UPDATE_TCP_CHKSUM) {
+#if CAIDA == 0
 		iph = (struct iphdr *)(cur_pkt_ctx->p.ethh + 1);
+#else
+		iph = (struct iphdr *)(cur_pkt_ctx->p.ethh);
+#endif
 		tcph = (struct tcphdr *)((uint8_t *)iph + (iph->ihl<<2));
 		tcph->check = 0;
 		tcph->check = TCPCalcChecksum((uint16_t *)tcph,

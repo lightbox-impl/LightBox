@@ -26,15 +26,25 @@ FillInPacketEthContext (struct pkt_ctx *pctx, uint32_t cur_ts, int in_ifidx,
 	return;
 }
 /*----------------------------------------------------------------------------*/
+int cnt_ip = 0;
 int
 ProcessPacket(mtcp_manager_t mtcp, const int ifidx, const int index,
 		uint32_t cur_ts, unsigned char *pkt_data, int len)
 {
 	struct pkt_ctx pctx;
-	struct ethhdr *ethh = (struct ethhdr *)pkt_data;
 	int ret = -1;
+#if CAIDA == 0 
+	struct ethhdr *ethh = (struct ethhdr *)pkt_data;
 	u_short h_proto = ntohs(ethh->h_proto);
-
+#else
+    struct ethhdr *ethh = (struct ethhdr *)pkt_data;
+    u_short h_proto = ETH_P_IP;
+    /*static int fff = 0;
+    if(fff++ < 2){
+        for(int m=0; m<20; ++m)
+        printf("byte %d %x\n",m, pkt_data[m]); 
+    }*/
+#endif
 	memset(&pctx, 0, sizeof(pctx));
 
 #ifdef PKTDUMP
@@ -54,10 +64,11 @@ ProcessPacket(mtcp_manager_t mtcp, const int ifidx, const int index,
 	 */
 
 	FillInPacketEthContext(&pctx, cur_ts, ifidx, index, ethh, len);
-
+    
 	if (h_proto == ETH_P_IP) {
 		/* process ipv4 packet */
-
+        //printf("ipv4!\n");
+        ++cnt_ip;
 		ret = ProcessInIPv4Packet(mtcp, &pctx);
 
 	} else {

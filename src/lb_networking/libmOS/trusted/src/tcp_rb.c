@@ -860,7 +860,7 @@ tcprb_pwrite(tcprb_t *rb, uint8_t *buf, int len, loff_t off)
 	if (!rb || !buf || len < 0 ||
 		off < rb->head || off >= rb->pile + rb->metalen)
 	{
-		TRACE_ERROR("off :%d >= rb->pile:%d + rb->metalen%d\n", off,rb->pile,rb->metalen);
+	//	TRACE_ERROR("off :%d >= rb->pile:%d + rb->metalen%d\n", off,rb->pile,rb->metalen);
 		return -1;
 	}
 		
@@ -870,7 +870,7 @@ tcprb_pwrite(tcprb_t *rb, uint8_t *buf, int len, loff_t off)
 	}
 	else if (off + len < rb->pile) /* already written */
 	{
-		TRACE_ERROR("off + len < rb->pile already written");
+	//	TRACE_ERROR("off + len < rb->pile already written");
 		return len;
 	}
 	

@@ -62,10 +62,10 @@ else
 endif
 
 
-LightBox ?= 0
-CAIDA ?= 0
-CONNECTION ?= 0
-MSG64 ?= 0
+# LightBox ?= 0
+# CAIDA ?= 0
+# CONNECTION ?= 0
+# MSG64 ?= 0
 
 Enclave_Dir = ../enclave
 App_Dir = .
@@ -73,8 +73,8 @@ App_Dir = .
 
 LightBox_Include_Paths := -I$(App_Dir) -I../..
 
-LightBox_FLAGS = -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DMSG64=$(MSG64)
-LightBox_FLAGS += $(LightBox_Include_Paths)
+# LightBox_FLAGS = -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DMSG64=$(MSG64)
+LightBox_FLAGS = $(LightBox_Include_Paths)
 LightBox_FLAGS += $(App_C_Flags)
 
 LightBox_EDL = $(Enclave_Dir)/lb_edge.edl

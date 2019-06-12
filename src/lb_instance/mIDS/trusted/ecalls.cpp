@@ -129,8 +129,9 @@ int errno;
 #define EXIT_WITH_ERROR(f, m...) {printf("Ecall error [%10s:%4d]: %s\n", __FUNCTION__, __LINE__, f);}
 
 int DoCallTimes = 0;
-//static int DoDfcTimes = 0;
-//static int DoPktSize = 0;
+int DoDfcTimes = 0;
+//int DoPktSize = 0;
+long long DoDfcSize = 0;
 static int DoPktCount = 0;
 
 DFCAdaptor dfcAdp;
@@ -173,7 +174,8 @@ ApplyDfcPerFlow(mctx_t mctx, int msock, int side,
 	if (size > 0)
 	{
 		dfcAdp.process((uint8_t*)buffer, len);
-
+		DoDfcTimes += 1;
+		DoDfcSize += size;
 	}
 	else if (size < 0)
 	{
@@ -221,6 +223,7 @@ ApplyDfcPerFlow(mctx_t mctx, int msock, int side,
 	//printf("call ApplyDfcPerFlow, ThroughPut:%d, DoDfcTimes:%d, size:%d, res:%d\n", CallTimes, DoDfcTimes, DoDfcSize, DfcResCount);
 }
 
+extern long sys_mem_allocated;
 static void
 PrintThrouthPut(mctx_t mctx, int sock, int side,
 	uint64_t events, filter_arg_t *arg)
@@ -243,7 +246,7 @@ PrintThrouthPut(mctx_t mctx, int sock, int side,
 		printf("tcp value %d is mtcp->s_index\n", mtcp->s_index);
 		printf("tcp value %d is mtcp->flow_cnt\n", mtcp->flow_cnt);
 	}
-	printf("TIMER #Flow:%d\n" ,  mtcp->flow_cnt);
+	//printf("TIMER #Flow:%d Mem: %fMB\n" ,  mtcp->flow_cnt, sys_mem_allocated/1024.0/1024.0);
 
 
 	//printf("TIMER Avg-ThroughPut:%lf Mbps/s, #Flow:%d, #Recall:%d, #DFC:%d, DFC_Pkt:%d\n"
@@ -267,15 +270,20 @@ PrintThrouthPut(mctx_t mctx, int sock, int side,
 
 int mOsIDS(const char* config_file_path)
 {
+#if LightBox == 1
 	//lightbox init
 	init_state_mgmt();
+#endif
 
 
 	//TRACE_CONFIG("Test TRACE_CONFIG ok.\n");
 	//TRACE_ERROR("Test TRACE_ERROR ok.\n");
 	//TRACE_INFO("Test TRACE_INFO ok.\n");
 	//TRACE_FUNC("TRACE_FUNC1", "Test TRACE_FUNC ok.\n");
-	printf("tcp_stream size is %d\n", sizeof(tcp_stream));
+	printf("tcp_stream size is %d\n", sizeof(struct tcp_stream));
+    printf("tcp_send_vars is %d\n", sizeof(struct tcp_send_vars));
+    printf("tcp_recv_vars is %d\n", sizeof(struct tcp_recv_vars));
+
 
 	char* fname = "./trusted/mos.conf";
 
@@ -290,7 +298,6 @@ int mOsIDS(const char* config_file_path)
 
 	/* populate local mos-specific mcfg struct for later usage */
 	mtcp_getconf(&mcfg);
-
 
 	mctx_t mctx;         /* per-thread mos context */
 	int mon_listener;    /* listening socket for flow monitoring */

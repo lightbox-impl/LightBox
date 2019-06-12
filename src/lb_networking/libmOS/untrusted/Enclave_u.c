@@ -3,6 +3,7 @@
 
 typedef struct ms_ecall_mos_test_t {
 	char* ms_config_file_path;
+	size_t ms_config_file_path_len;
 } ms_ecall_mos_test_t;
 
 typedef struct ms_ecall_auth_enc_t {
@@ -470,6 +471,7 @@ sgx_status_t ecall_mos_test(sgx_enclave_id_t eid, const char* config_file_path)
 	sgx_status_t status;
 	ms_ecall_mos_test_t ms;
 	ms.ms_config_file_path = (char*)config_file_path;
+	ms.ms_config_file_path_len = config_file_path ? strlen(config_file_path) + 1 : 0;
 	status = sgx_ecall(eid, 1, &ocall_table_Enclave, &ms);
 	return status;
 }

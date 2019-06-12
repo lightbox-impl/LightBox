@@ -12,12 +12,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-
 #define CROSS_RECORD
 
 //#define NON_SWITCHING
 
 #define LOCKLESS
+#define CACHE_EFFICIENT
 
 #define PKT_RINFBUF_CAP 256
 
@@ -73,6 +73,14 @@ void get_clock(time_t * ts)
 		*ts = 0;
 }
 
+struct timeval
+{
+	__time_t tv_sec;		/* Seconds.  */
+	__time_t tv_usec;	/* Microseconds.  */
+};
+
+struct timeval trace_clock = {0, 0};
+
 #ifdef LOCKLESS
 #ifdef CACHE_EFFICIENT
 void read_pkt(uint8_t *pkt, int *size, time_t *ts)
@@ -119,6 +127,8 @@ void write_pkt(const uint8_t *pkt, int pkt_size, time_t ts)
 	in_rbuf[nextWrite].ts = ts;
 
 	time_now = ts;
+
+	trace_clock.tv_sec = ts; // second only
 
 	nextWrite = afterNextWrite;
 	wBatch++;
@@ -248,7 +258,29 @@ lb_state_stats_t last_state_stats = { 0,0,0 };
 //int sgx_deleted_flow = 0;
 //int lb_deleted_flow = 0;
 
-#ifndef LIVE
+int mos_flow_cnt = 0;
+
+void etap_set_flow(int crt_flow)
+{
+    mos_flow_cnt = crt_flow;
+}
+
+extern int cnt_timeouted;
+extern int DoCallTimes;
+extern int DoDfcTimes;
+extern long long DoDfcSize;
+extern int cnt_ip;
+extern int cnt_tcp;
+extern int cnt_icmp;
+extern int cnt_other;
+extern int err_drop_4;
+extern int err_drop_3;
+extern int err_drop_2;
+extern int err_drop_1;
+extern int client_new_stream;
+extern int server_new_stream;
+
+#if CAIDA == 1
 double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
 {
 	//eprintf("etapn started record %d rec_per_bat %d!\n", lbn_record_size, lbn_record_per_batch);
@@ -314,25 +346,36 @@ double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
             ocall_get_time(&end_s, &end_ns);
             double elapsed_us = (end_s - start_s)*1000000.0 + (end_ns - start_ns) / 1000.0;
 
+// #if LightBox==1
+//             int cache_hit = lb_state_stats.cache_hit - last_state_stats.cache_hit;
+//             int store_hit = lb_state_stats.store_hit - last_state_stats.store_hit;
+//             int miss = last_state_stats.miss - last_state_stats.miss;
+//             int total = cache_hit + store_hit + miss;
+// 			eprintf("Round %d - pkt %d - delay %f - tput %f - flow %d - state %d %d %d %f\n", 
+// 				++round_idx, pkt_count, elapsed_us/pkt_count, total_byte*8.0 / elapsed_us,mos_flow_cnt,
+//                 cache_hit, store_hit, miss,
+// 				1-cache_hit*1.0/total);
+//             last_state_stats = lb_state_stats;
+// #else
+			eprintf("Round %d - pkt %d - delay %f - tput %f \
+					\nflow %d dfc %d dfc effective %d dfc size %lld timeouted %d, \
+					\nip %d, tcp %d, icmp %d, other %d, \
+					\nerr_drop_1 %d, err_drop_2 %d, err_drop_3 %d, err_drop_4 %d\
+					\nsum %d, client %d, server %d, all %d \n\n",
+					++round_idx, pkt_count, elapsed_us / pkt_count, total_byte*8.0 / elapsed_us, 
+					mos_flow_cnt, DoCallTimes, DoDfcTimes, DoDfcSize, cnt_timeouted,
+					cnt_ip, cnt_tcp, cnt_icmp, cnt_other,
+					err_drop_1, err_drop_2, err_drop_3, err_drop_4,
+					cnt_tcp+cnt_icmp+cnt_other+err_drop_1+err_drop_2+err_drop_3+err_drop_4,
+					client_new_stream, server_new_stream, client_new_stream+server_new_stream);
 #if LightBox==1
             int cache_hit = lb_state_stats.cache_hit - last_state_stats.cache_hit;
             int store_hit = lb_state_stats.store_hit - last_state_stats.store_hit;
             int miss = last_state_stats.miss - last_state_stats.miss;
             int total = cache_hit + store_hit + miss;
-			eprintf("Round %d - pkt %d - delay %f - tput %f - flow %d - state %d %d %d %f\n", 
-				++round_idx, pkt_count, elapsed_us/pkt_count, total_byte*8.0 / elapsed_us,
-				cache_lkup_table.count + store_lkup_table.count,
-                cache_hit, store_hit, miss,
-				1-cache_hit*1.0/total);
-            last_state_stats = lb_state_stats;
-#else
-			eprintf("Round %d - pkt %d - delay %f - tput %f - flow %d\n",
-				++round_idx, pkt_count, elapsed_us / pkt_count, total_byte*8.0 / elapsed_us,
-                exp_stats->current_stream);
-            ocall_lb_log(round_idx, pkt_count, elapsed_us / pkt_count, total_byte*8.0 / elapsed_us,
-                exp_stats->current_stream);
+			eprintf("Miss rate %f \n\n", 1-cache_hit*1.0/total);
+			last_state_stats = lb_state_stats;
 #endif
-            //eprintf("deleted flow : sgx %d lb %d\n", sgx_deleted_flow, lb_deleted_flow);
 			pkt_count = 0;
 
 			//etap_stopping = 1;
@@ -435,7 +478,7 @@ double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
         }
     }
 }
-#else
+#elif LIVE == 1
 // this should be called only once
 double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
 {
@@ -594,28 +637,11 @@ double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
 			extern int DoCallTimes;
 
 			// print round stats
-#define ETAP_TEST_ITVL 1000000
-			if (unlikely(pkt_count >= ETAP_TEST_ITVL)) {
+			if (unlikely(pkt_count >= TEST_ITVL)) {
 				ocall_get_time(&end_s, &end_ns);
 				double elapsed_us = (end_s - start_s)*1000000.0 + (end_ns - start_ns) / 1000.0;
 
-				if (cacheMissFlow != 0)
-				{
-					eprintf("Round %d - delay %f - tput %f, Miss Rate %lf%%, #dfc:%d.\n",
-						++round_idx, elapsed_us / pkt_count, total_byte*8.0 / elapsed_us,
-						(cacheMissFlow)*100.0 / (cacheHitFlow + cacheMissFlow), DoCallTimes);
-				}
-				else
-				{
-					eprintf("Round %d - delay %f - tput %f, #dfc:%d.\n",
-						++round_idx, elapsed_us / pkt_count, total_byte*8.0 / elapsed_us, DoCallTimes);
-				}
-
-
-				//eprintf("Round %d - delay %f - tput %f - flow %d\n",
-				//	++round_idx, elapsed_us / pkt_count, total_byte*8.0 / elapsed_us,
-				//	exp_stats->current_stream);
-
+					eprintf("Round %d - delay %f - tput %f, Miss Rate %lf%%, #dfc:%d, flow_cache:%d, flow_store:%d, mos_flow:%d\n",	++round_idx, elapsed_us / pkt_count, total_byte*8.0 / elapsed_us, (cacheMissFlow)*100.0 / (cacheHitFlow + cacheMissFlow), DoCallTimes, cache_lkup_table.count, store_lkup_table.count, mos_flow_cnt);
 				pkt_count = 0;
 				total_byte = 0;
 				cacheMissFlow = 0;
@@ -629,4 +655,6 @@ double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
 	// never executed
 	return 0.0;
 }
+#elif MICRO == 1
+#else
 #endif

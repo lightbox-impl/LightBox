@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "memory_mgt.h"
 //#define SYS_MALLOC
+long sys_mem_allocated = 0;
 
 typedef struct tag_mem_chunk
 {
@@ -117,6 +118,7 @@ MPAllocateChunk(mem_pool_t mp)
 {
 
 #ifdef SYS_MALLOC
+    sys_mem_allocated += mp->mp_chunk_size;
 	return malloc(mp->mp_chunk_size);
 #else
 	mem_chunk_t p = mp->mp_freeptr;
@@ -147,6 +149,7 @@ MPAllocateChunk(mem_pool_t mp)
 MPFreeChunk(mem_pool_t mp, void *p)
 {
 #ifdef SYS_MALLOC
+    sys_mem_allocated -= mp->mp_chunk_size;
 	return free(p);
 #else
 	mem_chunk_t mcp = (mem_chunk_t)p;

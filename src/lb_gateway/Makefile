@@ -3,6 +3,8 @@
 ### LightBox switches ###
 LightBox ?= 0
 CAIDA ?= 0
+LIVE ?= 1
+MICRO ?= 0
 CONNECTION ?= 0
 
 SGX_DEBUG = 0
@@ -75,7 +77,7 @@ else
         App_C_Flags += -DNDEBUG -UEDEBUG -UDEBUG
 endif
 
-App_Link_Flags := $(SGX_COMMON_CFLAGS) -L$(SGX_LIBRARY_PATH) -l$(Urts_Library_Name) -lpcap
+App_Link_Flags := $(SGX_COMMON_CFLAGS) -L$(SGX_LIBRARY_PATH) -l$(Urts_Library_Name) -lpcap -DCAIDA=$(CAIDA) -DLIVE=$(LIVE) -DMICRO=$(MICRO)
 
 ifneq ($(SGX_MODE), HW)
 	App_Link_Flags += -lsgx_uae_service_sim
@@ -88,12 +90,6 @@ App_C_Objects := $(App_C_Files:.c=.o)
 App_Name := lb_gateway
 
 ######## Enclave Settings ########
-###### PRADS ######
-# refer to code
-#PRADS_CFLAGS=-D__USE_GNU -DCONFDIR='"/usr/local/etc/prads/"' -DSGBOX=$(SGBOX) -DTRACE_TRICK=$(TRACE_TRICK) -DLOG_AGENCY=$(LOG_AGENCY) -DNO_BUNDLE=$(NO_BUNDLE) -DCAIDA=$(CAIDA) -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION)
-#PRADS_Link_Flags=-lpcap -lresolv -lpcre
-###### End PRADS ######
-	
 ifneq ($(SGX_MODE), HW)
 	Trts_Library_Name := sgx_trts_sim
 	Service_Library_Name := sgx_tservice_sim
@@ -191,7 +187,7 @@ host/edge_u.o: host/edge_u.c
 	@echo "CC   <=  $<"
 	
 host/%.o: host/%.c
-	@$(CC) $(App_C_Flags) $(PRADS_CFLAGS) -c $< -o $@
+	@$(CC) $(App_C_Flags) $(App_Link_Flags) $(PRADS_CFLAGS) -c $< -o $@
 	@echo "CC  <=  $<"
 
 $(App_Name): host/edge_u.o $(App_C_Objects)

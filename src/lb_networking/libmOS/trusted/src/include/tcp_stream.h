@@ -221,10 +221,8 @@ struct tcp_send_vars
 	TAILQ_ENTRY(tcp_stream) send_link;
 	TAILQ_ENTRY(tcp_stream) ack_link;
 
-#if LightBox == 0
 	TAILQ_ENTRY(tcp_stream) timer_link;		/* timer link (rto list, tw list) */
 	TAILQ_ENTRY(tcp_stream) timeout_link;	/* connection timeout link */
-#endif
 
 	struct tcp_send_buffer *sndbuf;
 

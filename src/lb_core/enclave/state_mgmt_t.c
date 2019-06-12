@@ -11,8 +11,8 @@
 #include <stdlib.h>
 
 //#define SGX_PAGING
-#define CONNECTION 0
-#define CAIDA 1
+// #define CONNECTION 0
+// #define CAIDA 1
 #define LKUP_DUAL
 
 /* statistics of lb_state */
@@ -409,6 +409,7 @@ flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_flow_st
 	}
 }
 #else
+// dual lookup
 #if CONNECTION==0
 flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_flow_state, time_t ts, int idx)
 {
@@ -555,6 +556,92 @@ flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_flow_st
 			}
 
             ++lb_state_stats.miss;
+			return ft_miss;
+		}
+	}
+}
+flow_tracking_status flow_tracking_no_creation(const fid_t *fid, state_entry_t **out_flow_state, time_t ts, int idx)
+{
+	static state_entry_t swap_buffer;
+
+	lkup_entry_t *cache_lkup_entry = cuckoo_hash_lookup(&cache_lkup_table, fid, KEY_LEN);
+
+	// cache hit
+	if (cache_lkup_entry) {
+		state_entry_t *tracked = (state_entry_t *)cache_lkup_entry->value;
+
+		_raise_to_front(tracked);
+
+		tracked->last_access_time = ts;
+
+		// Test only
+		tracked->is_client = 1;
+
+		*out_flow_state = (state_entry_t*)&tracked->state;
+
+        ++lb_state_stats.cache_hit;
+		return ft_cache_hit;
+	}
+	else {
+		// fast lookup without re-hashing
+		lkup_entry_t *store_lkup_entry = cuckoo_hash_fast_lookup(&store_lkup_table, fid, KEY_LEN);
+
+		// store hit
+		if (store_lkup_entry) {
+			// evict and buffer
+			state_entry_t *victim = _drop_from_rear();
+			auth_enc(&victim->state, FLOW_STATE_SIZE, &victim->state, &victim->mac);
+			//victim->within_enclave = 0;
+
+			memcpy(&swap_buffer, victim, sizeof(state_entry_t));
+
+			fid_t victim_fid = victim->lkup->key;
+
+			cuckoo_hash_remove(&cache_lkup_table, victim->lkup);
+
+			// copy (and decrypt) tracked entry to enclave
+			state_entry_t *cache_free = victim;
+			state_entry_t *tracked = (state_entry_t *)store_lkup_entry->value;
+
+			veri_dec(&tracked->state, FLOW_STATE_SIZE, &cache_free->state, &tracked->mac);
+			cache_free->idx = idx;
+			//cache_free->within_enclave = 1;
+
+			// remove from the tracked entry from store lkup table
+			cuckoo_hash_remove(&store_lkup_table, store_lkup_entry);
+			// and then add it to cache lkup table
+			lkup_entry_t *cache_new_lkup = cuckoo_hash_insert(&cache_lkup_table, fid, KEY_LEN, cache_free);
+			if (cache_new_lkup)
+				cache_free->lkup = cache_new_lkup;
+			else {
+				eprintf("cache_new_lkup cuckoo_hash_insert error\n");
+				abort();
+			}
+
+			_push_to_front(cache_free);
+
+			// Test only
+			cache_free->is_client = 1;
+
+			cache_free->last_access_time = ts;
+
+			// copy evicted entry to store
+			memcpy(tracked, &swap_buffer, sizeof(state_entry_t));
+			lkup_entry_t *store_new_lkup = cuckoo_hash_insert(&store_lkup_table, &victim_fid, KEY_LEN, tracked);
+			if (store_new_lkup)
+				tracked->lkup = store_new_lkup;
+			else {
+				eprintf("store_new_lkup cuckoo_hash_insert error\n");
+				abort();
+			}
+
+			*out_flow_state = (state_entry_t*)&cache_free->state;
+
+            ++lb_state_stats.store_hit;
+			return ft_store_hit;
+		}
+		// store miss, we refrain from creating new flow, in case the middlebox will do so
+		else {
 			return ft_miss;
 		}
 	}
@@ -806,6 +893,7 @@ flow_tracking_status stop_tracking(const fid_t *fid)
 	}
 }
 
+// don't use or refer to this legacy code! Use stop_tracking instead
 void check_expiration(time_t crt_time, int timeout)
 {
 	struct cuckoo_hash_item *it;

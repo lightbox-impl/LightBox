@@ -30,6 +30,7 @@ FillInPacketIPContext (struct pkt_ctx *pctx, struct iphdr *iph, int ip_len)
 	return;
 }
 /*----------------------------------------------------------------------------*/
+int cnt_tcp = 0, cnt_icmp = 0, cnt_other = 0, err_drop_1 = 0, err_drop_2 = 0, err_drop_3 = 0, err_drop_4 = 0;
 inline int 
 ProcessInIPv4Packet(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 {
@@ -38,26 +39,39 @@ ProcessInIPv4Packet(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 	struct mon_listener *walk;
 	/* check and process IPv4 packets */
 	struct iphdr* iph =
+#if CAIDA == 0
 		(struct iphdr *)((char *)pctx->p.ethh + sizeof(struct ethhdr));
+#else
+		(struct iphdr *)((char *)pctx->p.ethh);
+#endif
 	int ip_len = ntohs(iph->tot_len);
-
+    /*static bool ddd = false;
+    if(!ddd){
+    printf("iph %p tos %d len %d proto %d \n", iph, iph->tos, ip_len, iph->protocol);
+    ddd = true;
+    }*/
 	/* drop the packet shorter than ip header */
 	if (ip_len < sizeof(struct iphdr)) {
 		ret = ERROR;
 		// ip error 1
+		++err_drop_1;
 		goto __return;
 	}
+    //printf("error 1\n");
 
 	if (iph->version != IPVERSION ) {
 		release = true;
 		ret = FALSE;
 		// ip error 2
+		++err_drop_2;
 		goto __return;
 	}
 
+    //printf("error 2\n");
 
 	FillInPacketIPContext(pctx, iph, ip_len);
 
+    //printf("error 3\n");
 
 	/* callback for monitor raw socket */
 	TAILQ_FOREACH(walk, &mtcp->monitors, link)
@@ -74,7 +88,7 @@ ProcessInIPv4Packet(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 #endif
 		}
 
-
+    //printf("error 4\n");
 
 	/* if there is no MOS_SOCK_STREAM or MOS_SOCK_MONITOR_STREAM socket,
 	   forward IP packet before reaching upper (transport) layer */
@@ -88,10 +102,13 @@ ProcessInIPv4Packet(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 			ForwardIPPacket(mtcp, pctx);
 		}
 		// ip error 3
+		++err_drop_3;
 		return TRUE;
 #endif
 	}		
 	
+    //printf("error 5\n");
+
 	if (ip_fast_csum(iph, iph->ihl)) 
 	{
 #ifdef ALLOW_PKT_DROP
@@ -99,14 +116,19 @@ ProcessInIPv4Packet(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 #else
 		ret = ERROR;
 		// ip error 4
+		++err_drop_4;
 		goto __return;
 #endif
 
 	}
 
+    //printf("error 6\n");
+
 	switch (iph->protocol) {
 		case IPPROTO_TCP:
 			// tcp
+            //printf("tcp pkt!\n");
+			++cnt_tcp;
 			return ProcessInTCPPacket(mtcp, pctx);
 
 
@@ -117,10 +139,12 @@ ProcessInIPv4Packet(mtcp_manager_t mtcp, struct pkt_ctx *pctx)
 #else
 		case IPPROTO_ICMP:
 			// icmp
+			++cnt_icmp;
 			if (ProcessICMPPacket(mtcp, pctx))
 				return TRUE;
 		default:
 			// ipelse
+			++cnt_other;
 			/* forward other protocols without any processing */
 			if (!mtcp->num_msp || !pctx->forward)
 				release = true;

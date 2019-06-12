@@ -645,16 +645,26 @@ HandleCallback(mtcp_manager_t mtcp, uint32_t hook,
 		fcode = MLSNR(socket)->stream_orphan_fcode;
 		/* if not match with filter, return */
 		if (ISSET_BPFFILTER(fcode) && pctx && EVAL_BPFFILTER(fcode, 
+#if CAIDA == 0
 		    (uint8_t *)pctx->p.iph - sizeof(struct ethhdr), 
 	        pctx->p.ip_len + sizeof(struct ethhdr)) == 0)
+#else
+		    (uint8_t *)pctx->p.iph, 
+	        pctx->p.ip_len) == 0)
+#endif
 			return;
 	}
     if (socket->socktype == MOS_SOCK_MONITOR_RAW) {
 		fcode = MLSNR(socket)->raw_pkt_fcode;
 		/* if not match with filter, return */
 		if (ISSET_BPFFILTER(fcode) && pctx && EVAL_BPFFILTER(fcode, 
+#if CAIDA == 0
 		    (uint8_t *)pctx->p.iph - sizeof(struct ethhdr), 
 	        pctx->p.ip_len + sizeof(struct ethhdr)) == 0)
+#else
+		    (uint8_t *)pctx->p.iph, 
+	        pctx->p.ip_len) == 0)
+#endif
 			return;
 	}
 

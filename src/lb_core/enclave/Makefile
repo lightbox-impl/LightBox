@@ -76,13 +76,14 @@ LightBox_C_Objects := $(LightBox_C_Files:.c=.o)
 
 LightBox ?= 1
 CAIDA ?= 0
+LIVE ?= 0
+MICRO ?= 0
 CONNECTION ?= 0
 MSG64 ?= 0
 
-LightBox_FLAGS = -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DMSG64=$(MSG64)
+LightBox_FLAGS = -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DLIVE=$(LIVE) -DMICRO=$(MICRO) -DMSG64=$(MSG64)
 LightBox_FLAGS += $(LightBox_Include_Paths)
 LightBox_FLAGS += $(Enclave_C_Flags)
-
 
 Enclave_Name := ../liblb_core_t.a
 

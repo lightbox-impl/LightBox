@@ -69,7 +69,7 @@ typedef struct _tcprb_t {
 
 	#if LightBox == 1
 
-		#define MAX_SEG_COUNT 8
+		#define MAX_SEG_COUNT 4
 			tcpbufseg_t tcpbufseg_buffer[MAX_SEG_COUNT];
 			long long int seg_used;
 			int current_seg_no;

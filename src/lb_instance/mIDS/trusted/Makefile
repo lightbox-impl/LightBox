@@ -5,6 +5,7 @@ SGX_ARCH ?= x64
 SGX_DEBUG ?= 0
 SGX_PRERELEASE ?= 1
 LightBox ?=1
+CAIDA ?= 0
 
 ifeq ($(shell getconf LONG_BIT), 32)
 	SGX_ARCH := x86
@@ -69,6 +70,7 @@ DFC_Cpp_Flags := -march=native -msse4
 LightBox_Dir := ../../../../src/lb_core
 LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../
 LightBox_Lib := $(LightBox_Dir)/liblb_core_t.a
+LightBox_Flag := -DLightBox=${LightBox} -DCAIDA=$(CAIDA) -DUSE_ETAP
 
 MOS_Lib := ../../../lb_networking/libmOS/liblb_mos_t.a
 Pcap_Lib := ../../../lb_networking/libpcap/liblb_pcap_t.a
@@ -128,6 +130,7 @@ endif
 endif
 
 all: $(Signed_Enclave_Name)
+	@echo "LightBox = ${LightBox}"
 
 ######## Enclave Objects ########
 

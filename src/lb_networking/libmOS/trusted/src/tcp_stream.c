@@ -436,16 +436,20 @@ DestroyMonitorStreamSocket(mtcp_manager_t mtcp, socket_map_t msock)
 	mctx.cpu = mtcp->ctx->cpu;
 	socktype = msock->socktype;
 	sockid = msock->id;
-
+	static int aaa = 0, bbb=0;
 	switch (socktype) {
 	case MOS_SOCK_MONITOR_STREAM_ACTIVE:
+		// if(aaa++ < 10)
+		// 	printf("free socket!\n");
 		FreeSocket(&mctx, sockid, socktype);
 		break;
 	case MOS_SOCK_MONITOR_RAW:
 		/* do nothing since all raw sockets point to the same socket */
 		break;
 	default:
-		TRACE_DBG("Trying to destroy a monitor socket for an unsupported type!\n");
+		// if(bbb++ < 5)
+		// 	printf("strange socket %d!\n", socktype);
+		//TRACE_DBG("Trying to destroy a monitor socket for an unsupported type!\n");
 		rc = -1;
 		/* exit(-1); */
 		break;
@@ -915,10 +919,52 @@ DestroySingleTCPStream(mtcp_manager_t mtcp, tcp_stream *stream)
 
 }
 /*---------------------------------------------------------------------------*/
+// #if LightBox == 1
+// #include "../../../../lb_core/enclave/state_mgmt_t.h"
+// #endif
+bool timeouting = false; // only for current single-threaded handling
 void 
 DestroyTCPStream(mtcp_manager_t mtcp, tcp_stream *stream)
 {
-	tcp_stream *pair_stream = stream->pair_stream;
+// #if LightBox == 1
+// 	fid_t fid;
+// 	memset(&fid, 0, sizeof(fid));
+// 	fid.src_ip = stream->daddr;
+// 	fid.dst_ip = stream->saddr;
+// 	fid.src_port = stream->dport;
+// 	fid.dst_port = stream->sport;
+// 	fid.proto = PF_INET;
+
+// 	state_entry_t* state_entry;
+// 	// about to destroy, so safe to set the access time to 0
+// 	flow_tracking_status rlt = flow_tracking_no_creation(&fid, &state_entry, 0, 0);
+// 	if(rlt == ft_miss) {
+// 		printf("Impossible!\n");
+// 		abort();
+// 	}
+// 	tcp_stream *pair_stream = &state_entry->state;
+
+// 	// restore links
+// 	stream->pair_stream = pair_stream;
+// 	pair_stream->pair_stream = stream;
+// #else
+	tcp_stream *pair_stream;
+#if LightBox == 1
+	if(timeouting) {
+		pair_stream = 0;
+		stream->pair_stream = 0;
+	}
+	else {
+		pair_stream = stream->pair_stream;
+	}
+#else
+	pair_stream = stream->pair_stream;
+#endif
+
+	// if(stream->saddr != pair_stream->daddr)
+	// 	printf("%s\nhell %d %d %d %d\npair %d %d %d %d\n", __func__,
+	// 		stream->saddr, stream->daddr, stream->sport, stream->dport,
+	// 		pair_stream->saddr, pair_stream->daddr, pair_stream->sport, pair_stream->dport);
 
 	DestroySingleTCPStream(mtcp, stream);
 	

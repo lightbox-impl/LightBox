@@ -960,8 +960,12 @@ eval_bpf_5tuple(struct sfbpf_program fcode,
 	struct tcphdr *tcph;
 
 	ethh = (struct ethhdr *)buf;
+#if CAIDA == 0
 	ethh->h_proto = htons(ETH_P_IP);
 	iph = (struct iphdr *)(ethh + 1);
+#else
+	iph = (struct iphdr *)(ethh);
+#endif
 	iph->ihl = IP_HEADER_LEN >> 2;
 	iph->version = 4;
 	iph->tos = 0;
@@ -975,8 +979,13 @@ eval_bpf_5tuple(struct sfbpf_program fcode,
 	tcph->source = sport;
 	tcph->dest = dport;
 	
+#if CAIDA == 0 
 	return EVAL_BPFFILTER(fcode, (uint8_t *)iph - sizeof(struct ethhdr),
 						 TOTAL_TCP_HEADER_LEN);
+#else
+	return EVAL_BPFFILTER(fcode, (uint8_t *)iph,
+						 TOTAL_TCP_HEADER_LEN);
+#endif
 }
 /*----------------------------------------------------------------------------*/
 int 

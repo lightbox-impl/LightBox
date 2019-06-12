@@ -164,7 +164,7 @@ int etap_testrun()
 		return 1;
 	}
 	else {
-		//printf("Expecting %d batches to receive in current round!\n", num_batch);
+	//	printf("Expecting %d batches to receive in current round!\n", num_batch);
 		return 1;
 	}
 }
@@ -178,11 +178,11 @@ void ocall_lb_etap_in(uint8_t **batch)
 	/* stop sign */
 	if (unlikely(b_idx == num_batch)) {
 		*batch = 0;
-		//printf("no more batch to receive after %d!\n", b_idx);
+	//	printf("no more batch to receive after %d!\n", b_idx);
 		b_idx = 0;
 	}
 	else {
-		//printf("to receive batch %d!\n", b_idx);
+//		printf("to receive batch %d!\n", b_idx);
 
 		int expect = batch_size;
 		while (expect) {
@@ -203,6 +203,6 @@ void ocall_lb_etap_in(uint8_t **batch)
 
 		++b_idx;
 
-		//printf("batch %d received!\n", b_idx);
+	//	printf("batch %d received!\n", b_idx);
 	}
 }

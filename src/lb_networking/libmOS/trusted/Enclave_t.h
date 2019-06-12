@@ -15,7 +15,6 @@
 extern "C" {
 #endif
 
-
 void ecall_test();
 void ecall_mos_test(const char* config_file_path);
 int ecall_auth_enc(uint8_t* src, int src_len, uint8_t* dst, uint8_t* mac);

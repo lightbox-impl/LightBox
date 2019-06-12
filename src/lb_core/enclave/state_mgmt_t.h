@@ -20,11 +20,12 @@ typedef enum { ft_init,
 			   ft_stop_inexist
 			 } flow_tracking_status;
 
-#if CONNECTION==0
-flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_flow_state, time_t ts, int idx);
-#else
+// #if CONNECTION==0
+// flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_flow_state, time_t ts, int idx);
+// #else
 flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_state, time_t ts, int idx);
-#endif
+flow_tracking_status flow_tracking_no_creation(const fid_t *fid, state_entry_t **out_state, time_t ts, int idx);
+//#endif
 
 void check_expiration(time_t crt_time, int timeout);
 

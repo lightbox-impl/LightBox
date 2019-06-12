@@ -5,6 +5,9 @@ SGX_ARCH ?= x64
 SGX_DEBUG ?= 0
 SGX_PRERELEASE ?= 1
 LightBox ?=1
+CAIDA ?= 0
+TRACE_CLOCK ?= 0
+FIX_TIMEOUT ?= 0
 
 ifeq ($(shell getconf LONG_BIT), 32)
 	SGX_ARCH := x86
@@ -81,7 +84,7 @@ DFC_Cpp_Flags := -march=native -msse4
 
 LightBox_Dir := ../../../../src/lb_core
 LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../
-LightBox_Flag := -DLightBox=$(LightBox) -DSGX_HANDLE_WEIRD_PKT #-DUSE_ETAP -DSGX_DEBUG_PIN -DALLOW_PKT_DROP #-DSGX_DEBUG_TIME
+LightBox_Flag := -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) -DTRACE_CLOCK=$(TRACE_CLOCK) -DFIX_TIMEOUT=$(FIX_TIMEOUT) -DSGX_HANDLE_WEIRD_PKT #-DUSE_ETAP -DSGX_DEBUG_PIN -DALLOW_PKT_DROP #-DSGX_DEBUG_TIME
 LightBox_Lib := $(LightBox_Dir)/liblb_core_t.a
 
 Enclave_Cpp_Files := $(wildcard $(Enclave_Dir)/*.cpp)
@@ -155,6 +158,7 @@ endif
 endif
 
 all: $(Enclave_Name)
+	@echo "LightBox = ${LightBox}"
 
 ######## Enclave Objects ########
 

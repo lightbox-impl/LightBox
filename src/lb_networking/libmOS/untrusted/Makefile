@@ -4,7 +4,10 @@ SGX_MODE ?= HW
 SGX_ARCH ?= x64
 SGX_DEBUG ?= 0
 SGX_PRERELEASE ?= 1
-LightBox ?= 1
+# LightBox ?= 1
+# CAIDA ?= 0
+# TRACE_CLOCK ?= 0
+# FIX_TIMEOUT ?= 0
 
 ifeq ($(shell getconf LONG_BIT), 32)
 	SGX_ARCH := x86
@@ -49,7 +52,8 @@ endif
 
 LightBox_Dir := ../../../../src/lb_core
 LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../
-LightBox_Flag := -DLightBox=$(LightBox) -DUSE_ETAP
+LightBox_Flag := -DUSE_ETAP
+# -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) -DTRACE_CLOCK=$(TRACE_CLOCK) -DFIX_TIMEOUT=$(FIX_TIMEOUT) 
 LightBox_Lib := $(LightBox_Dir)/liblb_core_u.a
 
 
@@ -107,6 +111,7 @@ App_Link_Flags += -L.. -Llib -lmtcp_org -lpcap -lpthread -lnuma
 
 
 all:  $(App_Name)
+	@echo "LightBox = ${LightBox}"
 
 
 ######## App Objects ########

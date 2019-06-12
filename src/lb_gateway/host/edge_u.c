@@ -9,6 +9,7 @@ typedef struct ms_ecall_auth_enc_t {
 	uint8_t* ms_mac;
 } ms_ecall_auth_enc_t;
 
+
 typedef struct ms_ocall_print_string_t {
 	char* ms_str;
 } ms_ocall_print_string_t;

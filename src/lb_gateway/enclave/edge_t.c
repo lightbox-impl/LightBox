@@ -25,19 +25,20 @@ typedef struct ms_ecall_auth_enc_t {
 	uint8_t* ms_mac;
 } ms_ecall_auth_enc_t;
 
+
 typedef struct ms_ocall_print_string_t {
 	char* ms_str;
 } ms_ocall_print_string_t;
 
 static sgx_status_t SGX_CDECL sgx_ecall_auth_enc(void* pms)
 {
-	CHECK_REF_POINTER(pms, sizeof(ms_ecall_auth_enc_t));
 	ms_ecall_auth_enc_t* ms = SGX_CAST(ms_ecall_auth_enc_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
 	uint8_t* _tmp_src = ms->ms_src;
 	uint8_t* _tmp_dst = ms->ms_dst;
 	uint8_t* _tmp_mac = ms->ms_mac;
 
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_auth_enc_t));
 
 	ms->ms_retval = ecall_auth_enc(_tmp_src, ms->ms_src_len, _tmp_dst, _tmp_mac);
 

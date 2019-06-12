@@ -416,9 +416,6 @@ RearrangeRTOStore(mtcp_manager_t mtcp) {
 void
 CheckRtmTimeout(mtcp_manager_t mtcp, uint32_t cur_ts, int thresh)
 {
-#if LightBox == 1
-
-#else
 	tcp_stream *walk, *next;
 	struct rto_head* rto_list;
 	int cnt;
@@ -474,15 +471,11 @@ CheckRtmTimeout(mtcp_manager_t mtcp, uint32_t cur_ts, int thresh)
 	}
 
 	TRACE_ROUND("Checking retransmission timeout. cnt: %d\n", cnt);
-#endif
 }
 /*----------------------------------------------------------------------------*/
 void 
 CheckTimewaitExpire(mtcp_manager_t mtcp, uint32_t cur_ts, int thresh)
 {
-#if LightBox == 1
-
-#else
 	tcp_stream *walk, *next;
 	int cnt;
 
@@ -531,15 +524,12 @@ CheckTimewaitExpire(mtcp_manager_t mtcp, uint32_t cur_ts, int thresh)
 	}
 
 	TRACE_ROUND("Checking timewait timeout. cnt: %d\n", cnt);
-#endif
 }
 /*----------------------------------------------------------------------------*/
+#if FIX_TIMEOUT == 0
 void 
 CheckConnectionTimeout(mtcp_manager_t mtcp, uint32_t cur_ts, int thresh)
 {
-#if LightBox == 1
-
-#else
 	tcp_stream *walk, *next;
 	int cnt;
 
@@ -555,9 +545,53 @@ CheckConnectionTimeout(mtcp_manager_t mtcp, uint32_t cur_ts, int thresh)
 		if ((int32_t)(cur_ts - walk->last_active_ts) >= 
 				g_config.mos->tcp_timeout) {
 
-			TRACE_DBG("stream-state: %s, streampair-state: %s\n",
-				  TCPStateToString(walk),
-				  TCPStateToString(walk->pair_stream));
+			// TRACE_DBG("stream-state: %s, streampair-state: %s\n",
+			// 	  TCPStateToString(walk),
+			// 	  TCPStateToString(walk->pair_stream));
+			
+			walk->on_timeout_list = FALSE;
+			TAILQ_REMOVE(&mtcp->timeout_list, walk, sndvar->timeout_link);
+			mtcp->timeout_list_cnt--;
+			walk->state = TCP_ST_CLOSED_RSVD;
+			walk->close_reason = TCP_TIMEDOUT;
+			walk->cb_events |= MOS_ON_TCP_STATE_CHANGE;
+			if (walk->socket && HAS_STREAM_TYPE(walk, MOS_SOCK_STREAM)) {
+				RaiseErrorEvent(mtcp, walk);
+			} else {
+				//removed++;
+				DestroyTCPStream(mtcp, walk);
+			}
+		} else {
+			break;
+		}
+	}
+}
+#else
+int cnt_timeouted = 0;
+#if LightBox == 0
+void 
+CheckConnectionTimeout(mtcp_manager_t mtcp, uint32_t cur_ts, int thresh)
+{
+	//printf("Timeout check!\n");
+
+	tcp_stream *walk, *next;
+	int cnt;
+
+	STAT_COUNT(mtcp->runstat.rounds_tocheck);
+
+	cnt = 0;
+	for (walk = TAILQ_FIRST(&mtcp->timeout_list);
+			walk != NULL; walk = next) {
+		if (++cnt > thresh)
+			break;
+		next = TAILQ_NEXT(walk, sndvar->timeout_link);
+
+		if ((int32_t)(cur_ts - walk->last_active_ts) >= 
+				g_config.mos->tcp_timeout) {
+
+			// TRACE_DBG("stream-state: %s, streampair-state: %s\n",
+			// 	  TCPStateToString(walk),
+			// 	  TCPStateToString(walk->pair_stream));
 			
 			walk->on_timeout_list = FALSE;
 			TAILQ_REMOVE(&mtcp->timeout_list, walk, sndvar->timeout_link);
@@ -569,19 +603,137 @@ CheckConnectionTimeout(mtcp_manager_t mtcp, uint32_t cur_ts, int thresh)
 				RaiseErrorEvent(mtcp, walk);
 			} else {
 				DestroyTCPStream(mtcp, walk);
-			}
-		} else {
-			break;
-		}
 
+				++cnt_timeouted;
+			}
+		}
 	}
-#endif
 }
+#else
+#include "../../../lb_core/common/lb_type.h"
+#include "../../../lb_core/enclave/crypto_t.h"
+#include "../../../lb_core/enclave/state_mgmt_t.h"
+#include "../../../lb_core/enclave/lb_edge_t.h"
+#include "../../../lb_core/enclave/cuckoo/cuckoo_hash.h"
+extern struct cuckoo_hash store_lkup_table;
+void lb_fix_links(tcp_stream* stream)
+{
+
+	// repair self pointer
+	struct sockent *__s = &stream->msocks_buffer[0];
+	(__s)->link.tqe_next = (&stream->msocks)->tqh_first = 0;
+	(&stream->msocks)->tqh_last = &(__s)->link.tqe_next;
+	(&stream->msocks)->tqh_first = (__s);
+	(__s)->link.tqe_prev = &(&stream->msocks)->tqh_first;
+
+	if (stream->side == 0)
+	{
+		__s->sock->monitor_stream->stream = stream;
+	}
+	else
+	{
+		__s->sock->monitor_stream->stream = stream->pair_stream;
+	}
+	
+	if (stream->sndvar)
+	{
+		stream->sndvar = &stream->sndvar_buffer;
+
+		if (stream->sndvar->sndbuf)
+		{
+			stream->sndvar->sndbuf = &stream->sndvar->sndbuf_buffer;
+
+			if (stream->sndvar->sndbuf->data)
+			{
+				stream->sndvar->sndbuf->data = stream->sndvar->sndbuf->data_buffer;
+			}
+		}
+	}
+	if (stream->rcvvar)
+	{
+		stream->rcvvar = &stream->rcvvar_buffer;
+		
+		if (stream->rcvvar->rcvbuf)
+		{
+			stream->rcvvar->rcvbuf = &stream->rcvvar->rcvbuf_buffer;
+
+			tcprb_t * rb = stream->rcvvar->rcvbuf;
+			tcpfrag_t* frag = rb->tcpfrag_t_buffer;
+
+			rb->current_frag_no = 1;
+			rb->frag_used = 1;
+
+			(frag)->link.tqe_next = (&rb->frags)->tqh_first = 0;
+			(&rb->frags)->tqh_last = &(frag)->link.tqe_next;
+			(&rb->frags)->tqh_first = (frag);
+			(frag)->link.tqe_prev = &(&rb->frags)->tqh_first;
+
+			tcpbufseg_t* seg;
+			int i, veri = rb->seg_used;
+			rb->bufsegs.tqh_first = 0;
+			rb->bufsegs.tqh_last = &rb->bufsegs.tqh_first;
+			for (i = 0; i < rb->current_seg_no; i++)
+			{
+				seg = &rb->tcpbufseg_buffer[i];
+				assert(seg->id == i);
+				TAILQ_INSERT_TAIL(&rb->bufsegs, seg, link);
+				veri >>= 1;
+			}
+			assert(veri == 0);
+		}
+	}
+}
+
+extern bool timeouting;
+CheckConnectionTimeout(mtcp_manager_t mtcp, uint32_t cur_ts, int thresh)
+{
+	printf("check timeout!\n");
+	timeouting = true;
+	static int aaaa = 0;
+
+    struct cuckoo_hash_item *it;
+    for (cuckoo_hash_each(it, &store_lkup_table))
+    {
+        state_entry_t *entry = it->value;
+        uint32_t state_last_ts = entry->last_access_time * 1000; // to ms
+        if(++aaaa < 10)
+        	printf("%u %u %u %u %u\n", cur_ts, state_last_ts, cur_ts - state_last_ts, 
+        		g_config.mos->tcp_timeout, mtcp->timeout_list_cnt);
+        if ((cur_ts - state_last_ts) > g_config.mos->tcp_timeout) {
+    		// get raw flow state and ... decrypt for consistent processing
+    		veri_dec(&entry->state, FLOW_STATE_SIZE, &entry->state, &entry->mac);
+    		tcp_stream *walk = (tcp_stream *)(&entry->state);
+
+    		walk->on_timeout_list = FALSE;
+    		walk->state = TCP_ST_CLOSED_RSVD;
+			walk->close_reason = TCP_TIMEDOUT;
+			walk->cb_events |= MOS_ON_TCP_STATE_CHANGE;
+
+			// as if walk is swapped into enclave
+			lb_fix_links(walk);
+
+			if(walk->saddr != it->key.src_ip)
+				printf("%s\nwalk %d %d %d %d\niter %d %d %d %d\n", __func__,
+			walk->saddr, walk->daddr, walk->sport, walk->dport,
+			it->key.src_ip, it->key.dst_ip, it->key.src_port, it->key.dst_port);
+
+			if (walk->socket && HAS_STREAM_TYPE(walk, MOS_SOCK_STREAM)) {
+				RaiseErrorEvent(mtcp, walk);
+			} else {
+	            DestroyTCPStream(mtcp, walk);
+
+	            ++cnt_timeouted;
+            }
+        }
+    }
+    timeouting = false;
+}
+#endif
+#endif
 /*----------------------------------------------------------------------------*/
 static int
 RegTimer(mtcp_manager_t mtcp, struct timer *timer)
 {
-
 	/* NOTE: This code assumes that the new timer expires later than existing
 	 * timers with high probability. */
 	struct timer *walk;
