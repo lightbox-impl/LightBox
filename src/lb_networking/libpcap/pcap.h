@@ -2,6 +2,7 @@
 #define SGX_PCAP_H
 
 #include "stdint.h"
+#include <sys/types.h>	/* u_int, u_char etc. */
 
 //#include "time.h"
 // You need use your time port instead of this.
@@ -20,6 +21,7 @@ struct timeval
 
 // pcap.h
 typedef int pcap_t;
+typedef void (*pcap_handler)(u_char *, const struct pcap_pkthdr*, const u_char *);
 
 #define PCAP_ERRBUF_SIZE 256
 
@@ -38,6 +40,8 @@ void	pcap_close(pcap_t * handle);
 pcap_t	*pcap_create(const char *dev_name, char * error_buffer);
 int	pcap_activate(pcap_t * handle);
 
+int pcap_loop(pcap_t *, int, pcap_handler, u_char *);
+int pcap_compile(pcap_t *, struct bpf_program *, const char *, int, bpf_u_int32);
 
 
 

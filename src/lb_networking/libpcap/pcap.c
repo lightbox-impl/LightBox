@@ -23,6 +23,42 @@ const uint8_t * pcap_next(pcap_t * handle, struct pcap_pkthdr * header)
 #endif
 }
 
+int pcap_loop(pcap_t *p, int cnt, pcap_handler callback, u_char *user) 
+{
+		// We only support live capture instead of reading saved file option
+		// We also do not accept -1, 0 value for cnt to represent infinity
+		// pcap_loop may ignore timeout as stated offically. 
+		static uint8_t pktData[8192];
+		struct pcap_pkthdr * pktHeader;
+		for (int i = 0; i < cnt; i++){
+				read_pkt(pktData, &pktHeader->len, (time_t*)&pktHeader->ts);
+				pktHeader->caplen = pktHeader->len;
+				callback(NULL, pktHeader, pktData);
+		}
+		return 0;
+}
+
+
+int pcap_compile(pcap_t *p, struct bpf_program *program, const char *buf,
+				int optimize, bpf_u_int32 mask)
+{
+		// TODO not sure whether I should move to pcap_setfilter or 
+		// keep writing this function. 
+		// Both API envolve bpf program and other code gen stuff
+		
+		compiler_state_t cstate;
+		const char* volatile xbuf = buf;
+		yyscan_t scanner NULL;
+		YY_BUFFER_STATE in_buffer = NULL;
+		u_int len;
+		int rc;
+
+		initchunks(&cstate);
+		cstate.no_optimize = 0;
+
+		
+}
+
 int pcap_inject(pcap_t * handle, const void * data, unsigned long len)
 {
 	// TODO: send one packet
