@@ -5,3 +5,5 @@ sync.sh
 *.so
 *.a
 *.config*
+src/lb_gateway/lb_gateway
+src/lb_instance/mIDS/app
