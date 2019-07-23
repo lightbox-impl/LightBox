@@ -265,20 +265,20 @@ void etap_set_flow(int crt_flow)
     mos_flow_cnt = crt_flow;
 }
 
-extern int cnt_timeouted;
-extern int DoCallTimes;
-extern int DoDfcTimes;
-extern long long DoDfcSize;
-extern int cnt_ip;
-extern int cnt_tcp;
-extern int cnt_icmp;
-extern int cnt_other;
-extern int err_drop_4;
-extern int err_drop_3;
-extern int err_drop_2;
-extern int err_drop_1;
-extern int client_new_stream;
-extern int server_new_stream;
+int cnt_timeouted;
+int DoCallTimes;
+int DoDfcTimes;
+long long DoDfcSize;
+int cnt_ip;
+int cnt_tcp;
+int cnt_icmp;
+int cnt_other;
+int err_drop_4;
+int err_drop_3;
+int err_drop_2;
+int err_drop_1;
+int client_new_stream;
+int server_new_stream;
 
 #if CAIDA == 1
 double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch)
