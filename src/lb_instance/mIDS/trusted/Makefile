@@ -73,7 +73,7 @@ LightBox_Lib := $(LightBox_Dir)/liblb_core_t.a
 LightBox_Flag := -DLightBox=${LightBox} -DCAIDA=$(CAIDA) -DUSE_ETAP
 
 MOS_Lib := ../../../lb_networking/libmOS/liblb_mos_t.a
-Pcap_Lib := ../../../lb_networking/libpcap/liblb_pcap_t.a
+Pcap_Lib := ../../../lb_networking/libpcap/liblb_pcap_t.a ../../../lb_networking/libpcap/liblb_pcap_u.a
 
 Enclave_Cpp_Files := $(wildcard $(Enclave_Dir)/*.cpp)
 Enclave_Cpp_Objects := $(Enclave_Cpp_Files:.cpp=.o) 
