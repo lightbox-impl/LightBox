@@ -75,7 +75,7 @@ LightBox_C_Files := $(wildcard $(LightBox_Dir)/*.c) $(wildcard $(LightBox_Dir)/c
 LightBox_C_Objects := $(LightBox_C_Files:.c=.o)
 
 LightBox ?= 1
-CAIDA ?= 0
+CAIDA ?= 1
 LIVE ?= 0
 MICRO ?= 0
 CONNECTION ?= 0

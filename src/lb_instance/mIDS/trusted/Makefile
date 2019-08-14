@@ -5,7 +5,7 @@ SGX_ARCH ?= x64
 SGX_DEBUG ?= 0
 SGX_PRERELEASE ?= 1
 LightBox ?=1
-CAIDA ?= 0
+CAIDA ?= 1
 
 ifeq ($(shell getconf LONG_BIT), 32)
 	SGX_ARCH := x86
