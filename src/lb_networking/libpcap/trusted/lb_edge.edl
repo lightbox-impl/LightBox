@@ -25,8 +25,8 @@ enclave {
 	};
 
 	untrusted {
-		void ocall_sfbpf_compile(int pkt_hdr_len,[in, out] struct sfbpf_program* fcode,[in, out] struct sfbpf_program* filter, int optimize);
-		void ocall_sfbpf_filter([in, out]struct sfbpf_program * fcode,[in, out] char * p, unsigned int wirelen, unsigned int buflen, [in, out] int *ret);
+		void ocall_sfbpf_compile(int pkt_hdr_len,[in, out] struct sfbpf_program* fcode,[in] const char* filter, int optimize);
+		// void ocall_sfbpf_filter([in, out]struct sfbpf_program * fcode,[in, out] char * p, unsigned int wirelen, unsigned int buflen, [in, out] int *ret);
 	};
 
 };

@@ -7,8 +7,8 @@
 //#include "time.h"
 // You need use your time port instead of this.
 struct timeval {
-    __time_t tv_sec;  /* Seconds.  */
-    __time_t tv_usec; /* Microseconds.  */
+    __time_t tv_sec;
+    __time_t tv_usec;
 };
 
 #ifndef USE_ETAP

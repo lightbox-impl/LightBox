@@ -60,9 +60,9 @@ int pcap_loop(pcap_t* p, int cnt, pcap_handler callback, u_char* user)
 	pkt_len = pktHeader->len;
 	pktHeader->caplen = pktHeader->len;
 	// Run the packet filter before applying callback function
-	int* ret;
-	ocall_sfbpf_filter(&(p->fcode), pktData, pktHeader->len, pktHeader->caplen, ret);
-	if (*ret == 0) {
+	int ret;
+	ret = sfbpf_filter(&(p->fcode.bf_insns), pktData, pktHeader->len, pktHeader->caplen);
+	if (ret == 0) {
 	    continue;
 	}
 	callback(NULL, pktHeader, pktData);

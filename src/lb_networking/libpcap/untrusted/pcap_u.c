@@ -22,7 +22,7 @@
 
 /* int PKT_HEADER_LEN = 1514; */
 
-void ocall_sfbpf_compile(int pkt_hdr_len, struct sfbpf_program* fcode, struct sfbpf_program* filter, int optimize)
+void ocall_sfbpf_compile(int pkt_hdr_len, struct sfbpf_program* fcode, const char* filter, int optimize)
 {
     if (sfbpf_compile(pkt_hdr_len, DLT_EN10MB, fcode, filter, 1, 0) < 0) {
 	fprintf(stderr, "%s: BPF state machine compilation failed!", __FUNCTION__);
@@ -30,12 +30,12 @@ void ocall_sfbpf_compile(int pkt_hdr_len, struct sfbpf_program* fcode, struct sf
     }
 }
 
-void ocall_sfbpf_filter(struct sfbpf_program* fcode, const char* p, unsigned int wirelen, unsigned int buflen, int* ret)
-{
-    *ret = sfbpf_filter(fcode->bf_insns, p, wirelen, buflen);
+/* void ocall_sfbpf_filter(struct sfbpf_program* fcode, const char* p, unsigned int wirelen, unsigned int buflen, int* ret) */
+/* { */
+/* *ret = sfbpf_filter(fcode->bf_insns, p, wirelen, buflen); */
 
-    return;
-}
+/* return; */
+/* } */
 /* int main() */
 /* { */
 /* return 0; */
