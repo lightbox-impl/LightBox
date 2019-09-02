@@ -1,45 +1,3 @@
-/*-
- * Copyright (c) 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997
- *	The Regents of the University of California.  All rights reserved.
- *
- * Some Portions Copyright (C) 2014 Cisco and/or its affiliates. All rights reserved.
- * Some portions Copyright (C) 2010-2013 Sourcefire, Inc.
- *
- * This code is derived from the Stanford/CMU enet packet filter,
- * (net/enet.c) distributed as part of 4.3BSD, and code contributed
- * to Berkeley by Steven McCanne and Van Jacobson both of Lawrence
- * Berkeley Laboratory.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
- * 4. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- *
- *	@(#)bpf.c	7.5 (Berkeley) 7/15/91
- */
 
 #if !(defined(lint) || defined(KERNEL) || defined(_KERNEL))
 static const char __attribute__((unused)) rcsid[] = "@(#) $Header: /usr/cvsroot/sfeng/ims/src/libraries/daq/daq/sfbpf/sf_bpf_filter.c,v 1.5 2014/06/10 13:38:55 cwaxman Exp $ (LBL)";
@@ -64,8 +22,8 @@ static const char __attribute__((unused)) rcsid[] = "@(#) $Header: /usr/cvsroot/
 #include <sys/bitypes.h>
 #endif
 
-#include <sys/param.h>
-#include <sys/time.h>
+/* #include <sys/param.h> */
+/* #include <sys/time.h> */
 #include <sys/types.h>
 
 #define SOLARIS (defined(sun) && (defined(__SVR4) || defined(__svr4__)))
@@ -82,7 +40,7 @@ static const char __attribute__((unused)) rcsid[] = "@(#) $Header: /usr/cvsroot/
 
 #endif /* WIN32 */
 
-#include "sfbpf-int.h"
+#include "bpf/sfbpf-int.h"
 
 #if !defined(KERNEL) && !defined(_KERNEL)
 #include <stdlib.h>
@@ -102,10 +60,35 @@ static const char __attribute__((unused)) rcsid[] = "@(#) $Header: /usr/cvsroot/
 #define LBL_ALIGN
 #endif
 #endif
+static inline u_int32_t __builtin_bswap32(u_int32_t x)
+{
+    return ((x << 24) & 0xff000000) | ((x << 8) & 0x00ff0000) | ((x >> 8) & 0x0000ff00) | ((x >> 24) & 0x000000ff);
+}
+
+#define __bswap_16(x) ((unsigned short)(__builtin_bswap32(x) >> 16))
+#define __bswap_32(x) ((unsigned int)(__builtin_bswap32(x)))
+
+unsigned short ntohs(unsigned short netshort)
+{
+#if BYTE_ORDER == BIG_ENDIAN
+    return netshort;
+#elif BYTE_ORDER == LITTLE_ENDIAN
+    return __bswap_16(netshort);
+#endif
+}
+
+unsigned long ntohl(unsigned long netlong)
+{
+#if BYTE_ORDER == BIG_ENDIAN
+    return netlong;
+#elif BYTE_ORDER == LITTLE_ENDIAN
+    return __bswap_32(netlong);
+#endif
+}
 
 #ifndef LBL_ALIGN
 #ifndef WIN32
-#include <netinet/in.h>
+/* #include <netinet/in.h> */
 #endif
 
 #define EXTRACT_SHORT(p) ((u_short)ntohs(*(u_short*)p))
@@ -132,6 +115,32 @@ static const char __attribute__((unused)) rcsid[] = "@(#) $Header: /usr/cvsroot/
 	    len = MLEN(m);       \
 	}                        \
     }
+
+/* static inline uint32_t __builtin_bswap32(uint32_t x) */
+/* { */
+/* return ((x << 24) & 0xff000000) | ((x << 8) & 0x00ff0000) | ((x >> 8) & 0x0000ff00) | ((x >> 24) & 0x000000ff); */
+/* } */
+
+/* #define __bswap_16(x) ((unsigned short)(__builtin_bswap32(x) >> 16)) */
+/* #define __bswap_32(x) ((unsigned int)(__builtin_bswap32(x))) */
+
+/* unsigned short ntohs(unsigned short netshort) */
+/* { */
+/* #if BYTE_ORDER == BIG_ENDIAN */
+/* return netshort; */
+/* #elif BYTE_ORDER == LITTLE_ENDIAN */
+/* return __bswap_16(netshort); */
+/* #endif */
+/* } */
+
+/* unsigned long ntohl(unsigned long netlong) */
+/* { */
+/* #if BYTE_ORDER == BIG_ENDIAN */
+/* return netlong; */
+/* #elif BYTE_ORDER == LITTLE_ENDIAN */
+/* return __bswap_32(netlong); */
+/* #endif */
+/* } */
 
 static int m_xword(m, k, err) register struct mbuf* m;
 register int k, *err;
@@ -199,7 +208,7 @@ bad:
  * in all other cases, p is a pointer to a buffer and buflen is its size.
  */
 DAQ_SO_PUBLIC u_int bpf_filter(pc, p, wirelen, buflen) register const struct bpf_insn* pc;
-register const char* p;
+register const u_char* p;
 u_int wirelen;
 register u_int buflen;
 {
@@ -234,7 +243,9 @@ register u_int buflen;
 #if defined(KERNEL) || defined(_KERNEL)
 	    return 0;
 #else
-	    abort();
+	    /* pcap_print("abort? \n"); */
+	    /* abort(); */
+	    return 0;
 #endif
 	case BPF_RET | BPF_K:
 	    return (u_int)pc->k;
@@ -530,7 +541,7 @@ int len;
 
     if (len < 1)
 	return 0;
-	/*
+/*
      * There's no maximum program length in userland.
      */
 #if defined(KERNEL) || defined(_KERNEL)
@@ -541,7 +552,7 @@ int len;
     for (i = 0; i < len; ++i) {
 	p = &f[i];
 	switch (BPF_CLASS(p->code)) {
-	    /*
+	/*
                  * Check that memory operations use valid addresses.
                  */
 	case BPF_LD:
@@ -552,7 +563,7 @@ int len;
 	    case BPF_ABS:
 	    case BPF_IND:
 	    case BPF_MSH:
-		/*
+/*
                          * There's no maximum packet data size
                          * in userland.  The runtime packet length
                          * check suffices.

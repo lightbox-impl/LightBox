@@ -37,14 +37,17 @@ typedef uint bpf_u_int32;
 
 struct pcap {
     struct sfbpf_program fcode;
+    int hasFcode;
 };
 
 typedef struct pcap pcap_t;
+pcap_t handle;
 
 struct pcap_pkthdr {
     struct timeval ts; /* time stamp */
     uint32_t caplen;   /* length of portion present */
-    uint32_t len;      /* length this packet (off wire) */
+    uint32_t len;      //   [> length this packet (off wire) <]
+    // int len;
 };
 
 // TODO: might include a bpf.h header file later
@@ -72,7 +75,9 @@ int pcap_activate(pcap_t* handle);
 
 int pcap_loop(pcap_t*, int, pcap_handler, u_char*);
 int pcap_compile(pcap_t*, struct sfbpf_program*, const char*, int, bpf_u_int32);
+int pcap_setfilter(pcap_t* handle, struct sfbpf_program* filter);
 
 uint bpf_filter(const struct bpf_insn* pc, const u_char* p, uint wirelen, uint buflen);
 
+void dummy_func(int i);
 #endif // !SGX_PCAP_H

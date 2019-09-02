@@ -66,7 +66,7 @@ Enclave_Dir = ../trusted
 App_Dir = .
 
 
-LightBox_Include_Paths := -I$(App_Dir) 
+LightBox_Include_Paths := -I$(App_Dir) -I/usr/include  -lpcap
 
 LightBox_FLAGS = $(LightBox_Include_Paths)
 LightBox_FLAGS += $(App_C_Flags)
@@ -91,7 +91,7 @@ $(App_Dir)/lb_edge_u.o: $(App_Dir)/lb_edge_u.c
 	@echo "CC   <=  $<"
 
 $(LightBox_C_Objects):  %.o: %.c
-	@$(CC) $(LightBox_FLAGS) -c $< -o $@
+	@$(CC) $(LightBox_FLAGS) -c $< -o $@ 
 	@echo "CC  <=  $<"
 
 $(App_Name): $(App_Dir)/lb_edge_u.o $(LightBox_C_Objects) 
