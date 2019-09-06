@@ -1,7 +1,7 @@
 #ifndef LB_STATE_T_H
 #define LB_STATE_T_H
 
-#include "../common/lb_type.h"
+#include "../../common/lb_type.h"
 
 typedef struct {
     int cache_hit;
