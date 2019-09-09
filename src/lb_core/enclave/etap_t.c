@@ -6,7 +6,8 @@
 #include "state_mgmt_t.h"
 #include "utils_t.h"
 
-#include "../common/lb_config.h"
+/* #include "../common/lb_config.h" */
+#include "include/lb_config.h"
 
 #include "sgx_thread.h"
 
