@@ -1,7 +1,7 @@
 #ifndef __MTCP_PIPE_H_
 #define __MTCP_PIPE_H_
 
-#include <mtcp_api.h>
+#include "mtcp_api.h"
 
 int 
 PipeRead(mctx_t mctx, int pipeid, char *buf, int len);

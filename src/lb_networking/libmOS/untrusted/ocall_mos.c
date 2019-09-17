@@ -37,7 +37,7 @@ void ocall_sfbpf_freecode(char *program)
 //**pcap
 #include <pcap.h>
 #include <string.h> 
-#include "../../../lb_core/host/etap_u.h"
+#include "../../../lb_core/host/include/etap_u.h"
 
 pcap_t * g_pcap_handle;
 

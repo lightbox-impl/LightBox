@@ -1,31 +1,28 @@
 #include "include/sgx/sgxFunc.h"
 
-
-#include <pthread.h>
 #include <errno.h>
+#include <pthread.h>
 #include <string.h>
 
-#include "pipe.h"
-#include "eventpoll.h"
-#include "tcp_stream.h"
-#include "mtcp.h"
 #include "debug.h"
+#include "eventpoll.h"
+#include "mtcp.h"
+#include "pipe.h"
+#include "tcp_stream.h"
 
 #define PIPE_BUF_SIZE 10240
 
-#define MAX(a, b) ((a)>(b)?(a):(b))
-#define MIN(a, b) ((a)<(b)?(a):(b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 /*---------------------------------------------------------------------------*/
-enum pipe_state
-{
-	PIPE_CLOSED, 
-	PIPE_ACTIVE, 
-	PIPE_CLOSE_WAIT, 
+enum pipe_state {
+	PIPE_CLOSED,
+	PIPE_ACTIVE,
+	PIPE_CLOSE_WAIT,
 };
 /*---------------------------------------------------------------------------*/
-struct pipe
-{
+struct pipe {
 	int state;
 	socket_map_t socket[2];
 
@@ -39,13 +36,11 @@ struct pipe
 	pthread_cond_t pipe_cond;
 };
 /*---------------------------------------------------------------------------*/
-int 
-mtcp_pipe(mctx_t mctx, int pipeid[2])
-{
+int mtcp_pipe(mctx_t mctx, int pipeid[2]) {
 	socket_map_t socket[2];
 	struct pipe *pp;
 	int ret;
-	
+
 	socket[0] = AllocateSocket(mctx, MOS_SOCK_PIPE);
 	if (!socket[0]) {
 		errno = ENFILE;
@@ -84,7 +79,6 @@ mtcp_pipe(mctx_t mctx, int pipeid[2])
 		free(pp->buf);
 		free(pp);
 		return -1;
-
 	}
 	ret = pthread_cond_init(&pp->pipe_cond, NULL);
 	if (ret) {
@@ -107,12 +101,10 @@ mtcp_pipe(mctx_t mctx, int pipeid[2])
 	pipeid[1] = socket[1]->id;
 
 	return 0;
-	
 }
 /*---------------------------------------------------------------------------*/
-static void 
-RaiseEventToPair(mtcp_manager_t mtcp, socket_map_t socket, uint32_t event)
-{
+static void RaiseEventToPair(mtcp_manager_t mtcp, socket_map_t socket,
+			     uint32_t event) {
 	struct pipe *pp = socket->pp;
 	socket_map_t pair_socket;
 
@@ -123,23 +115,22 @@ RaiseEventToPair(mtcp_manager_t mtcp, socket_map_t socket, uint32_t event)
 
 	if (pair_socket->opts & MTCP_NONBLOCK) {
 		if (pair_socket->epoll) {
-			AddEpollEvent(mtcp->ep, USR_EVENT_QUEUE, pair_socket, event);
+			AddEpollEvent(mtcp->ep, USR_EVENT_QUEUE, pair_socket,
+				      event);
 		}
 	} else {
 		pthread_cond_signal(&pp->pipe_cond);
 	}
 }
 /*---------------------------------------------------------------------------*/
-int 
-PipeRead(mctx_t mctx, int pipeid, char *buf, int len)
-{
+int PipeRead(mctx_t mctx, int pipeid, char *buf, int len) {
 	mtcp_manager_t mtcp;
 	socket_map_t socket;
 	struct pipe *pp;
 	int to_read;
 	int to_notify;
 	int ret;
-	
+
 	mtcp = GetMTCPManager(mctx);
 	if (!mtcp) {
 		return -1;
@@ -199,8 +190,7 @@ PipeRead(mctx_t mctx, int pipeid, char *buf, int len)
 
 	/* if the buffer was full, notify the write event to the pair socket */
 	to_notify = FALSE;
-	if (pp->buf_len == pp->buf_size)
-		to_notify = TRUE;
+	if (pp->buf_len == pp->buf_size) to_notify = TRUE;
 
 	if (pp->buf_off + to_read < pp->buf_size) {
 		memcpy(buf, pp->buf + pp->buf_off, to_read);
@@ -222,27 +212,27 @@ PipeRead(mctx_t mctx, int pipeid, char *buf, int len)
 
 	/* if level triggered, raise event for remainig buffer */
 	if (pp->buf_len > 0) {
-		if ((socket->epoll & MOS_EPOLLIN) && !(socket->epoll & MOS_EPOLLET)) {
-			AddEpollEvent(mtcp->ep, 
-					USR_SHADOW_EVENT_QUEUE, socket, MOS_EPOLLIN);
+		if ((socket->epoll & MOS_EPOLLIN) &&
+		    !(socket->epoll & MOS_EPOLLET)) {
+			AddEpollEvent(mtcp->ep, USR_SHADOW_EVENT_QUEUE, socket,
+				      MOS_EPOLLIN);
 		}
 	} else if (pp->state == PIPE_CLOSE_WAIT && pp->buf_len == 0) {
-		AddEpollEvent(mtcp->ep, USR_SHADOW_EVENT_QUEUE, socket, MOS_EPOLLIN);
+		AddEpollEvent(mtcp->ep, USR_SHADOW_EVENT_QUEUE, socket,
+			      MOS_EPOLLIN);
 	}
 
 	return to_read;
 }
 /*---------------------------------------------------------------------------*/
-int 
-PipeWrite(mctx_t mctx, int pipeid, const char *buf, int len)
-{
+int PipeWrite(mctx_t mctx, int pipeid, const char *buf, int len) {
 	mtcp_manager_t mtcp;
 	socket_map_t socket;
 	struct pipe *pp;
 	int to_write;
 	int to_notify;
 	int ret;
-	
+
 	mtcp = GetMTCPManager(mctx);
 	if (!mtcp) {
 		return -1;
@@ -299,8 +289,7 @@ PipeWrite(mctx_t mctx, int pipeid, const char *buf, int len)
 
 	/* if the buffer was empty, notify read event to the pair socket */
 	to_notify = FALSE;
-	if (pp->buf_len == 0)
-		to_notify = TRUE;
+	if (pp->buf_len == 0) to_notify = TRUE;
 
 	if (pp->buf_tail + to_write < pp->buf_size) {
 		/* if the data fit into the buffer, copy it */
@@ -324,54 +313,52 @@ PipeWrite(mctx_t mctx, int pipeid, const char *buf, int len)
 
 	/* if level triggered, raise event for remainig buffer */
 	if (pp->buf_len < pp->buf_size) {
-		if ((socket->epoll & MOS_EPOLLOUT) && !(socket->epoll & MOS_EPOLLET)) {
-			AddEpollEvent(mtcp->ep, 
-					USR_SHADOW_EVENT_QUEUE, socket, MOS_EPOLLOUT);
+		if ((socket->epoll & MOS_EPOLLOUT) &&
+		    !(socket->epoll & MOS_EPOLLET)) {
+			AddEpollEvent(mtcp->ep, USR_SHADOW_EVENT_QUEUE, socket,
+				      MOS_EPOLLOUT);
 		}
 	}
 
 	return to_write;
 }
 /*----------------------------------------------------------------------------*/
-int 
-RaisePendingPipeEvents(mctx_t mctx, int epid, int pipeid)
-{
+int RaisePendingPipeEvents(mctx_t mctx, int epid, int pipeid) {
 	struct mtcp_epoll *ep = GetSocket(mctx, epid)->ep;
 	socket_map_t socket = GetSocket(mctx, pipeid);
 	struct pipe *pp = socket->pp;
 
-	if (!pp)
-		return -1;
-	if (pp->state < PIPE_ACTIVE)
-		return -1;
+	if (!pp) return -1;
+	if (pp->state < PIPE_ACTIVE) return -1;
 
 	/* if there are payloads already read before epoll registration */
 	/* generate read event */
 	if (socket->epoll & MOS_EPOLLIN) {
 		if (pp->buf_len > 0) {
-			AddEpollEvent(ep, USR_SHADOW_EVENT_QUEUE, socket, MOS_EPOLLIN);
+			AddEpollEvent(ep, USR_SHADOW_EVENT_QUEUE, socket,
+				      MOS_EPOLLIN);
 		} else if (pp->state == PIPE_CLOSE_WAIT) {
-			AddEpollEvent(ep, USR_SHADOW_EVENT_QUEUE, socket, MOS_EPOLLIN);
+			AddEpollEvent(ep, USR_SHADOW_EVENT_QUEUE, socket,
+				      MOS_EPOLLIN);
 		}
 	}
 
 	/* same thing to the write event */
 	if (socket->epoll & MOS_EPOLLOUT) {
 		if (pp->buf_len < pp->buf_size) {
-			AddEpollEvent(ep, USR_SHADOW_EVENT_QUEUE, socket, MOS_EPOLLOUT);
+			AddEpollEvent(ep, USR_SHADOW_EVENT_QUEUE, socket,
+				      MOS_EPOLLOUT);
 		}
 	}
 
 	return 0;
 }
 /*---------------------------------------------------------------------------*/
-int 
-PipeClose(mctx_t mctx, int pipeid)
-{
+int PipeClose(mctx_t mctx, int pipeid) {
 	mtcp_manager_t mtcp;
 	socket_map_t socket;
 	struct pipe *pp;
-	
+
 	mtcp = GetMTCPManager(mctx);
 	if (!mtcp) {
 		return -1;
@@ -403,11 +390,9 @@ PipeClose(mctx_t mctx, int pipeid)
 
 	/* control reaches here only when PIPE_CLOSE_WAIT */
 
-	if (pp->socket[0])
-		pp->socket[0]->pp = NULL;
-	if (pp->socket[1])
-		pp->socket[1]->pp = NULL;
-	
+	if (pp->socket[0]) pp->socket[0]->pp = NULL;
+	if (pp->socket[1]) pp->socket[1]->pp = NULL;
+
 	pthread_mutex_unlock(&pp->pipe_lock);
 
 	pthread_mutex_destroy(&pp->pipe_lock);

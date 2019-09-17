@@ -1,7 +1,7 @@
 #ifndef __FHASH_H_
 #define __FHASH_H_
 
-#include <sys/queue.h>
+#include "sys/queue.h"
 #include "tcp_stream.h"
 
 #if LightBox == 1

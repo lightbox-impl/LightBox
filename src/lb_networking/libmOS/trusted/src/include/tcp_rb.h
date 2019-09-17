@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <sys/queue.h>
-#include <memory_mgt.h>
+#include "sys/queue.h"
+#include "memory_mgt.h"
 #include "mos_api.h"
 
 /* Abstract ring buffer as an infinite but windowed buffer */

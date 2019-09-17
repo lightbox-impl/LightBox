@@ -35,7 +35,7 @@
 #include "tcp_stream.h"
 #include "io_module.h"
 
-#include "../../../lb_core/enclave/etap_t.h"
+#include "../../../lb_core/enclave/include/etap_t.h"
 
 #ifdef ENABLE_DPDK
 /* for launching rte thread */
