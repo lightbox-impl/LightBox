@@ -49,7 +49,8 @@ else
 endif
 
 LightBox_Dir := ../../../../src/lb_core
-LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../
+Root_Dir := ../../../..
+LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../ -I$(Root_Dir)/include
 LightBox_Flag := -DUSE_ETAP 
 # -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) 
 LightBox_Lib := $(LightBox_Dir)/liblb_core_u.a

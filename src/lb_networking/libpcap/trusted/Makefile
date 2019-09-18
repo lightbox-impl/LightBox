@@ -68,8 +68,9 @@ Enclave_Cpp_Flags := $(Enclave_C_Flags) -nostdinc++ -std=c++11 -Wno-write-string
 
 Pcap_Dir := $(Enclave_Dir)
 LightBox_Dir := $(Enclave_Dir)
+Root_Dir := ../../../..
 
-LightBox_Include_Paths := -I$(LightBox_Dir) -I$(LightBox_Dir)/cuckoo -I../..
+LightBox_Include_Paths := -I$(LightBox_Dir) -I$(LightBox_Dir)/cuckoo  -I$(Root_Dir)/include
 LightBox_EDL = $(LightBox_Dir)/lb_edge.edl
 LightBox_C_Files := $(wildcard $(LightBox_Dir)/*.c) $(wildcard $(LightBox_Dir)/cuckoo/*.c)
 LightBox_C_Objects := $(LightBox_C_Files:.c=.o)

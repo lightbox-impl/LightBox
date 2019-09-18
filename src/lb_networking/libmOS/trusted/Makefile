@@ -83,7 +83,8 @@ DFC_Cpp_Flags := -march=native -msse4
 
 
 LightBox_Dir := ../../../../src/lb_core
-LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../
+Root_Dir := ../../../..
+LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../ -I(Root_Dir)/include
 LightBox_Flag := -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) -DTRACE_CLOCK=$(TRACE_CLOCK) -DFIX_TIMEOUT=$(FIX_TIMEOUT) -DSGX_HANDLE_WEIRD_PKT #-DUSE_ETAP -DSGX_DEBUG_PIN -DALLOW_PKT_DROP #-DSGX_DEBUG_TIME
 LightBox_Lib := $(LightBox_Dir)/liblb_core_t.a
 

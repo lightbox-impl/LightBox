@@ -68,7 +68,8 @@ DFC_Cpp_Flags := -march=native -msse4
 
 
 LightBox_Dir := ../../../../src/lb_core
-LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../
+Root_Dir := ../../../..
+LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../ -I$(Root_Dir)/include
 LightBox_Lib := $(LightBox_Dir)/liblb_core_t.a
 LightBox_Flag := -DLightBox=${LightBox} -DCAIDA=$(CAIDA) -DUSE_ETAP
 
