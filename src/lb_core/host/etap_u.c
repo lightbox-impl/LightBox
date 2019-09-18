@@ -141,6 +141,7 @@ void etap_init() {
 		break;
 	}
 	configure_etap();
+	ecall_etap_controller_init(0, 0);
 }
 
 void etap_deinit() {

@@ -202,7 +202,7 @@ int initialize_enclave(void)
 
 extern "C" {
 int mOsPrintPkt();
-#include "../../../lb_core/host/etap_u.h"
+#include "../../../lb_core/host/include/etap_u.h"
 }
 
 const char* pcap_file_name;
@@ -303,15 +303,5 @@ int SGX_CDECL main(int argc, char* argv[])
 	exit(1);
     }
 
-    //	fprintf(stderr, "sfbpf_program size is %d!\n", sizeof(sfbpf_program));
-    //	fprintf(stderr, "sfbpf_insn size is %d!\n", sizeof(sfbpf_insn));
-    //	fprintf(stderr, "pcap_pkthdr size is %d!\n", sizeof(pcap_pkthdr));
-    //	fprintf(stderr, "timeval size is %d!\n", sizeof(timeval));
-    //	fprintf(stderr, "timespec size is %d!\n", sizeof(timespec));
-    //	fprintf(stderr, "__time_t size is %d!\n", sizeof(__time_t));
-    //	fprintf(stderr, "config size is %d!\n", sizeof(struct config));
-
-    //printf("Enter a character before exit ...\n");
-    //getchar();
     return 0;
 }

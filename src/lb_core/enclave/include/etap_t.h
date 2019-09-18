@@ -55,23 +55,25 @@ typedef struct rx_ring {
 	rx_ring_data_t* rData;
 	void (*read_pkt)(uint8_t*, int*, timeval_t*, rx_ring_data_t*);
 	void (*write_pkt)(const uint8_t*, int, timeval_t, rx_ring_data_t*);
-	// double (*ecall_etap_start)(rx_ring_t*, int, int);
-
 } rx_ring_t;
 
 typedef struct etap_controller {
 	rx_ring_t* rx_ring_instance;
 	rx_ring_t* tx_ring_instance;
-	double (*ecall_start)(rx_ring_t*, int, int);
+	double (*ecall_etap_start)(rx_ring_t*, int, int);
 } etap_controller_t;
 
-etap_controller_t* etap_handle_init(int ring_mode, int etap_db_mode);
+etap_controller_t* etap_controller_init(const int ring_mode,
+					const int etap_db_mode);
 
 rx_ring_t* etap_rx_init(const int mode);
 
 void get_clock(timeval_t* ts);
 
 void etap_set_flow(int crt_flow);
+
+void ecall_etap_controller_init(int* ret, const int ring_mode,
+				const int etap_db_mode);
 
 double ecall_etap_start_caida(rx_ring_t* handle, int lbn_record_size,
 			      int lbn_record_per_batch);

@@ -121,7 +121,8 @@ extern "C"
 #include "src/include/mtcp.h"
 #include "src/include/tcp_stream.h"
 
-#include "../../../lb_core/enclave/state_mgmt_t.h"
+#include "../../../lb_core/enclave/include/state_mgmt_t.h"
+#include "../../../lb_core/enclave/include/etap_t.h"
 }
 
 
@@ -267,12 +268,14 @@ PrintThrouthPut(mctx_t mctx, int sock, int side,
 }
 
 
+extern etap_controller_t* etap_controller_instance;
 
 int mOsIDS(const char* config_file_path)
 {
 #if LightBox == 1
 	//lightbox init
 	init_state_mgmt();
+	etap_controller_instance = etap_controller_init(0, 0);
 #endif
 
 

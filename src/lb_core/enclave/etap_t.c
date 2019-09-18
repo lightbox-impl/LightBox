@@ -25,6 +25,8 @@ lb_state_stats_t last_state_stats = {0, 0, 0};
 
 int mos_flow_cnt = 0;
 
+etap_controller_t* etap_controller_instance;
+
 void etap_set_flow(int crt_flow) { mos_flow_cnt = crt_flow; }
 
 rx_ring_t* etap_rx_init(const int mode) {
@@ -76,7 +78,8 @@ rx_ring_t* etap_rx_init(const int mode) {
 	return r;
 }
 
-etap_controller_t* etap_handle_init(int ring_mode, int etap_db_mode) {
+etap_controller_t* etap_controller_init(const int ring_mode,
+				    const int etap_db_mode) {
 	etap_controller_t* p =
 	    (etap_controller_t*)malloc(sizeof(etap_controller_t));
 	p->rx_ring_instance = etap_rx_init(ring_mode);
@@ -84,21 +87,35 @@ etap_controller_t* etap_handle_init(int ring_mode, int etap_db_mode) {
 
 	switch (etap_db_mode) {
 		case 0:
-			p->ecall_start = &ecall_etap_start_caida;
+			p->ecall_etap_start = &ecall_etap_start_caida;
 			break;
 		case 1:
-			p->ecall_start = &ecall_etap_start_live;
+			p->ecall_etap_start = &ecall_etap_start_live;
 			break;
 		case 2:
-			p->ecall_start = &ecall_etap_start_micro;
+			p->ecall_etap_start = &ecall_etap_start_micro;
 			break;
 
 		default:
-			p->ecall_start = &ecall_etap_start_caida;
+			p->ecall_etap_start = &ecall_etap_start_caida;
 			break;
 	}
 
 	return p;
+}
+
+
+// This function will be called in the untrusted call "etap_init()". 
+void ecall_etap_controller_init(int* ret, const int ring_mode,
+				const int etap_db_mode) {
+	*ret = 2;
+	if (etap_controller_instance == NULL) {
+		etap_controller_instance =
+		    etap_controller_init(ring_mode, etap_db_mode);
+		*ret = 0;
+	} else {
+		*ret = 1;
+	}
 }
 
 int cnt_timeouted;
