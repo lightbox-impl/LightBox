@@ -3,13 +3,14 @@
 
 #include "bpf/sfbpf.h"
 #include "stdint.h"
+#include "../../../../include/lb_type.h"
 #include <sys/types.h> /* u_int, u_char etc. */
 //#include "time.h"
 // You need use your time port instead of this.
-struct timeval {
-    __time_t tv_sec;
-    __time_t tv_usec;
-};
+// struct timeval {
+    // __time_t tv_sec;
+    // __time_t tv_usec;
+// };
 
 #ifndef USE_ETAP
 #define USE_ETAP
@@ -45,8 +46,8 @@ pcap_t handle;
 
 struct pcap_pkthdr {
     struct timeval ts; /* time stamp */
-    uint32_t caplen;   /* length of portion present */
-    uint32_t len;      //   [> length this packet (off wire) <]
+    int32_t caplen;   /* length of portion present */
+    int32_t len;      //   [> length this packet (off wire) <]
     // int len;
 };
 
