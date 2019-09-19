@@ -3,13 +3,9 @@
 #endif
 
 
-
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
-#include <sched.h>
-#include <sys/stat.h>
-#include <sys/syscall.h>
 #include <assert.h>
 #ifndef DISABLE_NUMA
 #include <numa.h>

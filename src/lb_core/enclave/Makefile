@@ -71,7 +71,7 @@ LightBox_Dir := $(Encalve_Dir)
 Root_Dir := ../../..
 
 LightBox_Include_Paths := -I$(Root_Dir)/include -I$(Encalve_Dir)/cuckoo 
-LightBox_EDL = $(LightBox_Dir)/lb_edge.edl
+LightBox_EDL = lb_edge.edl
 LightBox_C_Files := $(wildcard $(LightBox_Dir)/*.c) $(wildcard $(LightBox_Dir)/cuckoo/*.c)
 LightBox_C_Objects := $(LightBox_C_Files:.c=.o)
 

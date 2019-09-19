@@ -1,7 +1,6 @@
 #include "include/sgx/sgxFunc.h"
 
 #include <assert.h>
-#include <signal.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>

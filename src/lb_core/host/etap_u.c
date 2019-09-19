@@ -1,7 +1,7 @@
 #include "etap_u.h"
 
 /* #include "../common/lb_config.h" */
-#include "include/lb_config.h"
+#include "lb_config.h"
 
 #include <arpa/inet.h>
 #include <netdb.h>

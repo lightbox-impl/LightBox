@@ -3,7 +3,6 @@
 
 #ifdef DBGMSG
 #define _GNU_SOURCE
-#include <sched.h>
 #endif
 #include <errno.h>
 #include <stdio.h>

@@ -7,16 +7,6 @@
 #include <unistd.h>
 #include <assert.h>
 
-#ifdef DARWIN
-#include <netinet/if_ether.h>
-#include <netinet/tcp.h>
-#else
-#include <linux/if_ether.h>
-#include <linux/tcp.h>
-#endif
-#include <string.h>
-#include <netinet/ip.h>
-
 #include "mtcp.h"
 #include "arp.h"
 #include "eth_out.h"

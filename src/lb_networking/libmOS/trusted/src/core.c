@@ -2,12 +2,7 @@
 
 #include "include/sgx/sgxFunc.h"
 
-#include <sched.h>
 #include <unistd.h>
-#include <sys/time.h>
-#include <semaphore.h>
-#include <sys/mman.h>
-#include <signal.h>
 #include <assert.h>
 #include <string.h>
 #include <time.h>

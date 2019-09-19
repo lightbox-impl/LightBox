@@ -1,16 +1,6 @@
 #ifndef __TCP_IN_H_
 #define __TCP_IN_H_
 
-#ifdef DARWIN
-#include <netinet/if_ether.h>
-#include <netinet/tcp.h>
-#include <netinet/udp.h>
-#else
-#include <linux/if_ether.h>
-#include <linux/tcp.h>
-#include <linux/udp.h>
-#endif
-#include <netinet/ip.h>
 
 #include "mos_api.h"
 #include "mtcp.h"

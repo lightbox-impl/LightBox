@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
-#include <sys/ioctl.h>
 #include <sys/queue.h>
 #include <unistd.h>
 

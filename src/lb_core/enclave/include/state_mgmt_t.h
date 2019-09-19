@@ -2,7 +2,7 @@
 #define LB_STATE_T_H
 
 // #include "../../common/lb_type.h"
-#include "include/lb_type.h"
+#include "lb_type.h"
 
 typedef struct {
     int cache_hit;

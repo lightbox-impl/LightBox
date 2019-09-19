@@ -1,7 +1,7 @@
 #ifndef LIGHTBOX_H
 #define LIGHTBOX_H
 
-#include "../common/lb_config.h"
+#include "lb_config.h"
 #include "etap_u.h"
 
 void lb_init();

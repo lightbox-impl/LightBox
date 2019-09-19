@@ -4,8 +4,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
-#include "include/lb_config.h"
-#include "include/lb_type.h"
+#include "lb_config.h"
+#include "lb_type.h"
+// #include "lb_time.h"
 #include "sgx_thread.h"
 #include "state_mgmt_t.h"
 #include "utils_t.h"

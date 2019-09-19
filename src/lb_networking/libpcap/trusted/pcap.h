@@ -3,7 +3,7 @@
 
 #include "bpf/sfbpf.h"
 #include "stdint.h"
-#include "../../../../include/lb_type.h"
+#include "../../../../include/lb_time.h"
 #include <sys/types.h> /* u_int, u_char etc. */
 //#include "time.h"
 // You need use your time port instead of this.

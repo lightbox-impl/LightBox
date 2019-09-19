@@ -29,7 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE. *
  ********************************************************************************/
 
-#include <include/lb_type.h>
+#include <lb_type.h>
 #include <lb_linux/linux_type_ports.h>
 
 #define __FAVOR_BSD

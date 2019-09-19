@@ -19,7 +19,7 @@
 #include "tcp_rb.h"
 
 #if LightBox == 1
-#include "../../../../lb_core/enclave/state_mgmt_t.h"
+#include "../../../../lb_core/enclave/include/state_mgmt_t.h"
 #endif
 
 /*---------------------------------------------------------------------------*/

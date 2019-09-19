@@ -1,17 +1,10 @@
 #include "include/sgx/sgxFunc.h"
 
-#include <arpa/inet.h>
 #include <assert.h>
 #include <ctype.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include "arp.h"
@@ -23,7 +16,6 @@
 /* for setting up io modules */
 #include "io_module.h"
 /* for if_nametoindex */
-#include <net/if.h>
 
 #define MAX_PROCLINE_LEN 1024
 

@@ -69,9 +69,9 @@ endif
 
 Enclave_Dir = ../enclave
 App_Dir = .
+Root_Dir := ../../..
 
-
-LightBox_Include_Paths := -I$(App_Dir) -I../..
+LightBox_Include_Paths := -I$(App_Dir) -I../.. -Iinclude -I$(Root_Dir)/include
 
 # LightBox_FLAGS = -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DMSG64=$(MSG64)
 LightBox_FLAGS = $(LightBox_Include_Paths)

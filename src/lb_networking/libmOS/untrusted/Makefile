@@ -52,7 +52,7 @@ endif
 
 LightBox_Dir := ../../../../src/lb_core
 Root_Dir := ../../../..
-LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../ -I(Root_Dir)/include
+LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../ -I$(Root_Dir)/include
 LightBox_Flag := -DUSE_ETAP
 # -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) -DTRACE_CLOCK=$(TRACE_CLOCK) -DFIX_TIMEOUT=$(FIX_TIMEOUT) 
 LightBox_Lib := $(LightBox_Dir)/liblb_core_u.a

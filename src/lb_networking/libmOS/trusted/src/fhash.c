@@ -1,9 +1,7 @@
 #include "include/sgx/sgxFunc.h"
 
-#include <arpa/inet.h>
 #include <assert.h>
 #include <math.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

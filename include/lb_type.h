@@ -3,7 +3,7 @@
 
 #include "lb_config.h"
 
-#include "src/lb_core/enclave/cuckoo/cuckoo_hash.h"
+#include "../src/lb_core/enclave/cuckoo/cuckoo_hash.h"
 
 #include <stdint.h>
 #include <time.h>
@@ -15,10 +15,10 @@
 	((e_sec - s_sec) * 1000000000.0 + (e_ns - s_ns))
 
 
-typedef struct timeval {
-		__time_t tv_sec;
-		__time_t tv_usec;
-} timeval_t;
+// typedef struct timeval {
+		// __time_t tv_sec;
+		// __time_t tv_usec;
+// } timeval_t;
 
 
 typedef struct flow_state {

@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <sys/types.h>
-#include <netinet/ip.h>
 #include <string.h>
 
 #include "mtcp.h"

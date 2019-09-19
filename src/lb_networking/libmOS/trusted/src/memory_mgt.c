@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
-#include <sys/mman.h>
 #include <unistd.h>
 #ifdef HUGETABLE
 #include <hugetlbfs.h>

@@ -1,7 +1,6 @@
 #include "include/sgx/sgxFunc.h"
 
 #include <errno.h>
-#include <pthread.h>
 #include <string.h>
 
 #include "debug.h"

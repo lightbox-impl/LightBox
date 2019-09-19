@@ -10,12 +10,10 @@
    file.
 */
 
-#include <arpa/inet.h>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
 #include <mtcp_util.h>
-#include <netinet/in.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
