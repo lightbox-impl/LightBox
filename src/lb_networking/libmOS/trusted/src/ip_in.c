@@ -4,7 +4,6 @@
 #define __MOS_CORE_
 
 #include <string.h>
-#include <netinet/ip.h>
 #include <stdbool.h>
 
 #include "ip_in.h"

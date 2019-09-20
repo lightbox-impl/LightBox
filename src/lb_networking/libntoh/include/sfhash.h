@@ -9,6 +9,6 @@
  *
  */
 
-unsigned int sfhash(const void * key, unsigned int len, unsigned int initval);
+unsigned int sfhash(const void* key, unsigned int len, unsigned int initval);
 
 #endif

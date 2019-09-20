@@ -1,31 +1,29 @@
 #include "include/sgx/sgxFunc.h"
 
+#include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include <math.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/queue.h>
+#include "sys/queue.h"
 
 #include "debug.h"
 #include "fhash.h"
 
 //#include "stdint.h" /* Replace with <stdint.h> if appropriate */
 #undef get16bits
-#if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) \
-	|| defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
-#define get16bits(d) (*((const uint16_t *) (d)))
+#if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) || \
+    defined(_MSC_VER) || defined(__BORLANDC__) || defined(__TURBOC__)
+#define get16bits(d) (*((const uint16_t *)(d)))
 #endif
 
-#if !defined (get16bits)
-#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8)\
-		+(uint32_t)(((const uint8_t *)(d))[0]) )
+#if !defined(get16bits)
+#define get16bits(d)                                      \
+	((((uint32_t)(((const uint8_t *)(d))[1])) << 8) + \
+	 (uint32_t)(((const uint8_t *)(d))[0]))
 #endif
 
-inline uint32_t
-SuperFastHash (const char * data, int len) {
+inline uint32_t SuperFastHash(const char *data, int len) {
 	register uint32_t hash = len, tmp;
 	int rem;
 
@@ -35,28 +33,31 @@ SuperFastHash (const char * data, int len) {
 	len >>= 2;
 
 	/* Main loop */
-	for (;len > 0; len--) {
-		hash  += get16bits (data);
-		tmp    = (get16bits (data+2) << 11) ^ hash;
-		hash   = (hash << 16) ^ tmp;
-		data  += 2*sizeof (uint16_t);
-		hash  += hash >> 11;
+	for (; len > 0; len--) {
+		hash += get16bits(data);
+		tmp = (get16bits(data + 2) << 11) ^ hash;
+		hash = (hash << 16) ^ tmp;
+		data += 2 * sizeof(uint16_t);
+		hash += hash >> 11;
 	}
 
 	/* Handle end cases */
 	switch (rem) {
-		case 3: hash += get16bits (data);
-				hash ^= hash << 16;
-				hash ^= ((signed char)data[sizeof (uint16_t)]) << 18;
-				hash += hash >> 11;
-				break;
-		case 2: hash += get16bits (data);
-				hash ^= hash << 11;
-				hash += hash >> 17;
-				break;
-		case 1: hash += (signed char)*data;
-				hash ^= hash << 10;
-				hash += hash >> 1;
+		case 3:
+			hash += get16bits(data);
+			hash ^= hash << 16;
+			hash ^= ((signed char)data[sizeof(uint16_t)]) << 18;
+			hash += hash >> 11;
+			break;
+		case 2:
+			hash += get16bits(data);
+			hash ^= hash << 11;
+			hash += hash >> 17;
+			break;
+		case 1:
+			hash += (signed char)*data;
+			hash ^= hash << 10;
+			hash += hash >> 1;
 	}
 
 	/* Force "avalanching" of final 127 bits */
@@ -71,9 +72,7 @@ SuperFastHash (const char * data, int len) {
 }
 
 /*----------------------------------------------------------------------------*/
-inline unsigned int
-HashFlow(const tcp_stream *flow)
-{
+inline unsigned int HashFlow(const tcp_stream *flow) {
 #if 0
 	register unsigned int hash, i;
 	char *key = (char *)&flow->saddr;
@@ -93,47 +92,39 @@ HashFlow(const tcp_stream *flow)
 #endif
 }
 /*---------------------------------------------------------------------------*/
-#define EQUAL_FLOW(flow1, flow2) \
+#define EQUAL_FLOW(flow1, flow2)                                         \
 	(flow1->saddr == flow2->saddr && flow1->sport == flow2->sport && \
 	 flow1->daddr == flow2->daddr && flow1->dport == flow2->dport)
 /*---------------------------------------------------------------------------*/
-struct hashtable * 
-CreateHashtable(void)            // equality
+struct hashtable *CreateHashtable(void)  // equality
 {
 	int i;
-	struct hashtable* ht = calloc(1, sizeof(struct hashtable));
-	if (!ht){
+	struct hashtable *ht = calloc(1, sizeof(struct hashtable));
+	if (!ht) {
 		TRACE_ERROR("calloc: CreateHashtable");
 		return 0;
 	}
 
 	/* init the tables */
-	for (i = 0; i < NUM_BINS; i++)
-		TAILQ_INIT(&ht->ht_table[i]);
+	for (i = 0; i < NUM_BINS; i++) TAILQ_INIT(&ht->ht_table[i]);
 	return ht;
 }
 /*----------------------------------------------------------------------------*/
-void
-DestroyHashtable(struct hashtable *ht)
-{
-	free(ht);	
-}
+void DestroyHashtable(struct hashtable *ht) { free(ht); }
 /*----------------------------------------------------------------------------*/
-int 
-HTInsert(struct hashtable *ht, tcp_stream *item, unsigned int *hash)
-{
-	/* create an entry*/ 
+int HTInsert(struct hashtable *ht, tcp_stream *item, unsigned int *hash) {
+	/* create an entry*/
 	int idx;
 
 	assert(ht);
-	assert(ht->ht_count <= 65535); // uint16_t ht_count 
+	assert(ht->ht_count <= 65535);  // uint16_t ht_count
 
 	if (hash)
 		idx = (int)*hash;
 	else
 		idx = HashFlow(item);
 
-	assert(idx >=0 && idx < NUM_BINS);
+	assert(idx >= 0 && idx < NUM_BINS);
 
 #if STATIC_TABLE
 	int i;
@@ -146,24 +137,22 @@ HTInsert(struct hashtable *ht, tcp_stream *item, unsigned int *hash)
 			return 0;
 		}
 	}
-	
-	TRACE_INFO("[WARNING] HTSearch() cnt: %d!!\n", TCP_AR_CNT);	
+
+	TRACE_INFO("[WARNING] HTSearch() cnt: %d!!\n", TCP_AR_CNT);
 #endif
 #if LightBox == 1
 
 #else
 	TAILQ_INSERT_TAIL(&ht->ht_table[idx], item, rcvvar->he_link);
-	//item->rcvvar->he_mybucket = &ht->ht_table[idx];
+	// item->rcvvar->he_mybucket = &ht->ht_table[idx];
 	item->ht_idx = TCP_AR_CNT;
 	ht->ht_count++;
 #endif
-	
+
 	return 0;
 }
 /*----------------------------------------------------------------------------*/
-void* 
-HTRemove(struct hashtable *ht, tcp_stream *item)
-{
+void *HTRemove(struct hashtable *ht, tcp_stream *item) {
 	hash_bucket_head *head;
 	int idx = HashFlow(item);
 
@@ -174,12 +163,12 @@ HTRemove(struct hashtable *ht, tcp_stream *item)
 	} else {
 #endif
 		head = &ht->ht_table[idx];
-		//head = item->rcvvar->he_mybucket;
+		// head = item->rcvvar->he_mybucket;
 		assert(head);
 #if LightBox == 1
 
 #else
-		TAILQ_REMOVE(head, item, rcvvar->he_link);	
+	TAILQ_REMOVE(head, item, rcvvar->he_link);
 #endif
 #if STATIC_TABLE
 	}
@@ -187,11 +176,10 @@ HTRemove(struct hashtable *ht, tcp_stream *item)
 
 	ht->ht_count--;
 	return (item);
-}	
+}
 /*----------------------------------------------------------------------------*/
-tcp_stream* 
-HTSearch(struct hashtable *ht, const tcp_stream *item, unsigned int *hash)
-{
+tcp_stream *HTSearch(struct hashtable *ht, const tcp_stream *item,
+		     unsigned int *hash) {
 	tcp_stream *walk;
 	hash_bucket_head *head;
 	int idx;
@@ -203,7 +191,7 @@ HTSearch(struct hashtable *ht, const tcp_stream *item, unsigned int *hash)
 
 	for (i = 0; i < TCP_AR_CNT; i++) {
 		if (ht->ht_array[idx][i]) {
-			if (EQUAL_FLOW(ht->ht_array[idx][i], item)) 
+			if (EQUAL_FLOW(ht->ht_array[idx][i], item))
 				return ht->ht_array[idx][i];
 		}
 	}
@@ -217,8 +205,7 @@ HTSearch(struct hashtable *ht, const tcp_stream *item, unsigned int *hash)
 
 #else
 	TAILQ_FOREACH(walk, head, rcvvar->he_link) {
-		if (EQUAL_FLOW(walk, item)) 
-			return walk;
+		if (EQUAL_FLOW(walk, item)) return walk;
 	}
 #endif
 

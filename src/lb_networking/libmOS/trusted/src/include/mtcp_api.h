@@ -2,9 +2,6 @@
 #define __MTCP_API_H_
 
 #include <stdint.h>
-#include <netinet/in.h>
-#include <sys/uio.h>
-
 
 #ifndef UNUSED
 #define UNUSED(x)		(void)x

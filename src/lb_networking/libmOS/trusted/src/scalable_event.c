@@ -16,8 +16,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tree.h>
-#include <key_value_store.h>
+#include "tree.h"
+#include "key_value_store.h"
 #include "scalable_event.h"
 
 #include "mtcp.h"

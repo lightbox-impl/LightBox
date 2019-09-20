@@ -6,9 +6,7 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/queue.h>
+#include "sys/queue.h""
 #include "key_value_store.h"
 #include "scalable_event.h"
 

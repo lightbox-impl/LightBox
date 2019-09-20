@@ -63,10 +63,12 @@ Crypto_Library_Name := sgx_tcrypto
 
 
 LightBox_Dir := ../../../../lb_core
-LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../
+Root_Dir := ../../../../..
+LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../ -I$(Root_Dir)/include
 LightBox_Lib := $(LightBox_Dir)/liblb_core_t.a
 LightBox_Flag := -DLightBox=${LightBox} -DCAIDA=$(CAIDA) -DUSE_ETAP
 
+MOS_Lib := ../../../libmOS/liblb_mos_t.a 
 Pcap_Lib := ../../../../lb_networking/libpcap/liblb_pcap_t.a    
 
 Enclave_Cpp_Files := $(wildcard $(Enclave_Dir)/*.cpp)
@@ -87,7 +89,7 @@ Enclave_Cpp_Flags := $(Enclave_C_Flags) -nostdinc++ -std=c++11 -Wno-write-string
 Enclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) \
 	-Wl,--whole-archive -l$(Trts_Library_Name) -Wl,--no-whole-archive \
 	-Wl,--start-group -lsgx_tstdc -lsgx_tcxx -l$(Crypto_Library_Name) -l$(Service_Library_Name) \
-	 $(LightBox_Lib) $(Pcap_Lib) -Wl,--end-group \
+	 $(LightBox_Lib) $(Pcap_Lib) $(MOS_Lib) -Wl,--end-group \
 	-Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
 	-Wl,-pie,-eenclave_entry -Wl,--export-dynamic  \
 	-Wl,--defsym,__ImageBase=0 \

@@ -72,8 +72,9 @@ else
         App_C_Flags += -DNDEBUG -UEDEBUG -UDEBUG
 endif
 
+Mos_Lib := ../../../libmOS/liblb_mos_u.a
 App_Cpp_Flags := $(App_C_Flags) -std=c++11 -Wno-delete-incomplete
-App_Link_Flags := $(SGX_COMMON_CFLAGS) -L$(SGX_LIBRARY_PATH) -l$(Urts_Library_Name) -lpthread $(LightBox_Lib) ../../liblb_pcap_u.a ../../untrusted/libbpf.a
+App_Link_Flags := $(SGX_COMMON_CFLAGS) -L$(SGX_LIBRARY_PATH) -l$(Urts_Library_Name) -lpthread $(LightBox_Lib) ../../liblb_pcap_u.a ../../untrusted/libbpf.a $(Mos_Lib)
 
 ifneq ($(SGX_MODE), HW)
 	App_Link_Flags += -lsgx_uae_service_sim

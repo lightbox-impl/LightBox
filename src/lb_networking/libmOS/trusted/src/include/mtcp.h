@@ -3,9 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
 #include <sys/queue.h>
-#include <pthread.h>
 
 #include "memory_mgt.h"
 #include "tcp_ring_buffer.h"

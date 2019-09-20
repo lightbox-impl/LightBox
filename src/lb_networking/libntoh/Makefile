@@ -67,8 +67,9 @@ Enclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fst
 Enclave_Cpp_Flags := $(Enclave_C_Flags) -nostdinc++ -std=c++11 -Wno-write-strings
 
 SGXNtoh_Dir := $(Enclave_Dir)
+Root_Dir := ../../..
 
-SGXNtoh_Include_Paths := -I$(SGXNtoh_Dir) -I../.. 
+SGXNtoh_Include_Paths := -I$(SGXNtoh_Dir) -I../.. -Iinclude/ -I$(Root_Dir)/include
 SGXNtoh_C_Files := $(wildcard $(SGXNtoh_Dir)/*.c) 
 SGXNtoh_C_Objects := $(SGXNtoh_C_Files:.c=.o)
 

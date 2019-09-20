@@ -1,7 +1,7 @@
 
 extern "C" {
-#include "../../../../lb_core/enclave/etap_t.h"
-#include "../../../../lb_core/enclave/state_mgmt_t.h"
+#include "../../../../lb_core/enclave/include/etap_t.h"
+#include "../../../../lb_core/enclave/include/state_mgmt_t.h"
 #include "../../../../lb_networking/libpcap/trusted/bpf/sfbpf.h"
 #include "../../../../lb_networking/libpcap/trusted/pcap.h"
 }

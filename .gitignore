@@ -7,3 +7,4 @@ sync.sh
 *.config*
 src/lb_gateway/lb_gateway
 src/lb_instance/mIDS/app
+src/lb_core/common.bkp

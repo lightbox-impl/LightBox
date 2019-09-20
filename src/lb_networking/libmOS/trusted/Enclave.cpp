@@ -7,7 +7,7 @@
 #include "Enclave_t.h" /* print_string */
 
 extern "C" {
-#include "../../../lb_core/enclave/etap_t.h"
+#include "../../../lb_core/enclave/include/etap_t.h"
 }
 
 /*

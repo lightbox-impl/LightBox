@@ -21,8 +21,8 @@
 #include <string.h>
 //#include <assert.h>
 
-#include "../../common/lb_type.h"
-#include "../../enclave/utils_t.h"
+#include "lb_type.h"
+#include "../../enclave/include/utils_t.h"
 
 static inline
 void

@@ -49,7 +49,8 @@ else
 endif
 
 LightBox_Dir := ../../../../src/lb_core
-LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../
+Root_Dir := ../../../..
+LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../ -I$(Root_Dir)/include
 LightBox_Flag := -DUSE_ETAP 
 # -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) 
 LightBox_Lib := $(LightBox_Dir)/liblb_core_u.a
@@ -106,9 +107,10 @@ DFC_Cpp_Files := $(wildcard $(App_Dir)/dfc/*.cpp)
 DFC_Cpp_Objects = $(DFC_Cpp_Files:.cpp=.o) 
 
 MOS_Lib := ../../../lb_networking/libmOS/liblb_mos_u.a
+Pcap_Lib := ../../../lb_networking/libpcap/liblb_pcap_u.a #../../../lb_networking/libpcap/untrusted/libbpf.a
 
 
-App_Link_Flags += $(MOS_Lib) -L.. -Llib -lmtcp_org -lpcap -lpthread -lnuma 
+App_Link_Flags += $(MOS_Lib) -L.. -Llib -lmtcp_org -lpcap -lpthread -lnuma $(Pcap_Lib)
 
 
 all: .config_$(Build_Mode)_$(SGX_ARCH) $(App_Name)

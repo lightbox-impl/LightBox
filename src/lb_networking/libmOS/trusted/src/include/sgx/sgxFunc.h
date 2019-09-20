@@ -51,6 +51,7 @@ struct iovec {
 // __time_t tv_usec; [> Microseconds.  <]
 // };
 
+// TODO timespec may chagne to timeval in pcap.h or include/lb_time.h?
 struct timespec {
     __time_t tv_sec;  /* Seconds.  */
     __time_t tv_nsec; /* Nanoseconds.  */

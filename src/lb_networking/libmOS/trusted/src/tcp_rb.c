@@ -9,7 +9,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/uio.h>
 #include <ctype.h>
 #include "debug.h"
 #include "tcp_rb.h"

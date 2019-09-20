@@ -1,12 +1,6 @@
 #ifndef __TCP_STREAM_H_
 #define __TCP_STREAM_H_
 
-#ifdef DARWIN
-#include <netinet/tcp.h>
-#else
-#include <linux/tcp.h>
-#endif
-#include <netinet/ip.h>
 #include <sys/queue.h>
 
 #include "mtcp.h"

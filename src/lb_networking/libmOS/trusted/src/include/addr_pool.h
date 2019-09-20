@@ -1,7 +1,6 @@
 #ifndef __ADDR_POOL_H_
 #define __ADDR_POOL_H_
 
-#include <netinet/in.h>
 #include <sys/queue.h>
 
 /*----------------------------------------------------------------------------*/

@@ -4,7 +4,7 @@
 #ifndef NEWEV
 
 #include <stdint.h>
-#include <sys/queue.h>
+#include "sys/queue.h"
 #include "mos_api.h"
 /*----------------------------------------------------------------------------*/
 typedef struct socket_map * socket_map_t;

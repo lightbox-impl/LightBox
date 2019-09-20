@@ -1,6 +1,7 @@
 #include "lb_edge_u.h"
 
-#include "../common/lb_type.h"
+/* #include "../common/lb_type.h" */
+#include "lb_type.h"
 
 void ocall_state_store_alloc(void **store_new)
 {

@@ -2,8 +2,6 @@
 #define __IO_MODULE_H__
 
 #include <sys/types.h>
-#include <ifaddrs.h>
-#include <net/if.h>
 /*----------------------------------------------------------------------------*/
 /* for type def'ns */
 #include <stdint.h>

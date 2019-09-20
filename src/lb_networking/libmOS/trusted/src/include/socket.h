@@ -1,7 +1,7 @@
 #ifndef __SOCKET_H_
 #define __SOCKET_H_
 
-#include <sys/queue.h>
+#include "sys/queue.h"
 #include "tcp_stream_queue.h"
 #include "mtcp_epoll.h"
 #include "mos_api.h"
