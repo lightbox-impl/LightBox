@@ -7,7 +7,7 @@
 
 #include "../../../lb_networking/libpcap/trusted/pcap.h"
 extern "C" {
-#include "../../../lb_core/enclave/etap_t.h"
+#include "../../../lb_core/enclave/include/etap_t.h"
 }
 
 /*

@@ -74,7 +74,7 @@ LightBox_Lib := $(LightBox_Dir)/liblb_core_t.a
 LightBox_Flag := -DLightBox=${LightBox} -DCAIDA=$(CAIDA) -DUSE_ETAP
 
 MOS_Lib := ../../../lb_networking/libmOS/liblb_mos_t.a
-Pcap_Lib := ../../../lb_networking/libpcap/liblb_pcap_t.a ../../../lb_networking/libpcap/liblb_pcap_u.a
+Pcap_Lib := ../../../lb_networking/libpcap/liblb_pcap_t.a #../../../lb_networking/libpcap/liblb_pcap_u.a
 
 Enclave_Cpp_Files := $(wildcard $(Enclave_Dir)/*.cpp)
 Enclave_Cpp_Objects := $(Enclave_Cpp_Files:.cpp=.o) 
@@ -147,7 +147,7 @@ $(Enclave_Dir)/%.o: $(Enclave_Dir)/%.cpp
 	@$(CXX) $(Enclave_Cpp_Flags) -c $< -o $@
 	@echo "CXX  <=  $<"
 
-$(Enclave_Name): $(Enclave_Dir)/Enclave_t.o $(Enclave_Cpp_Objects) $(MTCP_LIB) $(DFC_Cpp_Objects)
+$(Enclave_Name): $(Enclave_Dir)/Enclave_t.o $(Enclave_Cpp_Objects) $(MTCP_LIB) $(DFC_Cpp_Objects) $(MOS_Lib) $(Pcap_Lib)
 	@$(CXX) $^ -o $@ $(Enclave_Link_Flags) 
 	@echo "LINK =>  $@"
 

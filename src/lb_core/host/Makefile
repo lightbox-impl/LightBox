@@ -46,7 +46,7 @@ else
 	Urts_Library_Name := sgx_urts
 endif
 
-App_Include_Paths := -I$(SGX_SDK)/include
+App_Include_Paths := -I$(SGX_SDK)/include 
 App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
 
 # Three configuration modes - Debug, prerelease, release
@@ -93,7 +93,7 @@ $(App_Dir)/lb_edge_u.c: $(SGX_EDGER8R) $(LightBox_EDL)
 	@echo "GEN  =>  $@"
 
 $(App_Dir)/lb_edge_u.o: $(App_Dir)/lb_edge_u.c
-	@$(CC) $(App_C_Flags) -c $< -o $@
+	@$(CC) $(App_C_Flags)  -c $< -o $@
 	@echo "CC   <=  $<"
 
 $(LightBox_C_Objects):  %.o: %.c

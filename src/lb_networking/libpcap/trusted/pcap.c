@@ -76,7 +76,7 @@ int pcap_loop(pcap_t* p, int cnt, pcap_handler callback, u_char* user) {
 
 int pcap_compile(pcap_t* handle, struct sfbpf_program* fp, const char* str,
 		 int optimize, bpf_u_int32 netmask) {
-	ocall_sfbpf_compile(pkt_len, fp, str, optimize);
+	ocall_pcap_sfbpf_compile(pkt_len, fp, str, optimize);
 	return 0;
 }
 

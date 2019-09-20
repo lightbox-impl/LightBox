@@ -67,7 +67,7 @@ Enclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fst
 Enclave_Cpp_Flags := $(Enclave_C_Flags) -nostdinc++ -std=c++11 -Wno-write-strings
 
 Pcap_Dir := $(Enclave_Dir)
-LightBox_Dir := $(Encalve_Dir)
+LightBox_Dir := $(Enclave_Dir)
 Root_Dir := ../../..
 
 LightBox_Include_Paths := -I$(Root_Dir)/include -I$(Encalve_Dir)/cuckoo 
@@ -111,7 +111,7 @@ all: $(Enclave_Name)
 ######## Enclave Objects ########
 
 $(Enclave_Dir)/lb_edge_t.c: $(SGX_EDGER8R) $(LightBox_EDL)
-	@cd $(Enclave_Dir) && $(SGX_EDGER8R) --trusted $(LightBox_EDL) --search-path $(Enclave_Dir) --search-path $(SGX_SDK)/include
+	@cd $(Enclave_Dir) && $(SGX_EDGER8R) --trusted $(LightBox_EDL) --search-path $(Enclave_Dir) --search-path $(SGX_SDK)/include 
 	@echo "GEN  =>  $@"
 
 $(Enclave_Dir)/lb_edge_t.o: $(Enclave_Dir)/lb_edge_t.c

@@ -1,12 +1,16 @@
 #ifndef LB_NET_T_H
 #define LB_NET_T_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
 #include "lb_config.h"
 #include "lb_type.h"
-// #include "lb_time.h"
+#include "lb_time.h"
 #include "sgx_thread.h"
 #include "state_mgmt_t.h"
 #include "utils_t.h"
@@ -76,7 +80,7 @@ void etap_set_flow(int crt_flow);
 void ecall_etap_controller_init(int* ret, const int ring_mode,
 				const int etap_db_mode);
 
-double ecall_etap_start_caida(rx_ring_t* handle, int lbn_record_size,
+double ecall_etap_start(int lbn_record_size,
 			      int lbn_record_per_batch);
 
 double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
@@ -84,5 +88,9 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 
 double ecall_etap_start_micro(rx_ring_t* handle, int lbn_record_size,
 			      int lbn_record_per_batch);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

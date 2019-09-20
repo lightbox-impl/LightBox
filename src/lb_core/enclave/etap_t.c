@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "crypto_t.h"
-#include "include/lb_config.h"
-#include "lb_edge_t.h"
 #include "rx_ring_opt.h"
 #include "state_mgmt_t.h"
 #include "utils_t.h"
@@ -85,21 +83,21 @@ etap_controller_t* etap_controller_init(const int ring_mode,
 	p->rx_ring_instance = etap_rx_init(ring_mode);
 	p->tx_ring_instance = etap_rx_init(ring_mode);
 
-	switch (etap_db_mode) {
-		case 0:
-			p->ecall_etap_start = &ecall_etap_start_caida;
-			break;
-		case 1:
-			p->ecall_etap_start = &ecall_etap_start_live;
-			break;
-		case 2:
-			p->ecall_etap_start = &ecall_etap_start_micro;
-			break;
+	/* switch (etap_db_mode) { */
+		/* case 0: */
+			/* p->ecall_etap_start = &ecall_etap_start_caida; */
+			/* break; */
+		/* case 1: */
+			/* p->ecall_etap_start = &ecall_etap_start_live; */
+			/* break; */
+		/* case 2: */
+			/* p->ecall_etap_start = &ecall_etap_start_micro; */
+			/* break; */
 
-		default:
-			p->ecall_etap_start = &ecall_etap_start_caida;
-			break;
-	}
+		/* default: */
+			/* p->ecall_etap_start = &ecall_etap_start_caida; */
+			/* break; */
+	/* } */
 
 	return p;
 }
@@ -133,8 +131,9 @@ int err_drop_1;
 int client_new_stream;
 int server_new_stream;
 
-double ecall_etap_start_caida(rx_ring_t* handle, int lbn_record_size,
+double ecall_etap_start(int lbn_record_size,
 			      int lbn_record_per_batch) {
+	rx_ring_t* handle = etap_controller_instance->rx_ring_instance;
 	rx_ring_data_t* dataPtr = handle->rData;
 	/*shared control variables*/
 	dataPtr->read = 0;
@@ -261,7 +260,7 @@ double ecall_etap_start_caida(rx_ring_t* handle, int lbn_record_size,
 						sizeof(pending_pkt_ts),
 					    pending_ts_pkt_size -
 						sizeof(pending_pkt_ts),
-					    pending_pkt_ts);
+					    pending_pkt_ts, handle->rData);
 					total_byte += pending_ts_pkt_size;
 					++pkt_count;
 				}
@@ -299,7 +298,7 @@ double ecall_etap_start_caida(rx_ring_t* handle, int lbn_record_size,
 							    pending_ts_pkt_size -
 								sizeof(
 								    pending_pkt_ts),
-							    pending_pkt_ts);
+							    pending_pkt_ts, handle->rData);
 
 							// legacy : ts bytes are
 							// counted
@@ -445,7 +444,7 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 				    pending_ts_pkt + sizeof(pending_pkt_ts),
 				    pending_ts_pkt_size -
 					sizeof(pending_pkt_ts),
-				    pending_pkt_ts);
+				    pending_pkt_ts, handle->rData);
 				total_byte += pending_ts_pkt_size;
 				++pkt_count;
 			}
@@ -480,7 +479,7 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 							sizeof(pending_pkt_ts),
 						    pending_ts_pkt_size -
 							sizeof(pending_pkt_ts),
-						    pending_pkt_ts);
+						    pending_pkt_ts, handle->rData);
 
 						// legacy : ts bytes are counted
 						total_byte +=

@@ -5,7 +5,7 @@
 #include "utils_t.h"
 
 /* #include "../common/lb_config.h" */
-#include "include/lb_config.h"
+#include "lb_config.h"
 
 #include <string.h>
 

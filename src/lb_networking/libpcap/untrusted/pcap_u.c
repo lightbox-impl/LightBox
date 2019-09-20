@@ -10,7 +10,7 @@ void ocall_p(const char* str)
     printf("%s", str);
 }
 
-void ocall_sfbpf_compile(int pkt_hdr_len, struct sfbpf_program* fcode, const char* filter, int optimize)
+void ocall_pcap_sfbpf_compile(int pkt_hdr_len, struct sfbpf_program* fcode, const char* filter, int optimize)
 {
     /* struct sfbpf_program f; */
     /* const char* str = "tcp"; */
