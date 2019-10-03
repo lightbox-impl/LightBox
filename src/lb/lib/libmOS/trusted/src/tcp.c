@@ -28,7 +28,7 @@
 //	uint32_t saddr, uint16_t sport, uint32_t daddr, uint16_t dport);
 
 #if LightBox == 1
-#include "../../../../lb_core/enclave/include/state_mgmt_t.h"
+#include "../../../core/enclave/include/state_mgmt_t.h"
 #endif
 
 

@@ -29,7 +29,7 @@
 #include "common.h"
 #include "libntoh.h"
 
-#include <lb_core/enclave/include/utils_t.h>
+#include "../../core/enclave/include/utils_t.h"
 
 #include <stdlib.h>
 //#include <ipv4defrag.h>

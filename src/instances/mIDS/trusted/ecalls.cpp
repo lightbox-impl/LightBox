@@ -121,8 +121,8 @@ extern "C"
 #include "src/include/mtcp.h"
 #include "src/include/tcp_stream.h"
 
-#include "../../../lb_core/enclave/include/state_mgmt_t.h"
-#include "../../../lb_core/enclave/include/etap_t.h"
+#include "../src/lb/core/enclave/include/state_mgmt_t.h"
+#include "../src/lb/core/enclave/include/etap_t.h"
 }
 
 

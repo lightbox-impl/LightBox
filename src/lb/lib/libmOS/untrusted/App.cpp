@@ -233,7 +233,7 @@ int initialize_enclave(void)
 extern "C"
 {
 	int mOsPrintPkt();
-#include "../../../lb_core/host/include/etap_u.h"
+#include "../../../core/host/include/etap_u.h"
 }
 
 const char* pcap_file_name;

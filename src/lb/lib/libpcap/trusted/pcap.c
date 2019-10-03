@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../../lb_core/enclave/include/etap_t.h"
+#include "../../../core/enclave/include/etap_t.h"
 #include "bpf/sfbpf.h"
 #include "bpf/sfbpf_dlt.h"
 #include "stdio.h"

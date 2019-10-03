@@ -26,15 +26,15 @@
  * POSSIBILITY OF SUCH DAMAGE. *
  ********************************************************************************/
 
-#include <lb_instance/lwids/common/lwids_type.h>
+#include "../../../instances/lwids/common/lwids_type.h"
 
-#include <lb_core/enclave/cuckoo/cuckoo_hash.h>
-#include <lb_core/enclave/include/crypto_t.h>
-#include <lb_core/enclave/include/state_mgmt_t.h>
-#include <lb_core/enclave/include/utils_t.h>
-#include <lb_core/enclave/lb_edge_t.h>
+#include "../../core/enclave/cuckoo/cuckoo_hash.h"
+#include "../../core/enclave/include/crypto_t.h"
+#include "../../core/enclave/include/state_mgmt_t.h"
+#include "../../core/enclave/include/utils_t.h"
+#include "../../core/enclave/lb_edge_t.h"
 
-#include <lb_linux/linux_type_ports.h>
+#include "linux_type_ports.h"
 
 //#include <stdio.h>
 #include <stdlib.h>

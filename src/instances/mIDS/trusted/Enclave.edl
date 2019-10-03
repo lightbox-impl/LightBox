@@ -2,9 +2,9 @@
 enclave 
 {
 
-	include "../../../../src/lb_networking/libpcap/trusted/bpf/sfbpf.h"
-	from "../../../../src/lb_core/enclave/lb_edge.edl" import *;
-	from "../../../../src/lb_networking/libpcap/trusted/lb_edge.edl" import *;
+	include "../../../../src/lb/lib/libpcap/trusted/bpf/sfbpf.h"
+	from "../../../../src/lb/core/enclave/lb_edge.edl" import *;
+	from "../../../../src/lb/lib/libpcap/trusted/lb_edge.edl" import *;
 
     trusted 
     {

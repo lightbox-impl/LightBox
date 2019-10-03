@@ -2,7 +2,7 @@
 #include "../../Enclave_t.h"
 
 // TODO etap_t.h may not need to include
-#include "../../../../../lb_core/enclave/include/etap_t.h"
+// #include "../../../../../lb_core/enclave/include/etap_t.h"
 
 FILE * stderr = 0;
 

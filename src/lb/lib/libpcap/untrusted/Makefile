@@ -64,7 +64,7 @@ endif
 
 Enclave_Dir = ../trusted
 App_Dir = .
-Root_Dir := ../../../..
+Root_Dir := ../../../../..
 
 
 LightBox_Include_Paths := -I$(App_Dir) -I/usr/include  -lpcap -I$(Root_Dir)/include

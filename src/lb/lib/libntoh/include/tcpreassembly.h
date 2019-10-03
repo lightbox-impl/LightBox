@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE. *
  ********************************************************************************/
 
-#include <lb_type.h>
-#include <lb_linux/linux_type_ports.h>
+#include "lb_type.h"
+#include "linux_type_ports.h"
 
 #define __FAVOR_BSD
 //#include <netinet/tcp.h>
