@@ -261,6 +261,7 @@ double ecall_etap_start(int lbn_record_size,
 					    pending_ts_pkt_size -
 						sizeof(pending_pkt_ts),
 					    pending_pkt_ts, handle->rData);
+					// TODO tx write pkt?
 					total_byte += pending_ts_pkt_size;
 					++pkt_count;
 				}
@@ -445,6 +446,7 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 				    pending_ts_pkt_size -
 					sizeof(pending_pkt_ts),
 				    pending_pkt_ts, handle->rData);
+				// TODO tx write pkt?
 				total_byte += pending_ts_pkt_size;
 				++pkt_count;
 			}
