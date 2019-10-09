@@ -27,6 +27,10 @@
 #define SERV_PORT "8888"  // the port users will be connecting to
 #define BACKLOG 10     // how many pending connections queue will hold
 
+// For etap to send pkt to the next middlebox
+#define SEND_ADDR "10.0.1.108"
+#define SEND_PORT "8888"
+
 #define DUMMY_KEY "This is a dummy key!"
 
 #define TEST_ITVL 100000

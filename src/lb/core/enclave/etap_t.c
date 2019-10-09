@@ -82,6 +82,7 @@ etap_controller_t* etap_controller_init(const int ring_mode,
 	    (etap_controller_t*)malloc(sizeof(etap_controller_t));
 	p->rx_ring_instance = etap_rx_init(ring_mode);
 	p->tx_ring_instance = etap_rx_init(ring_mode);
+	poll_driver_init();
 
 	/* switch (etap_db_mode) { */
 		/* case 0: */

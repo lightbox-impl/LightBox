@@ -9,11 +9,12 @@ extern "C" {
 #include <string.h>
 #include <time.h>
 #include "lb_config.h"
-#include "lb_type.h"
 #include "lb_time.h"
+#include "lb_type.h"
 #include "sgx_thread.h"
 #include "state_mgmt_t.h"
 #include "utils_t.h"
+#include "poll.h"
 
 #define PKT_RINFBUF_CAP 256
 #define NEXT(n) (n + 1) % PKT_RINFBUF_CAP
@@ -62,9 +63,15 @@ typedef struct rx_ring {
 	void (*write_pkt)(const uint8_t*, int, timeval_t, rx_ring_data_t*);
 } rx_ring_t;
 
+typedef struct poll_driver {
+	void (*read_pkt)(uint8_t*, int*, timeval_t*);
+	void (*write_pkt)(const uint8_t*, int, timeval_t);
+} poll_driver_t;
+
 typedef struct etap_controller {
 	rx_ring_t* rx_ring_instance;
 	rx_ring_t* tx_ring_instance;
+	poll_driver_t* pd;
 	double (*ecall_etap_start)(rx_ring_t*, int, int);
 } etap_controller_t;
 
@@ -80,8 +87,7 @@ void etap_set_flow(int crt_flow);
 void ecall_etap_controller_init(int* ret, const int ring_mode,
 				const int etap_db_mode);
 
-double ecall_etap_start(int lbn_record_size,
-			      int lbn_record_per_batch);
+double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch);
 
 double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 			     int lbn_record_per_batch);
