@@ -99,8 +99,7 @@ double ecall_etap_start_micro(rx_ring_t* handle, int lbn_record_size,
 double ecall_etap_sendto_next_box(int lbn_record_size,
 				  int lbn_record_per_batch);
 
-void prepare_batch(rx_ring_t* handle, int lbn_record_size,
-		   int lbn_record_per_batch)
+void prepare_batch(rx_ring_t* handle, int lbn_record_size, int lbn_record_per_batch);
 #ifdef __cplusplus
 }
 #endif

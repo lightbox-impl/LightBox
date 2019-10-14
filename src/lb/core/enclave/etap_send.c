@@ -7,21 +7,21 @@
 #include "state_mgmt_t.h"
 #include "utils_t.h"
 
-etap_controller_t* etap_controller_instance;
+extern etap_controller_t* etap_controller_instance;
 
-/* static inline void control_variable_init(rx_ring_data_t* dp) { */
-	/* [> shared control variables <] */
-	/* dp->read = 0; */
-	/* dp->write = 0; */
-	/* [> consumers local variables <] */
-	/* dp->localWrite = 0; */
-	/* dp->nextRead = 0; */
-	/* dp->rBatch = 0; */
-	/* [> producer local variables <] */
-	/* dp->localRead = 0; */
-	/* dp->nextWrite = 0; */
-	/* dp->wBatch = 0; */
-/* } */
+static inline void control_variable_init(rx_ring_data_t* dp) {
+	/* shared control variables */
+	dp->read = 0;
+	dp->write = 0;
+	/* consumers local variables */
+	dp->localWrite = 0;
+	dp->nextRead = 0;
+	dp->rBatch = 0;
+	/* producer local variables */
+	dp->localRead = 0;
+	dp->nextWrite = 0;
+	dp->wBatch = 0;
+}
 
 uint8_t* current_batch_memory_pool;
 
@@ -87,7 +87,7 @@ void prepare_batch(rx_ring_t* handle, int lbn_record_size,
 			memcpy(sized_pkt + sizeof(pkt_and_ts_size), &ts,
 			       sizeof(ts));
 			// 3) pkt itself
-			memcpy(sized_pkt + sizeof(pkt_ts_len) + sizeof(ts), pkt,
+			memcpy(sized_pkt + sizeof(pkt_and_ts_size) + sizeof(ts), pkt,
 			       size);
 
 			if (current_record_free_space_remain > sized_pkt) {
