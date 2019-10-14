@@ -1,8 +1,6 @@
 #include "etap_u.h"
 
 /* #include "../common/lb_config.h" */
-#include "lb_config.h"
-
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -15,11 +13,15 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "lb_config.h"
+
 etap_param_t etap_args;
 int srv_fd;
+int cli_fd;
 
 int batch_size;
 uint8_t *batch_buffer;
+uint8_t *client_batch_buffer;
 int num_batch;
 
 // get sockaddr, IPv4 or IPv6:
@@ -137,11 +139,92 @@ void etap_init() {
 			  sizeof s);
 		printf("server: got connection from %s\n", s);
 
-		close(sockfd);  // we don't need the listener anymore
+		close(sockfd);	// we don't need the listener anymore
 		break;
 	}
 	configure_etap();
-//	ecall_etap_controller_init(0, 0);
+	//	ecall_etap_controller_init(0, 0);
+
+	/* init the gateway client for next middlebox */
+	// gateway_init(etap_args.record_size, etap_args.record_per_batch);
+}
+
+void send_conf_to_peer(int conf) {
+	int ret = send(cli_fd, &conf, sizeof(conf), 0);
+	if (ret != sizeof(conf)) {
+		printf(
+		    "%s : no excuse for failing to sending such small piece of "
+		    "data!\n",
+		    __func__);
+		exit(1);
+	}
+}
+
+void gateway_init(int rec_size, int rec_per_bat) {
+	struct addrinfo hints, *servinfo, *p;
+	int rv;
+	char s[INET6_ADDRSTRLEN];
+
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+
+	if ((rv = getaddrinfo(SEND_ADDR, SEND_PORT, &hints, &servinfo)) != 0) {
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+		return;
+	}
+
+	// loop through all the results and connect to the first we can
+	for (p = servinfo; p != NULL; p = p->ai_next) {
+		if ((cli_fd = socket(p->ai_family, p->ai_socktype,
+				     p->ai_protocol)) == -1) {
+			perror("client: socket");
+			continue;
+		}
+
+		if (connect(cli_fd, p->ai_addr, p->ai_addrlen) == -1) {
+			close(cli_fd);
+			perror("client: connect");
+			continue;
+		}
+
+		break;
+	}
+
+	if (p == NULL) {
+		fprintf(stderr, "client: failed to connect\n");
+		exit(1);
+		return;
+	}
+
+	inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s,
+		  sizeof s);
+	printf("client: connecting to %s\n", s);
+
+	freeaddrinfo(servinfo);	 // all done with this structure
+
+	/* send configurations to peer */
+	printf("record_size %d\n", rec_size);
+	printf("record_per_batch %d\n", rec_per_bat);
+
+	send_conf_to_peer(rec_size);
+	send_conf_to_peer(rec_per_bat);
+
+	batch_size = (rec_size + MAC_SIZE) * rec_per_bat;
+	client_batch_buffer = malloc(batch_size);
+	if (!client_batch_buffer) {
+		printf("Failed to malloc mem to client_batch_buffer.");
+		exit(-1);
+	}
+}
+
+void gateway_deinit() {
+	if (close(cli_fd) != 0)
+		perror(
+		    "gateway fd for next middlebox is not closed correctly.");
+	else
+		printf("gateway fd for next middlebox is closed.");
+	free(client_batch_buffer);
 }
 
 void etap_deinit() {
@@ -149,7 +232,6 @@ void etap_deinit() {
 		perror("lb_net");
 	else
 		printf("lb_net closed!\n");
-
 	free(batch_buffer);
 }
 
@@ -202,5 +284,17 @@ void ocall_lb_etap_in(uint8_t **batch) {
 		++b_idx;
 
 		//	printf("batch %d received!\n", b_idx);
+	}
+}
+
+void ocall_lb_etap_out(uint8_t **batch) {
+	int expect = batch_size;
+	while (expect) {
+		int ret = send(cli_fd, *batch + batch_size - expect,
+			       expect, 0);
+		if (ret > 0)
+			expect -= ret;
+		else
+			break;
 	}
 }

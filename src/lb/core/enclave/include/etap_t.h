@@ -8,13 +8,14 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
+
 #include "lb_config.h"
 #include "lb_time.h"
 #include "lb_type.h"
+#include "poll.h"
 #include "sgx_thread.h"
 #include "state_mgmt_t.h"
 #include "utils_t.h"
-#include "poll.h"
 
 #define PKT_RINFBUF_CAP 256
 #define NEXT(n) (n + 1) % PKT_RINFBUF_CAP
@@ -95,6 +96,11 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 double ecall_etap_start_micro(rx_ring_t* handle, int lbn_record_size,
 			      int lbn_record_per_batch);
 
+double ecall_etap_sendto_next_box(int lbn_record_size,
+				  int lbn_record_per_batch);
+
+void prepare_batch(rx_ring_t* handle, int lbn_record_size,
+		   int lbn_record_per_batch)
 #ifdef __cplusplus
 }
 #endif

@@ -17,4 +17,6 @@ int etap_testrun();
 
 void ocall_lb_etap_in(uint8_t **batch);
 
+void gateway_init(int rec_size, int rec_per_bat);
+
 #endif
