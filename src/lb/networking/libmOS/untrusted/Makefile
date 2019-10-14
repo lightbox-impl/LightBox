@@ -51,11 +51,11 @@ else
 endif
 
 LightBox_Dir := ../../../../src/lb_core
-Root_Dir := ../../../..
+Root_Dir := ../../../../..
 LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../ -I$(Root_Dir)/include
 LightBox_Flag := -DUSE_ETAP
 # -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) -DTRACE_CLOCK=$(TRACE_CLOCK) -DFIX_TIMEOUT=$(FIX_TIMEOUT) 
-LightBox_Lib := $(LightBox_Dir)/liblb_core_u.a
+LightBox_Lib := $(Root_Dir)/build/liblb_core_u.a
 
 
 App_Cpp_Files := $(wildcard $(App_Dir)/*.cpp)
@@ -86,7 +86,7 @@ endif
 
 App_Cpp_Objects := $(App_Cpp_Files:.cpp=.o)
 
-App_Name := ../liblb_mos_u.a
+App_Name := $(Root_Dir)/build/liblb_mos_u.a
 
 MOS_C_Flags = -m64 -Wall -fgnu89-inline
 MOS_C_Flags += -g -DNETSTAT -DINFO -DDBGERR -DDBGCERR #-DNDEBUG -O3 

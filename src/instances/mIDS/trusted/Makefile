@@ -63,18 +63,18 @@ Crypto_Library_Name := sgx_tcrypto
 
 
 
-DFC_Cpp_Include := /usr/lib/gcc/x86_64-linux-gnu/5/include/
+DFC_Cpp_Include := /usr/lib/gcc/x86_64-linux-gnu/7/include/
 DFC_Cpp_Flags := -march=native -msse4
 
 
 Root_Dir := ../../../..
 LightBox_Dir := $(Root_Dir)/src/lb/core
 LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../ -I$(Root_Dir)/include
-LightBox_Lib := $(LightBox_Dir)/liblb_core_t.a
+LightBox_Lib := $(Root_Dir)/build/liblb_core_t.a
 LightBox_Flag := -DLightBox=${LightBox} -DCAIDA=$(CAIDA) -DUSE_ETAP
 
-MOS_Lib := $(Root_Dir)/src/lb/lib/libmOS/liblb_mos_t.a      #../../../lb_networking/libmOS/liblb_mos_t.a
-Pcap_Lib := $(Root_Dir)/src/lb/lib/libpcap/liblb_pcap_t.a #../../../lb_networking/libpcap/liblb_pcap_u.a
+MOS_Lib := $(Root_Dir)/build/liblb_mos_t.a      #../../../lb_networking/libmOS/liblb_mos_t.a
+Pcap_Lib := $(Root_Dir)/build/liblb_pcap_t.a #../../../lb_networking/libpcap/liblb_pcap_u.a
 
 Enclave_Cpp_Files := $(wildcard $(Enclave_Dir)/*.cpp)
 Enclave_Cpp_Objects := $(Enclave_Cpp_Files:.cpp=.o) 

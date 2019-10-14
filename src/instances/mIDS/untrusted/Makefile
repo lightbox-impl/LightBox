@@ -53,7 +53,7 @@ LightBox_Dir := $(Root_Dir)/src/lb/core
 LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../ -I$(Root_Dir)/include -I$(LightBox_Dir)/host/include
 LightBox_Flag := -DUSE_ETAP 
 # -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) 
-LightBox_Lib := $(LightBox_Dir)/liblb_core_u.a
+LightBox_Lib := $(Root_Dir)/build/liblb_core_u.a
 
 
 App_Cpp_Files := $(wildcard $(App_Dir)/*.cpp)
@@ -106,8 +106,8 @@ MOS_C_Objs = $(patsubst %.c,%.o,$(MOS_C_Files))
 DFC_Cpp_Files := $(wildcard $(App_Dir)/dfc/*.cpp)
 DFC_Cpp_Objects = $(DFC_Cpp_Files:.cpp=.o) 
 
-MOS_Lib := $(Root_Dir)/src/lb/lib/libmOS/liblb_mos_u.a
-Pcap_Lib := $(Root_Dir)/src/lb/lib/libpcap/liblb_pcap_u.a #../../../lb_networking/libpcap/untrusted/libbpf.a
+MOS_Lib := $(Root_Dir)/build/liblb_mos_u.a
+Pcap_Lib := $(Root_Dir)/build/liblb_pcap_u.a #../../../lb_networking/libpcap/untrusted/libbpf.a
 
 
 App_Link_Flags += $(MOS_Lib) -L.. -Llib -lmtcp_org -lpcap -lpthread -lnuma $(Pcap_Lib)

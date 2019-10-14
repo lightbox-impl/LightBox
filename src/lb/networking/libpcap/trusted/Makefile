@@ -86,7 +86,7 @@ LightBox_FLAGS = -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAI
 LightBox_FLAGS += $(LightBox_Include_Paths)
 LightBox_FLAGS += $(Enclave_C_Flags)
 
-Enclave_Name := ../liblb_pcap_t.a
+Enclave_Name := $(Root_Dir)/build/liblb_pcap_t.a
 
 ifeq ($(SGX_MODE), HW)
 ifeq ($(SGX_DEBUG), 1)

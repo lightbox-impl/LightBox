@@ -72,7 +72,7 @@ MOS_C_Files = $(Enclave_Dir)/src/core.c $(Enclave_Dir)/src/tcp_stream.c $(Enclav
 
 
 DFC_Cpp_Files := $(wildcard $(Enclave_Dir)/dfc/*.cpp)
-DFC_Cpp_Include := /usr/lib/gcc/x86_64-linux-gnu/5/include/
+DFC_Cpp_Include := /usr/lib/gcc/x86_64-linux-gnu/7/include/
 DFC_Cpp_Flags := -march=native -msse4
 
 
@@ -86,7 +86,7 @@ LightBox_Dir := ../../../../src/lb_core
 Root_Dir := ../../../../..
 LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../ -I$(Root_Dir)/include
 LightBox_Flag := -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) -DTRACE_CLOCK=$(TRACE_CLOCK) -DFIX_TIMEOUT=$(FIX_TIMEOUT) -DSGX_HANDLE_WEIRD_PKT #-DUSE_ETAP -DSGX_DEBUG_PIN -DALLOW_PKT_DROP #-DSGX_DEBUG_TIME
-LightBox_Lib := $(LightBox_Dir)/liblb_core_t.a
+LightBox_Lib := $(Root_Dir)/build/liblb_core_t.a
 
 Enclave_Cpp_Files := $(wildcard $(Enclave_Dir)/*.cpp)
 Enclave_Cpp_Objects := $(Enclave_Cpp_Files:.cpp=.o) 
@@ -137,7 +137,7 @@ Enclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefau
 	-Wl,--version-script=$(Enclave_Version_Script)
 
 
-Enclave_Name := ../liblb_mos_t.a
+Enclave_Name := $(Root_Dir)/build/liblb_mos_t.a
 Enclave_Config_File := $(Enclave_Dir)/Enclave.config.xml
 
 ifeq ($(SGX_MODE), HW)

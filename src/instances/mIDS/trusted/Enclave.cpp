@@ -5,7 +5,7 @@
 #include "Enclave.h"
 #include "Enclave_t.h" /* print_string */
 
-#include "../../../lb/lib/libpcap/trusted/pcap.h"
+#include "../../../lb/networking/libpcap/trusted/pcap.h"
 extern "C" {
 #include "../../../lb/core/enclave/include/etap_t.h"
 }

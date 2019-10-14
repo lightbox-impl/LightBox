@@ -77,7 +77,7 @@ LightBox_C_Files := $(wildcard $(App_Dir)/*.c)
 LightBox_C_Objects := $(LightBox_C_Files:.c=.o)
 
 
-App_Name := ../liblb_pcap_u.a
+App_Name := $(Root_Dir)/build/liblb_pcap_u.a
 
 all: $(App_Name)
 
