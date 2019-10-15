@@ -527,34 +527,34 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 			crt_record += lbn_record_size + MAC_SIZE;
 			crt_mac = crt_record + lbn_record_size;
 
-			extern int cacheMissFlow;
-			extern int cacheHitFlow;
-			extern int DoCallTimes;
+			/* extern int cacheMissFlow; */
+			/* extern int cacheHitFlow; */
+			/* extern int DoCallTimes; */
 
-			// print round stats
-			if (unlikely(pkt_count >= TEST_ITVL)) {
-				ocall_get_time(&end_s, &end_ns);
-				double elapsed_us =
-				    (end_s - start_s) * 1000000.0 +
-				    (end_ns - start_ns) / 1000.0;
+			/* // print round stats */
+			/* if (unlikely(pkt_count >= TEST_ITVL)) { */
+				/* ocall_get_time(&end_s, &end_ns); */
+				/* double elapsed_us = */
+					/* (end_s - start_s) * 1000000.0 + */
+					/* (end_ns - start_ns) / 1000.0; */
 
-				eprintf(
-				    "Round %d - delay %f - tput %f, Miss Rate "
-				    "%lf%%, #dfc:%d, flow_cache:%d, "
-				    "flow_store:%d, mos_flow:%d\n",
-				    ++round_idx, elapsed_us / pkt_count,
-				    total_byte * 8.0 / elapsed_us,
-				    (cacheMissFlow)*100.0 /
-					(cacheHitFlow + cacheMissFlow),
-				    DoCallTimes, cache_lkup_table.count,
-				    store_lkup_table.count, mos_flow_cnt);
-				pkt_count = 0;
-				total_byte = 0;
-				cacheMissFlow = 0;
-				cacheHitFlow = 0;
-				DoCallTimes = 0;
-				ocall_get_time(&start_s, &start_ns);
-			}
+				/* eprintf( */
+					/* "Round %d - delay %f - tput %f, Miss Rate " */
+					/* "%lf%%, #dfc:%d, flow_cache:%d, " */
+					/* "flow_store:%d, mos_flow:%d\n", */
+					/* ++round_idx, elapsed_us / pkt_count, */
+					/* total_byte * 8.0 / elapsed_us, */
+					/* (cacheMissFlow)*100.0 / */
+					/* (cacheHitFlow + cacheMissFlow), */
+					/* DoCallTimes, cache_lkup_table.count, */
+					/* store_lkup_table.count, mos_flow_cnt); */
+				/* pkt_count = 0; */
+				/* total_byte = 0; */
+				/* cacheMissFlow = 0; */
+				/* cacheHitFlow = 0; */
+				/* DoCallTimes = 0; */
+				/* ocall_get_time(&start_s, &start_ns); */
+			/* } */
 		}
 	}
 
