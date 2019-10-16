@@ -46,6 +46,8 @@ rx_ring_t* etap_rx_init(const int mode) {
 	pData->batchSize = PKT_RINFBUF_CAP / 4;
 	memset(pData->cachePad4, 0, CACHE_LINE - 1 * sizeof(int));
 
+	pData->in_rbuf = malloc(sizeof(rbuf_pkt_t) * PKT_RINFBUF_CAP);
+
 	rx_ring_t* r = (rx_ring_t*)malloc(sizeof(rx_ring_t));
 	r->rData = pData;
 
@@ -82,7 +84,7 @@ etap_controller_t* etap_controller_init(const int ring_mode,
 	    (etap_controller_t*)malloc(sizeof(etap_controller_t));
 	p->rx_ring_instance = etap_rx_init(ring_mode);
 	p->tx_ring_instance = etap_rx_init(ring_mode);
-	poll_driver_init();
+	// poll_driver_init();
 
 	/* switch (etap_db_mode) { */
 		/* case 0: */

@@ -12,7 +12,7 @@ extern "C" {
 #include "lb_config.h"
 #include "lb_time.h"
 #include "lb_type.h"
-#include "poll.h"
+// #include "poll.h"
 #include "sgx_thread.h"
 #include "state_mgmt_t.h"
 #include "utils_t.h"
@@ -54,7 +54,8 @@ typedef struct rx_ring_data {
 	/* End of cache line protection  */
 
 	/* pkt ring buffer */
-	rbuf_pkt_t in_rbuf[PKT_RINFBUF_CAP];
+	// rbuf_pkt_t in_rbuf[PKT_RINFBUF_CAP];
+	rbuf_pkt_t* in_rbuf;
 
 } rx_ring_data_t;
 
@@ -64,17 +65,18 @@ typedef struct rx_ring {
 	void (*write_pkt)(const uint8_t*, int, timeval_t, rx_ring_data_t*);
 } rx_ring_t;
 
-typedef struct poll_driver {
-	void (*read_pkt)(uint8_t*, int*, timeval_t*);
-	void (*write_pkt)(const uint8_t*, int, timeval_t);
-} poll_driver_t;
-
 typedef struct etap_controller {
 	rx_ring_t* rx_ring_instance;
 	rx_ring_t* tx_ring_instance;
-	poll_driver_t* pd;
+//	poll_driver_t* pd;
 	double (*ecall_etap_start)(rx_ring_t*, int, int);
 } etap_controller_t;
+
+typedef struct poll_driver {
+	etap_controller_t* etap;
+	void (*read_pkt)(uint8_t*, int*, timeval_t*, etap_controller_t* etap);
+	void (*write_pkt)(const uint8_t*, int, timeval_t, etap_controller_t* etap);
+} poll_driver_t;
 
 etap_controller_t* etap_controller_init(const int ring_mode,
 					const int etap_db_mode);
@@ -98,6 +100,8 @@ double ecall_etap_start_micro(rx_ring_t* handle, int lbn_record_size,
 
 double ecall_etap_sendto_next_box(int lbn_record_size,
 				  int lbn_record_per_batch);
+
+poll_driver_t* poll_driver_init();
 
 void prepare_batch(rx_ring_t* handle, int lbn_record_size, int lbn_record_per_batch);
 #ifdef __cplusplus

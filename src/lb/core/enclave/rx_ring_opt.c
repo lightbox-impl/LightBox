@@ -5,16 +5,22 @@ extern timeval_t trace_clock;
 
 void read_pkt_lockless_cache_efficient(uint8_t* pkt, int* size, timeval_t* ts,
 				       rx_ring_data_t* data) {
+	eprintf("entered read pkt\n");
 	if (data->nextRead == data->localWrite) {
+		eprintf("line 10\n");
 		while (data->nextRead == data->write)
+			/* eprintf("loop\n"); */
 			;
+		eprintf("line 13\n");
 		data->localWrite = data->write;
 	}
+	eprintf("going to read pkt from in_rbuf\n");
 	memcpy(pkt, data->in_rbuf[data->nextRead].pkt,
 	       data->in_rbuf[data->nextRead].size);
 	*size = data->in_rbuf[data->nextRead].size;
 	memcpy(ts, &data->in_rbuf[data->nextRead].ts, sizeof(timeval_t));
 	/* *ts = in_rbuf[nextRead].ts; */
+	eprintf("done reading pkt from buf\n");
 
 	data->nextRead = NEXT(data->nextRead);
 	++(data->rBatch);
@@ -22,12 +28,11 @@ void read_pkt_lockless_cache_efficient(uint8_t* pkt, int* size, timeval_t* ts,
 		data->read = data->nextRead;
 		data->rBatch = 0;
 	}
-
-	// eprintf("reader: read %d write %d size %d!\n", read, write, *size);
 }
 
 void write_pkt_lockless_cache_efficient(const uint8_t* pkt, int pkt_size,
 					timeval_t ts, rx_ring_data_t* data) {
+	eprintf("write pkt line 37\n");
 	int afterNextWrite = NEXT(data->nextWrite);
 	if (afterNextWrite == data->localRead) {
 		while (afterNextWrite == data->read) {

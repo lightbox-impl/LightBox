@@ -181,7 +181,6 @@ void gateway_init(int rec_size, int rec_per_bat) {
 			perror("client: socket");
 			continue;
 		}
-
 		if (connect(cli_fd, p->ai_addr, p->ai_addrlen) == -1) {
 			close(cli_fd);
 			perror("client: connect");
@@ -216,6 +215,7 @@ void gateway_init(int rec_size, int rec_per_bat) {
 		printf("Failed to malloc mem to client_batch_buffer.");
 		exit(-1);
 	}
+	printf("done with gateway init()\n");
 }
 
 void gateway_deinit() {

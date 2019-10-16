@@ -26,7 +26,7 @@ enclave
 		//ocall_print_string - invokes OCALL to display string buffer inside the enclave.
 		//   [in]: copy the string buffer to App outside.
 		//   [string]: specifies 'str' is a NULL terminated buffer.
-//		void ocall_print_string2([in, string] const char *str);
+		void ocall_print_string2([in, string] const char *str);
 //		void ocall_get_time2([out, size=8] int *second, [out, size=8] int *nanosecond);
 
 //		void ocall_get_data(int data_id, [out]char** val, [out]int* len);
