@@ -209,6 +209,9 @@ void gateway_init(int rec_size, int rec_per_bat) {
 	send_conf_to_peer(rec_size);
 	send_conf_to_peer(rec_per_bat);
 
+	// live mode
+	send_conf_to_peer(-1);
+
 	batch_size = (rec_size + MAC_SIZE) * rec_per_bat;
 	client_batch_buffer = malloc(batch_size);
 	if (!client_batch_buffer) {

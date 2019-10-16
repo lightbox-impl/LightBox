@@ -173,6 +173,7 @@ void* middlebox_thread(void* useless) {
 
 void* etap_send_thread(void* tput) {
     sgx_status_t ret = SGX_ERROR_UNEXPECTED;
+    printf("entered etap_send_thread\n");
     ret = ecall_etap_sendto_next_box(global_eid, (double*)tput,
 				     etap_args.record_size,
 				     etap_args.record_per_batch);
@@ -184,10 +185,7 @@ void* etap_send_thread(void* tput) {
 }
 
 extern "C" {
-void ocall_print_string2(const char* buf){
-	printf("%s", buf);
-
-}
+void ocall_print_string2(const char* buf) { printf("%s", buf); }
 }
 
 /* Application entry */
@@ -216,37 +214,37 @@ int SGX_CDECL main(int argc, char* argv[]) {
 	exit(1);
     }
 
-//	printf("start mb thread\n");
+    //	printf("start mb thread\n");
     // start mb thread
-	pthread_t mb_trd;
-	int rc = pthread_create(&mb_trd, NULL, middlebox_thread, NULL);
-	if (rc) {
+    pthread_t mb_trd;
+    int rc = pthread_create(&mb_trd, NULL, middlebox_thread, NULL);
+    if (rc) {
 	printf("Fail to create thread %lu\n!", mb_trd);
 	exit(1);
-	}
+    }
 
-	// int rc;
+    // int rc;
     /* Make connection with previous box */
-	etap_init();
-	// printf("line 223\n");
+    etap_init();
+    // printf("line 223\n");
     /* Make connection with next box,
      * using the config from previous box */
     gateway_init(etap_args.record_size, etap_args.record_per_batch);
 
-// 	printf("gateway_init done\n");
+    // 	printf("gateway_init done\n");
     while (etap_testrun()) {
 	pthread_t etap_trd;
 	double tput1;
 	rc = pthread_create(&etap_trd, NULL, etap_thread, &tput1);
 	if (rc) {
-		printf("Fail to create thread %lu\n!", etap_trd);
-		exit(1);
+	    printf("Fail to create thread %lu\n!", etap_trd);
+	    exit(1);
 	}
-	rc = pthread_join(etap_trd, NULL);
-	if (rc) {
-		printf("Fail to join thread %lu\n!", etap_trd);
-		exit(1);
-	}
+	// rc = pthread_join(etap_trd, NULL);
+	// if (rc) {
+		// printf("Fail to join thread %lu\n!", etap_trd);
+		// exit(1);
+	// }
 
 	pthread_t etap_send_trd;
 	double tput2;
@@ -255,13 +253,19 @@ int SGX_CDECL main(int argc, char* argv[]) {
 	    printf("Fail to create thread %lu\n!", etap_send_trd);
 	    exit(1);
 	}
+
+	rc = pthread_join(etap_trd, NULL);
+	if (rc) {
+	    printf("Fail to join thread %lu\n!", etap_trd);
+	    exit(1);
+	}
 	rc = pthread_join(etap_send_trd, NULL);
 	if (rc) {
 	    printf("Fail to join thread %lu\n!", etap_send_trd);
 	    exit(1);
 	}
     }
-    // etap_deinit();
+    etap_deinit();
     gateway_deinit();
     printf("etap finished!\n");
 

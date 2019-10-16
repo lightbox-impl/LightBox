@@ -6,7 +6,7 @@
   <StackMaxSize>0x10000000</StackMaxSize>
   <!-- 1024M *1 -->
   <HeapMaxSize>0x10000000</HeapMaxSize>
-  <TCSNum>2</TCSNum>
+  <TCSNum>3</TCSNum>
   <TCSPolicy>1</TCSPolicy>
   <DisableDebug>0</DisableDebug>
   <MiscSelect>0</MiscSelect>

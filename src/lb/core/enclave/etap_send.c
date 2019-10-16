@@ -37,7 +37,9 @@ double ecall_etap_sendto_next_box(int lbn_record_size,
 	current_batch_memory_pool = malloc(batch_size);
 
 	while (1) {
+		/* eprintf("prepared batch\n"); */
 			prepare_batch(handle, lbn_record_size, lbn_record_per_batch);
+			/* eprintf("sending\n"); */
             ocall_lb_etap_out(&current_batch_memory_pool); 
 	}
 }
@@ -46,12 +48,12 @@ void prepare_batch(rx_ring_t* handle, int lbn_record_size,
 		   int lbn_record_per_batch) {
 	uint8_t* current_batch_position = current_batch_memory_pool;
 
-	static uint8_t* pkt;
-	static int* size;
-	static timeval_t* ts;
+	static uint8_t pkt[9000];
+	static int size;
+	static timeval_t ts;
 	int pkt_and_ts_size;
 	uint16_t sized_pkt_size;
-	static uint8_t sized_pkt[2048];
+	static uint8_t sized_pkt[9000];
 	/* int current_record_free_space_remain = lbn_record_size; */
 	static uint16_t sized_pkt_remain_from_last_record = 0;
 
@@ -72,10 +74,10 @@ void prepare_batch(rx_ring_t* handle, int lbn_record_size,
 		}
 
 		while (1) {
-			handle->read_pkt(pkt, size, ts, handle->rData);
+			handle->read_pkt(&pkt, &size, &ts, handle->rData);
 			// TODO maybe add some pkt empty checking later, now
 			// we'll just be blocked at read_pkt();
-			pkt_and_ts_size = sizeof(ts) + *size;
+			pkt_and_ts_size = sizeof(ts) + size;
 			sized_pkt_size =
 			    pkt_and_ts_size + sizeof(pkt_and_ts_size);
 
@@ -90,12 +92,15 @@ void prepare_batch(rx_ring_t* handle, int lbn_record_size,
 			memcpy(sized_pkt + sizeof(pkt_and_ts_size) + sizeof(ts), pkt,
 			       size);
 
-			if (current_record_free_space_remain > sized_pkt) {
+			/* eprintf("copied one while loop\n"); */
+			if (current_record_free_space_remain > sized_pkt_size) {
+				/* eprintf("entered if\n"); */
 				memcpy(current_batch_position, sized_pkt,
 				       sized_pkt_size);
 				current_batch_position += sized_pkt_size;
 				current_record_free_space_remain -=
 				    sized_pkt_size;
+				/* eprintf("end if\n"); */
 			} else {
 				if (current_record_free_space_remain >=
 				    sizeof(sized_pkt_size)) {
@@ -119,7 +124,7 @@ void prepare_batch(rx_ring_t* handle, int lbn_record_size,
 
 		int ret = auth_enc(record, lbn_record_size, record, current_batch_position);
 
-		if (!ret) exit(1);
+		/* if (!ret) exit(1); */
 		current_batch_position += MAC_SIZE;
 	}
 

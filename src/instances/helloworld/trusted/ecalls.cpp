@@ -2,31 +2,25 @@
 #include "Enclave.h"
 // #include "Enclave_t.h"
 
-#include <cstring> //strlen
+#include <cstring>  //strlen
 
-extern "C"
-{
-#include "../src/lb/core/enclave/include/state_mgmt_t.h"
+extern "C" {
 #include "../src/lb/core/enclave/include/etap_t.h"
+#include "../src/lb/core/enclave/include/state_mgmt_t.h"
 
+void ecall_mb() {
+    // lightbox init
+    init_state_mgmt();
+    poll_driver_t* pd = poll_driver_init();
 
-void ecall_mb()
-{
-	//lightbox init
-	init_state_mgmt();
-	poll_driver_t* pd = poll_driver_init();
+    uint8_t pkt_buffer[9000];
+    int size = 0;
+    timeval_t ts = {0, 0};
+    ;
 
-	uint8_t pkt_buffer[2048];
-	int size;
-	timeval_t ts;
-
-	while (1) {
-		if (pd->read_pkt == NULL) printf("pd is null\n");
-		printf("line 31 ecall\n");
-		pd->read_pkt(pkt_buffer, &size, &ts, pd->etap);
-		printf("line 33\n");
-		// pd->write_pkt(pkt_buffer, size, ts, pd->etap);
-	}
-
+    while (1) {
+	pd->read_pkt(pkt_buffer, &size, &ts, pd->etap);
+	pd->write_pkt(pkt_buffer, size, ts, pd->etap);
+    }
 }
 }
