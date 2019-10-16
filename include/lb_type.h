@@ -3,7 +3,7 @@
 
 #include "lb_config.h"
 
-#include "../src/lb_core/enclave/cuckoo/cuckoo_hash.h"
+#include "../src/lb/core/enclave/cuckoo/cuckoo_hash.h"
 
 #include <stdint.h>
 #include <time.h>
