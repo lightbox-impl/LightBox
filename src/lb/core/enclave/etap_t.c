@@ -134,9 +134,8 @@ int err_drop_1;
 int client_new_stream;
 int server_new_stream;
 
-double ecall_etap_start(int lbn_record_size,
-			      int lbn_record_per_batch) {
-	rx_ring_t* handle = etap_controller_instance->rx_ring_instance;
+
+static inline void rx_data_init(rx_ring_t* handle) {
 	rx_ring_data_t* dataPtr = handle->rData;
 	/*shared control variables*/
 	dataPtr->read = 0;
@@ -145,11 +144,19 @@ double ecall_etap_start(int lbn_record_size,
 	dataPtr->localWrite = 0;
 	dataPtr->nextRead = 0;
 	dataPtr->rBatch = 0;
-	/*producer local variables*/
+	/*producers local variables*/
 	dataPtr->localRead = 0;
 	dataPtr->nextWrite = 0;
 	dataPtr->wBatch = 0;
+}
 
+
+
+double ecall_etap_start(int lbn_record_size,
+			      int lbn_record_per_batch) {
+	rx_ring_t* handle = etap_controller_instance->rx_ring_instance;
+	rx_data_init(handle);
+	
 	static uint8_t dec_record[1024 * 16];  // 64KB
 
 	// The pointers are from outside
@@ -157,9 +164,7 @@ double ecall_etap_start(int lbn_record_size,
 	// static uint64_t batch_ts = 0;
 
 	// pending packet buffer
-#ifdef CROSS_RECORD
 	uint16_t pending_partial_size = 0;
-#endif
 	uint16_t pending_ts_pkt_size = 0;  // read from sized packet stream
 	static uint8_t pending_ts_pkt[2048] = {0};
 	timeval_t pending_pkt_ts = {0, 0};
@@ -206,7 +211,7 @@ double ecall_etap_start(int lbn_record_size,
 				err_drop_2 + err_drop_3 + err_drop_4,
 			    client_new_stream, server_new_stream,
 			    client_new_stream + server_new_stream);
-#if LightBox == 1
+
 			int cache_hit = lb_state_stats.cache_hit -
 					last_state_stats.cache_hit;
 			int store_hit = lb_state_stats.store_hit -
@@ -217,13 +222,13 @@ double ecall_etap_start(int lbn_record_size,
 			eprintf("Miss rate %f \n\n",
 				1 - cache_hit * 1.0 / total);
 			last_state_stats = lb_state_stats;
-#endif
 			pkt_count = 0;
 
 			// etap_stopping = 1;
 
 			return total_byte * 8.0 / elapsed_us;
-		} else {
+		} 
+		else {
 			for (rec_idx = 0; rec_idx < lbn_record_per_batch;
 			     ++rec_idx) {
 				/* decrypt and verify */
@@ -240,7 +245,7 @@ double ecall_etap_start(int lbn_record_size,
 				// lbn_record_size);
 				crt_pos = dec_record;
 				int free = lbn_record_size;
-#ifdef CROSS_RECORD
+
 				/* handle pending packet that is only partially
 				 * received */
 				if (pending_ts_pkt_size != 0) {
@@ -268,11 +273,11 @@ double ecall_etap_start(int lbn_record_size,
 					total_byte += pending_ts_pkt_size;
 					++pkt_count;
 				}
-#endif
+
 				/* recover more packets from the record */
 				while (1) {
 					if (free >=
-					    sizeof(pending_ts_pkt_size)) {
+					    (int)sizeof(pending_ts_pkt_size)) {
 						/* read size */
 						memcpy(
 						    &pending_ts_pkt_size,
@@ -358,23 +363,13 @@ double ecall_etap_start(int lbn_record_size,
 	}
 }
 // this should be called only once
-double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
+double ecall_etap_start_live(int lbn_record_size,
 			     int lbn_record_per_batch) {
 	eprintf("etapn started record %d rec_per_bat %d!\n", lbn_record_size,
 		lbn_record_per_batch);
+	rx_ring_t* handle = etap_controller_instance->rx_ring_instance;
 
-	rx_ring_data_t* dataPtr = handle->rData;
-	/*shared control variables*/
-	dataPtr->read = 0;
-	dataPtr->write = 0;
-	/*consumers local variables*/
-	dataPtr->localWrite = 0;
-	dataPtr->nextRead = 0;
-	dataPtr->rBatch = 0;
-	/*producers local variables*/
-	dataPtr->localRead = 0;
-	dataPtr->nextWrite = 0;
-	dataPtr->wBatch = 0;
+	rx_data_init(handle);
 
 	static uint8_t dec_record[1024 * 16];  // 64KB
 
@@ -382,9 +377,8 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 	uint8_t* batch;
 
 	// pending packet buffer
-#ifdef CROSS_RECORD
 	uint16_t pending_partial_size = 0;
-#endif
+
 	uint16_t pending_ts_pkt_size = 0;  // read from sized packet stream
 	static uint8_t pending_ts_pkt[2048] = {0};
 	/* time_t pending_pkt_ts = 0; */
@@ -397,7 +391,6 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 	int round_idx = 0;
 	ocall_get_time(&start_s, &start_ns);
 	while (1) {
-		// ocall_lb_etap_in_memory(&batch);
 		// fixed
 		ocall_lb_etap_in(&batch);
 
@@ -409,8 +402,6 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 			abort();
 		}
 
-		// eprintf("%s\n", batch);
-
 		int rec_idx = 0;
 		for (rec_idx = 0; rec_idx < lbn_record_per_batch; ++rec_idx) {
 			/* decrypt and verify */
@@ -421,13 +412,10 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 				abort();
 			}
 
-			// eprintf("rec %d\n", rec_idx);
-
-			// memcpy(dec_record, crt_record, lbn_record_size);
 			// in-record tracking
 			uint8_t* crt_pos = dec_record;
 			int free = lbn_record_size;
-#ifdef CROSS_RECORD
+
 			/* handle pending packet that is only partially received
 			 */
 			if (pending_ts_pkt_size != 0) {
@@ -453,25 +441,16 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 				total_byte += pending_ts_pkt_size;
 				++pkt_count;
 			}
-#endif
+
 			/* recover more packets from the record */
 			while (1) {
-				if (free >= sizeof(pending_ts_pkt_size)) {
+				if (free >=(int) sizeof(pending_ts_pkt_size)) {
 					/* read size */
 					memcpy(&pending_ts_pkt_size, crt_pos,
 					       sizeof(pending_ts_pkt_size));
 					crt_pos += sizeof(pending_ts_pkt_size);
 					free -= sizeof(pending_ts_pkt_size);
 
-					/*eprintf("%d %d %d\n",
-					   pending_ts_pkt_size,
-					   pending_partial_size, free); if
-					   (pending_ts_pkt_size > MAX_FRAME_SIZE
-					   || pending_ts_pkt_size < 0)
-							    {
-							    eprintf("eeerror
-					   %d\n", pending_ts_pkt_size); abort();
-							    }*/
 					/* write full packet to etap */
 					if (free >= pending_ts_pkt_size) {
 						// extract timestamp
@@ -491,23 +470,17 @@ double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
 						    pending_ts_pkt_size;
 						++pkt_count;
 
-						// eprintf("pkt %d : %d %d\n",
-						//	pkt_count,
-						// pending_ts_pkt_size -
-						// sizeof(pending_pkt_ts),
-						// free);
-
 						crt_pos += pending_ts_pkt_size;
 						free -= pending_ts_pkt_size;
 					}
 					/* buffer partial packet until next
 					   record */
 					else {
-#ifdef CROSS_RECORD
+
 						pending_partial_size = free;
 						memcpy(pending_ts_pkt, crt_pos,
 						       pending_partial_size);
-#endif
+
 						// no need to update the
 						// tracking data
 						// crt_pos +=

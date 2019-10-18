@@ -92,10 +92,10 @@ void ecall_etap_controller_init(int* ret, const int ring_mode,
 
 double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch);
 
-double ecall_etap_start_live(rx_ring_t* handle, int lbn_record_size,
+double ecall_etap_start_live(int lbn_record_size,
 			     int lbn_record_per_batch);
 
-double ecall_etap_start_micro(rx_ring_t* handle, int lbn_record_size,
+double ecall_etap_start_micro(int lbn_record_size,
 			      int lbn_record_per_batch);
 
 double ecall_etap_sendto_next_box(int lbn_record_size,
