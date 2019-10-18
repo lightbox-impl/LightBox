@@ -208,6 +208,7 @@ void gateway_init(int rec_size, int rec_per_bat) {
 
 	send_conf_to_peer(rec_size);
 	send_conf_to_peer(rec_per_bat);
+	send_conf_to_peer(-1);
 
 	// live mode
 	/* send_conf_to_peer(-1); */

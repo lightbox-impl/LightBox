@@ -223,15 +223,12 @@ int SGX_CDECL main(int argc, char* argv[]) {
 	exit(1);
     }
 
-    // int rc;
     /* Make connection with previous box */
     etap_init();
-    // printf("line 223\n");
     /* Make connection with next box,
      * using the config from previous box */
     gateway_init(etap_args.record_size, etap_args.record_per_batch);
 
-    // 	printf("gateway_init done\n");
     while (etap_testrun()) {
 	pthread_t etap_trd;
 	double tput1;

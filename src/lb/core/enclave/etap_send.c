@@ -28,7 +28,7 @@ uint8_t* current_batch_memory_pool;
 double ecall_etap_sendto_next_box(int lbn_record_size,
 				  int lbn_record_per_batch) {
 	rx_ring_t* handle = etap_controller_instance->tx_ring_instance;
-	rx_ring_data_t* dataPtr = handle->rData;
+	/* rx_ring_data_t* dataPtr = handle->rData; */
 
 	// Initialize all control variables to 0
 	control_variable_init(handle->rData);
