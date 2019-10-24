@@ -278,17 +278,19 @@ void ocall_lb_etap_in(uint8_t **batch) {
 		expect_rtt_byte = sizeof(uint64_t);
 		while (expect_rtt_byte) {
 				expect_rtt_byte -= recv(srv_fd, &flag, expect_rtt_byte, 0);
-		}
+		 }
+		/* printf("recv rtt flags, start to calculate rtt\n"); */
 		// rtt_flag_1 or rtt_flag_2
 		if (flag == rtt_flag_1) {
 			// send some dummy byte back
-			send(srv_fd, &b_idx, sizeof(b_idx), 0);
+			send(srv_fd, &flag, sizeof(flag), 0);
 
 			expect_rtt_byte = sizeof(uint64_t);
 			while (expect_rtt_byte) {
 				expect_rtt_byte -=
-				    recv(srv_fd, &rtt, expect_rtt_byte, 0);
+					recv(srv_fd, &rtt, expect_rtt_byte, 0);
 			}
+			printf("Current rtt is %lu\n", rtt);
 
 		} 
 

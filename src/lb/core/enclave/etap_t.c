@@ -22,6 +22,7 @@ extern lb_state_stats_t lb_state_stats;
 lb_state_stats_t last_state_stats = {0, 0, 0};
 
 int mos_flow_cnt = 0;
+uint64_t rtt;
 
 etap_controller_t* etap_controller_instance;
 
@@ -185,7 +186,9 @@ double ecall_etap_start(int lbn_record_size,
 	while (1) {
 		// ocall_lb_etap_in_memory(&batch);
 		// fixed
+		/* eprintf("ocall etap in \n"); */
 		ocall_lb_etap_in(&batch);
+		ocall_get_rtt(&rtt);
 
 		crt_record = batch;
 		crt_mac = crt_record + lbn_record_size;
@@ -262,6 +265,10 @@ double ecall_etap_start(int lbn_record_size,
 					// extract timestamp
 					memcpy(&pending_pkt_ts, pending_ts_pkt,
 					       sizeof(pending_pkt_ts));
+					// add rtt to pkt ts
+					
+					pending_pkt_ts.tv_usec += rtt % (uint64_t)1e6;
+					pending_pkt_ts.tv_sec += rtt / (uint64_t) 1e6;
 					// write to etap ring
 					handle->write_pkt(
 					    pending_ts_pkt +
@@ -298,6 +305,10 @@ double ecall_etap_start(int lbn_record_size,
 							    crt_pos,
 							    sizeof(
 								pending_pkt_ts));
+
+							// add rtt to timestamp
+							pending_pkt_ts.tv_usec += rtt % (uint64_t)1e6;
+							pending_pkt_ts.tv_sec += rtt / (uint64_t) 1e6;
 
 							// write to etap ring
 							handle->write_pkt(
