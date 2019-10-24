@@ -21,10 +21,10 @@
 
 /* etun */
 //#define SERV_ADDR "192.168.1.5"
-#define SERV_ADDR "10.0.1.107"
+#define SERV_ADDR "10.0.1.22"
 //#define SERV_ADDR "127.0.0.1"
-#define SERV_PORT "8888"  // the port users will be connecting to
-#define BACKLOG 10     // how many pending connections queue will hold
+#define SERV_PORT "8888" // the port users will be connecting to
+#define BACKLOG 10       // how many pending connections queue will hold
 
 #define DUMMY_KEY "This is a dummy key!"
 

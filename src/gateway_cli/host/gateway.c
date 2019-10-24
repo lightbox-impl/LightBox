@@ -9,12 +9,12 @@
 #include <pcap.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
 
 #define CROSS_RECORD
 
@@ -22,17 +22,24 @@
 extern sgx_enclave_id_t global_eid;
 
 pcap_t* pcap_handle;
+uint64_t rtt_flag_1 = 0xFFFFFFFFFFFFFFFF; // current timestamp in microsecond
+uint64_t rtt_flag_2 = 0xFFFFFFFFFFFFFFFE; // rtt value
+uint8_t* rtt_buffer;
+static inline void calculate_rtt();
 
-uint64_t get_microsecond_timestamp() {
-		struct timeval current_time;
-		gettimeofday(&current_time, NULL);
-		return current_time.tv_sec * (int)1e6 + current_time.tv_usec ;
+uint64_t get_microsecond_timestamp()
+{
+    struct timeval current_time;
+    gettimeofday(&current_time, NULL);
+    return current_time.tv_sec * (int)1e6 + current_time.tv_usec;
 }
 
 typedef struct rtt_checker {
-	uint64_t current_time;
-	uint64_t rtt;
+    uint64_t current_time;
+    uint64_t rtt;
 } rtt_checker_t;
+
+rtt_checker_t rtt_checker;
 
 #if CAIDA == 1
 //#define POOL_SIZE 700000000 // 2GB/3
@@ -239,7 +246,7 @@ int data_source_init(int rec_size, int rec_per_bat, int pkt_size)
     // not static, so the last partial packet in last batch is discarded
     uint16_t sized_pkt_length = 0;
     uint8_t sized_pkt[2048];
-    // track cross-record packet
+// track cross-record packet
 #ifdef CROSS_RECORD
     uint16_t sized_pkt_remain = 0;
 #endif
@@ -304,7 +311,7 @@ int data_source_init(int rec_size, int rec_per_bat, int pkt_size)
 		// 3) pkt itself
 		memcpy(sized_pkt + sizeof(pkt_ts_len) + sizeof(ts), pkt, pheader.caplen);
 
-		/*if ((crt_pool_pos - record + record_free) != LBN_RECORD_SIZE)
+/*if ((crt_pool_pos - record + record_free) != LBN_RECORD_SIZE)
 				printf("aaa %d\n", crt_pool_pos - record + record_free - LBN_RECORD_SIZE);*/
 #ifdef CROSS_RECORD
 		if (record_free > sized_pkt_length) {
@@ -318,7 +325,7 @@ int data_source_init(int rec_size, int rec_per_bat, int pkt_size)
 		    record_free -= sized_pkt_length;
 		} else {
 		    if (record_free >= sizeof(sized_pkt_length)) {
-			// sized_pkt_remain could be 0
+// sized_pkt_remain could be 0
 #ifdef CROSS_RECORD
 			sized_pkt_remain = sized_pkt_length - record_free;
 			memcpy(crt_pool_pos, sized_pkt, record_free);
@@ -332,8 +339,8 @@ int data_source_init(int rec_size, int rec_per_bat, int pkt_size)
 			//if ((crt_pool_pos - record + record_free) != LBN_RECORD_SIZE)
 			//	printf("ccc %d\n", crt_pool_pos - record + record_free - LBN_RECORD_SIZE);
 		    } else {
-			/* disgard the poor 0 or 1 byte left */
-			/* by doing so the current sized_packet is also discarded */
+/* disgard the poor 0 or 1 byte left */
+/* by doing so the current sized_packet is also discarded */
 #ifdef CROSS_RECORD
 			sized_pkt_remain = 0;
 #endif
@@ -395,6 +402,7 @@ int data_source_send(int batch_to_send)
 	int i = 0;
 	for (; i < batch_to_send; ++i) {
 	    crt_batch = raw_pool + i * batch_size;
+	    calculate_rtt();
 	    send_crt_batch();
 	}
 	sleep(1);
@@ -459,7 +467,7 @@ void prepare_crt_batch()
 
     static uint16_t sized_pkt_length = 0;
     static uint8_t sized_pkt[2048];
-    // track cross-record packet
+// track cross-record packet
 #ifdef CROSS_RECORD
     static uint16_t sized_pkt_remain = 0;
 #endif
@@ -527,7 +535,7 @@ void prepare_crt_batch()
 	    // 3) pkt itself
 	    memcpy(sized_pkt + sizeof(pkt_ts_len) + sizeof(ts), pkt, pheader.caplen);
 
-	    /*if ((crt_pool_pos - record + record_free) != LBN_RECORD_SIZE)
+/*if ((crt_pool_pos - record + record_free) != LBN_RECORD_SIZE)
 			printf("aaa %d\n", crt_pool_pos - record + record_free - LBN_RECORD_SIZE);*/
 #ifdef CROSS_RECORD
 	    if (record_free > sized_pkt_length) {
@@ -541,7 +549,7 @@ void prepare_crt_batch()
 		record_free -= sized_pkt_length;
 	    } else {
 		if (record_free >= sizeof(sized_pkt_length)) {
-		    // sized_pkt_remain could be 0
+// sized_pkt_remain could be 0
 #ifdef CROSS_RECORD
 		    sized_pkt_remain = sized_pkt_length - record_free;
 		    memcpy(crt_batch_pos, sized_pkt, record_free);
@@ -555,8 +563,8 @@ void prepare_crt_batch()
 		    //if ((crt_pool_pos - record + record_free) != LBN_RECORD_SIZE)
 		    //	printf("ccc %d\n", crt_pool_pos - record + record_free - LBN_RECORD_SIZE);
 		} else {
-		    /* disgard the poor 0 or 1 byte left */
-		    /* by doing so the current sized_packet is also discarded */
+/* disgard the poor 0 or 1 byte left */
+/* by doing so the current sized_packet is also discarded */
 #ifdef CROSS_RECORD
 		    sized_pkt_remain = 0;
 #endif
@@ -703,56 +711,60 @@ void gateway_deinit()
 	printf("gateway closed!\n");
 }
 
+static inline void calculate_rtt()
+{
+    static uint8_t rtt_size = sizeof(rtt_flag_1);
+    static uint8_t dummy_rtt_buffer[100];
+
+    if (unlikely(get_microsecond_timestamp() - rtt_checker.current_time >= 1e6)) {
+	// start calculating new rtt value
+	rtt_checker.current_time = get_microsecond_timestamp();
+	memcpy(rtt_buffer, &rtt_flag_1, sizeof(rtt_flag_1));
+	/* printf("start to calculate rtt\n"); */
+	int expect = rtt_size;
+	while (expect) {
+	    expect -= send(cli_fd, rtt_buffer + rtt_size - expect, expect, 0);
+	}
+
+	recv(cli_fd, dummy_rtt_buffer, sizeof(uint64_t), 0);
+	uint64_t tmp_current_time = get_microsecond_timestamp();
+	rtt_checker.rtt = tmp_current_time - rtt_checker.current_time;
+	rtt_checker.current_time = tmp_current_time;
+
+	/* memcpy(buffer, &rtt_flag_2, sizeof(rtt_flag_2)); */
+	memcpy(rtt_buffer, &rtt_checker.rtt, sizeof(rtt_checker.rtt));
+	expect = rtt_size;
+	while (expect) {
+	    expect -= send(cli_fd, rtt_buffer + rtt_size - expect, expect, 0);
+	}
+	/* printf("Done with rtt, current rtt is %lu\n", rtt_checker.rtt); */
+
+    } else {
+	// send rtt_flag_2
+	memcpy(rtt_buffer, &rtt_flag_2, sizeof(rtt_flag_2));
+	int expect = rtt_size;
+	while (expect) {
+	    expect -= send(cli_fd, rtt_buffer + rtt_size - expect, expect, 0);
+	}
+    }
+}
+
 void gateway(int rec_size, int rec_per_bat, int pkt_size)
 {
     gateway_init(rec_size, rec_per_bat);
 
-	static uint64_t rtt_flag_1 = 0xFFFFFFFFFFFFFFFF; // current timestamp in microsecond
-	static uint64_t rtt_flag_2 = 0xFFFFFFFFFFFFFFFE; // rtt value
-	rtt_checker_t rtt_checker;
-	rtt_checker.current_time = get_microsecond_timestamp();
-	rtt_checker.rtt = 0;
-	uint8_t *buffer;
-	static uint8_t rtt_size = sizeof(rtt_flag_1);
-	buffer = malloc(rtt_size);
-	//memcpy(buffer, &rtt_flag, sizeof(rtt_flag));
-	static uint8_t dummy_rtt_buffer[100];
+    /* static uint64_t rtt_flag_1 = 0xFFFFFFFFFFFFFFFF; // current timestamp in microsecond */
+    /* static uint64_t rtt_flag_2 = 0xFFFFFFFFFFFFFFFE; // rtt value */
+    rtt_checker.current_time = 0; //get_microsecond_timestamp();
+    rtt_checker.rtt = 0;
+    rtt_buffer = (uint8_t*)malloc(sizeof(uint64_t));
 
     while (1) {
 
-			if(unlikely(get_microsecond_timestamp() - rtt_checker.current_time >= 1e6)) {
-				// start calculating new rtt value
-				rtt_checker.current_time = get_microsecond_timestamp();
-				memcpy(buffer, &rtt_flag_1, sizeof(rtt_flag_1));
-				int expect = rtt_size;
-				while (expect) {
-					expect -= send(cli_fd, buffer + rtt_size - expect, expect, 0);
-				}
-
-				recv(cli_fd, dummy_rtt_buffer, sizeof(uint64_t), 0);
-				int tmp_current_time = get_microsecond_timestamp();
-				rtt_checker.rtt = tmp_current_time - rtt_checker.current_time;
-				rtt_checker.current_time = tmp_current_time;
-
-
-				/* memcpy(buffer, &rtt_flag_2, sizeof(rtt_flag_2)); */
-				memcpy(buffer, &rtt_checker.rtt, sizeof(rtt_checker.rtt));
-				expect = rtt_size;
-				while (expect) {
-					expect -= send(cli_fd, buffer + rtt_size - expect, expect, 0);
-				}
-
-			} else {
-					// send rtt_flag_2
-					memcpy(buffer, &rtt_flag_2, sizeof(rtt_flag_2));
-					int expect = rtt_size;
-					while (expect) {
-							expect -= send(cli_fd, buffer + rtt_size - expect, expect, 0);
-					}
-			}
-
-
 	int batch_to_send = data_source_init(rec_size, rec_per_bat, pkt_size);
+	/* send_conf_to_peer(batch_to_send); */
+
+	/* int batch_to_send = data_source_init(rec_size, rec_per_bat, pkt_size); */
 
 	int done = data_source_send(batch_to_send);
 
@@ -762,5 +774,6 @@ void gateway(int rec_size, int rec_per_bat, int pkt_size)
 	}
     }
 
+    free(rtt_buffer);
     gateway_deinit();
 }
