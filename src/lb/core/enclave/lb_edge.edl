@@ -15,6 +15,7 @@ enclave {
     untrusted {
         // LightBox OCALLs
         void ocall_lb_etap_in([out, size=8]uint8_t **batch);
+		void ocall_get_rtt([out]uint64_t *rtt_enclave);
 		void ocall_lb_etap_out([out, in, size=8]uint8_t **batch);
 		void ocall_state_store_alloc([out, size=8]void **store_new);
 		void ocall_state_store_free([user_check]void *item);

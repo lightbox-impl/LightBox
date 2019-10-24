@@ -24,6 +24,10 @@ uint8_t *batch_buffer;
 uint8_t *client_batch_buffer;
 int num_batch;
 
+uint64_t rtt = 0;
+uint64_t rtt_flag_1 = 0xFFFFFFFFFFFFFFFF;
+uint64_t rtt_flag_2 = 0xFFFFFFFFFFFFFFFE;
+
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa) {
 	if (sa->sa_family == AF_INET) {
@@ -268,34 +272,60 @@ void ocall_lb_etap_in(uint8_t **batch) {
 	} else {
 		//		printf("to receive batch %d!\n", b_idx);
 
+		uint64_t flag;
+		int expect_rtt_byte;
+
+		expect_rtt_byte = sizeof(uint64_t);
+		while (expect_rtt_byte) {
+				expect_rtt_byte -= recv(srv_fd, &flag, expect_rtt_byte, 0);
+		}
+		// rtt_flag_1 or rtt_flag_2
+		if (flag == rtt_flag_1) {
+			// send some dummy byte back
+			send(srv_fd, &b_idx, sizeof(b_idx), 0);
+
+			expect_rtt_byte = sizeof(uint64_t);
+			while (expect_rtt_byte) {
+				expect_rtt_byte -=
+				    recv(srv_fd, &rtt, expect_rtt_byte, 0);
+			}
+
+		} 
+
 		int expect = batch_size;
 		while (expect) {
-			int ret =
-			    recv(srv_fd, batch_buffer + batch_size - expect,
-				 expect, 0);
-			if (likely(ret > 0)) {
-				expect -= ret;
-			} else if (ret == 0) {
-				printf("client closed!\n");
-				exit(1);
-			} else {
-				perror("recv");
+				int ret = recv(
+				    srv_fd, batch_buffer + batch_size - expect,
+				    expect, 0);
+				if (likely(ret > 0)) {
+					expect -= ret;
+				} else if (ret == 0) {
+					printf("client closed!\n");
+					exit(1);
+				} else {
+					perror("recv");
+				}
 			}
-		}
 
-		*batch = batch_buffer;
+			*batch = batch_buffer;
+			++b_idx;
 
-		++b_idx;
+		/* *batch = batch_buffer; */
+
+		/* ++b_idx; */
 
 		//	printf("batch %d received!\n", b_idx);
 	}
 }
 
+void ocall_get_rtt(uint64_t * rtt_enclave) {
+		*rtt_enclave = rtt;
+}
+
 void ocall_lb_etap_out(uint8_t **batch) {
 	int expect = batch_size;
 	while (expect) {
-		int ret = send(cli_fd, *batch + batch_size - expect,
-			       expect, 0);
+		int ret = send(cli_fd, *batch + batch_size - expect, expect, 0);
 		if (ret > 0)
 			expect -= ret;
 		else

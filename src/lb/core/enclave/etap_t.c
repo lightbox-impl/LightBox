@@ -330,14 +330,14 @@ double ecall_etap_start(int lbn_record_size,
 						/* buffer partial packet until
 						   next record */
 						else {
-#ifdef CROSS_RECORD
+
 							pending_partial_size =
 							    free;
 							memcpy(
 							    pending_ts_pkt,
 							    crt_pos,
 							    pending_partial_size);
-#endif
+
 							// no need to update the
 							// tracking data
 							// crt_pos +=
@@ -349,9 +349,7 @@ double ecall_etap_start(int lbn_record_size,
 					} else {
 						/* unlikely - discard the left 0
 						 * or 1 byte */
-#ifdef CROSS_RECORD
 						pending_ts_pkt_size = 0;
-#endif
 						break;
 					}
 				}
@@ -492,9 +490,7 @@ double ecall_etap_start_live(int lbn_record_size,
 				} else {
 					/* unlikely - discard the left 0 or 1
 					 * byte */
-#ifdef CROSS_RECORD
 					pending_ts_pkt_size = 0;
-#endif
 					break;
 				}
 			}
@@ -536,7 +532,7 @@ double ecall_etap_start_live(int lbn_record_size,
 	// never executed
 	return 0.0;
 }
-double ecall_etap_start_micro(rx_ring_t* handle, int lbn_record_size,
+double ecall_etap_start_micro(int lbn_record_size,
 			      int lbn_record_per_batch) {
 	return 0.0;
 }

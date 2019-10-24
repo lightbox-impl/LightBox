@@ -13,6 +13,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define CROSS_RECORD
 
@@ -20,6 +22,17 @@
 extern sgx_enclave_id_t global_eid;
 
 pcap_t* pcap_handle;
+
+uint64_t get_microsecond_timestamp() {
+		struct timeval current_time;
+		gettimeofday(&current_time, NULL);
+		return current_time.tv_sec * (int)1e6 + current_time.tv_usec ;
+}
+
+typedef struct rtt_checker {
+	uint64_t current_time;
+	uint64_t rtt;
+} rtt_checker_t;
 
 #if CAIDA == 1
 //#define POOL_SIZE 700000000 // 2GB/3
@@ -694,7 +707,51 @@ void gateway(int rec_size, int rec_per_bat, int pkt_size)
 {
     gateway_init(rec_size, rec_per_bat);
 
+	static uint64_t rtt_flag_1 = 0xFFFFFFFFFFFFFFFF; // current timestamp in microsecond
+	static uint64_t rtt_flag_2 = 0xFFFFFFFFFFFFFFFE; // rtt value
+	rtt_checker_t rtt_checker;
+	rtt_checker.current_time = get_microsecond_timestamp();
+	rtt_checker.rtt = 0;
+	uint8_t *buffer;
+	static uint8_t rtt_size = sizeof(rtt_flag_1);
+	buffer = malloc(rtt_size);
+	//memcpy(buffer, &rtt_flag, sizeof(rtt_flag));
+	static uint8_t dummy_rtt_buffer[100];
+
     while (1) {
+
+			if(unlikely(get_microsecond_timestamp() - rtt_checker.current_time >= 1e6)) {
+				// start calculating new rtt value
+				rtt_checker.current_time = get_microsecond_timestamp();
+				memcpy(buffer, &rtt_flag_1, sizeof(rtt_flag_1));
+				int expect = rtt_size;
+				while (expect) {
+					expect -= send(cli_fd, buffer + rtt_size - expect, expect, 0);
+				}
+
+				recv(cli_fd, dummy_rtt_buffer, sizeof(uint64_t), 0);
+				int tmp_current_time = get_microsecond_timestamp();
+				rtt_checker.rtt = tmp_current_time - rtt_checker.current_time;
+				rtt_checker.current_time = tmp_current_time;
+
+
+				/* memcpy(buffer, &rtt_flag_2, sizeof(rtt_flag_2)); */
+				memcpy(buffer, &rtt_checker.rtt, sizeof(rtt_checker.rtt));
+				expect = rtt_size;
+				while (expect) {
+					expect -= send(cli_fd, buffer + rtt_size - expect, expect, 0);
+				}
+
+			} else {
+					// send rtt_flag_2
+					memcpy(buffer, &rtt_flag_2, sizeof(rtt_flag_2));
+					int expect = rtt_size;
+					while (expect) {
+							expect -= send(cli_fd, buffer + rtt_size - expect, expect, 0);
+					}
+			}
+
+
 	int batch_to_send = data_source_init(rec_size, rec_per_bat, pkt_size);
 
 	int done = data_source_send(batch_to_send);

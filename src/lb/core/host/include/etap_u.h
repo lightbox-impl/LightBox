@@ -17,6 +17,8 @@ int etap_testrun();
 
 void ocall_lb_etap_in(uint8_t **batch);
 
+void ocall_get_rtt(uint64_t * rtt_enclave);
+
 void gateway_init(int rec_size, int rec_per_bat);
 
 void gateway_deinit();
