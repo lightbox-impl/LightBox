@@ -1,7 +1,7 @@
 #include "../common/lwids_type.h"
 
-#include <lb_core/host/lb_edge_u.h>
-#include <lb_core/host/lightbox.h>
+#include <host/lb_edge_u.h>
+#include <host/include/lightbox.h>
 
 #include <getopt.h>
 #include <pthread.h>

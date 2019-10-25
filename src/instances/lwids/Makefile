@@ -1,14 +1,14 @@
 ######## LightBox Settings ########
 LightBox ?= 1
-CAIDA ?= 0
+CAIDA ?= 1
 CONNECTION ?= 0
 MSG64 ?= 0
 
 LightBox_FLAGS = -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DMSG64=$(MSG64)
 
-LightBox_DIR = ../../lb_core
+LightBox_DIR = ../../lb/core
 Lwids_DIR = $(PWD)
-Lwids_EDL = $(Lwids_DIR)/enclave/lwids.edl
+Lwids_EDL = $(Lwids_DIR)/enclave/lwids_edl.edl
 Lwids_Edge_T = $(Lwids_DIR)/enclave/lwids_edl_t.c
 Lwids_Edge_TO = $(Lwids_DIR)/enclave/lwids_edl_t.o
 Lwids_Edge_U = $(Lwids_DIR)/host/lwids_edl_u.c
@@ -64,7 +64,7 @@ else
 endif
 
 App_C_Files := host/host.c host/lwids_u.c
-App_Include_Paths := -I$(SGX_SDK)/include -I/usr/include -I$(LightBox_DIR)
+App_Include_Paths := -I$(SGX_SDK)/include -I/usr/include -I$(LightBox_DIR)/include
 
 App_C_Flags = $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
 
@@ -91,10 +91,11 @@ else
 endif
 
 
-LightBox_Dir := ../../../src/lb_core
-LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../
-LightBox_Lib := $(LightBox_Dir)/liblb_core_u.a
-LightBox_Lib_T := $(LightBox_Dir)/liblb_core_t.a
+LightBox_Dir := ../../../src/lb/core
+LightBox_Include := -I$(LightBox_Dir)/host/include -I$(LightBox_Dir)/ -I../../../include/ -I$(LightBox_Dir)/..
+Build_Lib_Dir := ../../../build
+LightBox_Lib := $(Build_Lib_Dir)/liblb_core_u.a
+LightBox_Lib_T := $(Build_Lib_Dir)/liblb_core_t.a
 
 
 App_C_Flags += $(LightBox_Include)
@@ -115,8 +116,8 @@ else
 endif
 Crypto_Library_Name := sgx_tcrypto
 
-Enclave_C_Files := enclave/lwids_t.c enclave/pattern_matching.c $(LightBox_DIR)/../lb_linux/linux_type_ports.c #$(wildcard $(LightBox_DIR)/../lb_networking/libntoh/*.c) 
-Enclave_Include_Paths := -I$(SGX_SDK)/include -I$(SGX_SDK) -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -I/usr/include -I$(LightBox_DIR) -I$(LightBox_DIR)/..
+Enclave_C_Files := enclave/lwids_t.c enclave/pattern_matching.c enclave/linux_type_ports.c #$(wildcard $(LightBox_DIR)/../lb_networking/libntoh/*.c) 
+Enclave_Include_Paths :=  -I$(SGX_SDK)/include -I$(SGX_SDK) -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -I/usr/include -I$(LightBox_DIR) -I$(LightBox_DIR)/.. -I../../../include 
 
 Enclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fstack-protector $(Enclave_Include_Paths)
 
@@ -129,8 +130,8 @@ Enclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fst
 # Otherwise, you may get some undesirable errors.
 Enclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) -L$(services_lib) \
 	-Wl,--whole-archive -l$(Trts_Library_Name) -Wl,--no-whole-archive \
-	-Wl,--start-group -lsgx_tstdc -lsgx_tstdcxx -l$(Crypto_Library_Name) -l$(Service_Library_Name) $(TRUSTED_LIB_DIR)/libpcre.a \
-	../../lb_networking/libntoh/liblb_Ntoh_t.a $(LightBox_Lib_T) -Wl,--end-group \
+	-Wl,--start-group -lsgx_tstdc -lsgx_tcxx -l$(Crypto_Library_Name) -l$(Service_Library_Name) $(TRUSTED_LIB_DIR)/libpcre.a \
+	$(Build_Lib_Dir)/liblb_ntoh_t.a $(LightBox_Lib_T) -Wl,--end-group \
 	-Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
 	-Wl,-pie,-eenclave_entry -Wl,--export-dynamic  \
 	-Wl,--defsym,__ImageBase=0 \
@@ -208,7 +209,7 @@ $(Lwids_Edge_UO): $(Lwids_Edge_U)
 #	
 ######## LigtBox enclave ########
 $(Lwids_Edge_T): $(SGX_EDGER8R) $(Lwids_EDL)
-	@cd $(Lwids_DIR)/enclave && $(SGX_EDGER8R) --trusted lwids_edl.edl --search-path $(SGX_SDK)/include
+	@cd $(Lwids_DIR)/enclave && $(SGX_EDGER8R) --trusted lwids_edl.edl --search-path ../enclave --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
 $(Lwids_Edge_TO): $(Lwids_Edge_T)

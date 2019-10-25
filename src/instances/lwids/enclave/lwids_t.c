@@ -36,13 +36,13 @@
 #include "pattern_matching.h"
 #include "../common/lwids_type.h"
 
-#include <lb_core/enclave/lb_edge_t.h>
-#include <lb_core/common/lb_type.h>
-#include <lb_core/enclave/utils_t.h>
-#include <lb_core/enclave/etap_t.h>
-#include <lb_core/enclave/state_mgmt_t.h>
-#include <lb_networking/libntoh/libntoh.h>
-#include <lb_linux/linux_type_ports.h>
+#include <enclave/lb_edge_t.h>
+#include <lb_type.h>
+#include <enclave/include/utils_t.h>
+#include <enclave/include/etap_t.h>
+#include <enclave/include/state_mgmt_t.h>
+#include <networking/libntoh/include/libntoh.h>
+#include <linux_type_ports.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -403,6 +403,8 @@ void ecall_lwids_deinit()
 
 void ecall_lb_lwids_run()
 {
+
+	poll_driver_t *pd = poll_driver_init();
     eprintf("LightBox %d CONNECTION %d CAIDA %d\n", LightBox, CONNECTION, CAIDA);
 
     uint8_t pkt[MAX_FRAME_SIZE];
@@ -413,7 +415,7 @@ void ecall_lb_lwids_run()
 
     struct ip	*ip;
     while (1) {
-        read_pkt(pkt, &pkt_len, &wall_clock.tv_sec);
+        pd->read_pkt(pkt, &pkt_len, &wall_clock, pd->etap);
 
 #if CAIDA==1
         ip = (struct ip*)pkt;

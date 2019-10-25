@@ -19,7 +19,7 @@
 # define ENCLAVE_FILENAME "enclave.signed.so"
 
 #include "sgx_urts.h"
-#include <lb_core/host/lb_edge_u.h>
+#include <host/lb_edge_u.h>
 
 /* Global EID shared by multiple threads */
 sgx_enclave_id_t global_eid = 0;
