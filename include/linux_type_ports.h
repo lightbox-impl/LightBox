@@ -4,6 +4,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <stdint.h>
+#include "lb_time.h"
 
 /*** Start <bits/time.h> ***/
 typedef long long __suseconds_t;
