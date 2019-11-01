@@ -404,7 +404,7 @@ void ecall_lwids_deinit()
 void ecall_lb_lwids_run()
 {
 
-	poll_driver_t *pd = poll_driver_init();
+	poll_driver_t *pd = poll_driver_init(0);
     eprintf("LightBox %d CONNECTION %d CAIDA %d\n", LightBox, CONNECTION, CAIDA);
 
     uint8_t pkt[MAX_FRAME_SIZE];

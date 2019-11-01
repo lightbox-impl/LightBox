@@ -61,8 +61,8 @@ typedef struct rx_ring_data {
 
 typedef struct rx_ring {
 	rx_ring_data_t* rData;
-	void (*read_pkt)(uint8_t*, int*, timeval_t*, rx_ring_data_t*);
-	void (*write_pkt)(const uint8_t*, int, timeval_t, rx_ring_data_t*);
+	int (*read_pkt)(uint8_t*, int*, timeval_t*, rx_ring_data_t*);
+	int (*write_pkt)(const uint8_t*, int, timeval_t, rx_ring_data_t*);
 } rx_ring_t;
 
 typedef struct etap_controller {
@@ -103,7 +103,7 @@ double ecall_etap_start_micro(int lbn_record_size,
 double ecall_etap_sendto_next_box(int lbn_record_size,
 				  int lbn_record_per_batch);
 
-poll_driver_t* poll_driver_init();
+poll_driver_t* poll_driver_init(int mode);
 
 void poll_driver_deinit(poll_driver_t* p);
 

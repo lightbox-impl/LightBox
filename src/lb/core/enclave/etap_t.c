@@ -70,6 +70,10 @@ rx_ring_t* etap_rx_init(const int mode) {
 			r->write_pkt = &write_pkt_lock;
 			break;
 
+		case 3:
+			r->read_pkt = &read_pkt_lockless_cache_efficient_nonblock;
+			r->write_pkt = &write_pkt_lockless_cache_efficient_nonblock;
+
 		default:
 			r->read_pkt = &read_pkt_lockless_cache_efficient;
 			r->write_pkt = &write_pkt_lockless_cache_efficient;
@@ -115,7 +119,7 @@ etap_controller_t* etap_controller_init(const int ring_mode,
 void etap_controller_deinit(etap_controller_t* p) {
 		etap_rx_deinit(p->rx_ring_instance);
 		etap_rx_deinit(p->tx_ring_instance);
-		free(p)
+		free(p);
 }
 
 // This function will be called in the untrusted call "etap_init()". 

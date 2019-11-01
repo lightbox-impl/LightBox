@@ -19,11 +19,11 @@ void poll_write_pkt(const uint8_t* pkt, int pkt_size,
 /* 
  * To be called within etap_controller_instance init function call
  */ 
-poll_driver_t* poll_driver_init() {
+poll_driver_t* poll_driver_init(int mode) {
 	poll_driver_t* pd = (poll_driver_t*)malloc(sizeof(poll_driver_t));
 	pd->read_pkt = poll_read_pkt;
 	pd->write_pkt = poll_write_pkt;
-	pd->etap = etap_controller_init(0, 0);
+	pd->etap = etap_controller_init(mode, 0);
 	etap_controller_instance = pd->etap;
 	return pd;
 }
