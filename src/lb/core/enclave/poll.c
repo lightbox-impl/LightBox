@@ -28,3 +28,7 @@ poll_driver_t* poll_driver_init() {
 	return pd;
 }
 
+void poll_driver_deinit(poll_driver_t* p) {
+		etap_controller_deinit(p->etap);
+		free(p);
+}

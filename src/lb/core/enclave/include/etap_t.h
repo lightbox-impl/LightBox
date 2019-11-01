@@ -81,6 +81,8 @@ typedef struct poll_driver {
 etap_controller_t* etap_controller_init(const int ring_mode,
 					const int etap_db_mode);
 
+void etap_controller_deinit(etap_controller_t* p);
+
 rx_ring_t* etap_rx_init(const int mode);
 
 void get_clock(timeval_t* ts);
@@ -102,6 +104,8 @@ double ecall_etap_sendto_next_box(int lbn_record_size,
 				  int lbn_record_per_batch);
 
 poll_driver_t* poll_driver_init();
+
+void poll_driver_deinit(poll_driver_t* p);
 
 void prepare_batch(rx_ring_t* handle, int lbn_record_size, int lbn_record_per_batch);
 #ifdef __cplusplus
