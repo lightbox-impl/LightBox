@@ -3,65 +3,35 @@ Full-stack protected stateful middlebox at lightning speed
 
 ## Getting Started 
 
-LightBox is developed and tested on ubuntu machine only at current stage. Other Linux distribution may enter some small issues. 
-
-## Publication 
-Huayi Duan, Cong Wang, Xingliang Yuan, Yajin Zhou, Qian Wang, and Kui Ren. 2019. LightBox: Full-stack Protected Stateful Middlebox at Lightning Speed. In 2019 ACM SIGSAC Conference on Computer and Communications Security (CCS’19), November 11–15, 2019, London, United Kingdom.  
+LightBox is developed and tested on ubuntu machine only at current stage. Other Linux distribution may enter some small issues.   
 
 ### Prerequisites  
 
-Recommended Environments: Ubuntu 18.04 LTS with gcc version 7.4.0 or higher.   
-The CPU has to support Intel Software Guard Extensions. The recommended environment is Ubuntu 18.04 LTS with gcc version 7.4.0 or higher. 
+First of all, Intel SGX driver, PSW Package and SDK needs to be installed on your machine to compile and run LightBox. Please refer to the offical 
+guide of SGX to install them. [Click me](https://github.com/intel/linux-sgx) 
 
-This software requires the following libraries:  
-* [Intel SGX](https://software.intel.com/en-us/sgx)
-* [libpcap] (https://www.tcpdump.org/)
+After installing the Intel SGX on your machine, run the following command to install libpcap's header file:
 
-## Installation
-
-- Environment setup: 
-
-```shell
-sudo apt-get update
-sudo apt-get install build-essential git 
+```
+sudo apt-get install libpcap libpcap-dev
 ```
 
-- SGX installation:
+### Compiling
 
-You need to enable SGX follow the [Intel_SGX_Installation_Guide_Linux](https://download.01.org/intel-sgx/linux-2.1/docs/Intel_SGX_Installation_Guide_Linux_2.1_Open_Source.pdf)
+There are mainly five component within `LightBox/src` directory, _core_, _gateway_, _instance_, _linux_ and _networking_.
+The _core_ and _network_ need to be built before others. Then you can build _gateway_ and _instance_. 
+The building processing is fairly simple, just run the following command:
 
-- Mode
-There are several different mode for LightBox to run. The default mode is **CAIDA**. You can switch to different mode by modifying corresponding variable in Makefile scripts. 
-
-## Compiling
-```bash
-git clone https://github.com/XXXXXXX
-cd LightBox
-make
+```
+cd LightBox/src/
+cd lb_core && make && cd ..
+cd lb_networking && make && cd ..
+cd lb_gateway && make && cd ..
+cd lb_instance/mIDS && make && cd ../..
 ```
 
-## etap Usage
-We encapsulate the network communication parts of LightBox into etap (a virtual network interface). The packet I/O APIs are  designed like this:
 
-```c
-poll_driver_t* pd = poll_driver_init();
-
-pd->read_pkt(pkt_buffer, &pkt_size, &time_stamp, pd->etap);
-pd->write_pkt(pkt_buffer, pkt_size, time_stamp, pd->etap);
-```
-
-## Gateway Client
-
-## Application
-- helloworld
-- lwIDS
-- mIDS
-- prads
-
-
-## Maintainer
-- Ruochen Wang, City University of Hong Kong, ruochwang2-c@cityu.edu.hk
-- Huayi Duan, City University of Hong Kong, hduan2-c@my.cityu.edu.hk
+There are several different mode for LightBox to run. The default mode is **CAIDA**. You can switch to different mode by modifying corresponding variable in Makefile. 
 
 
 

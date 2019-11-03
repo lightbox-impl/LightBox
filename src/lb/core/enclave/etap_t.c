@@ -1,32 +1,54 @@
 #include "etap_t.h"
-#include <stdlib.h>
-#include <string.h>
+
 #include "crypto_t.h"
 #include "rx_ring_opt.h"
 #include "state_mgmt_t.h"
-#include "utils_t.h"
+#include "lb_utils_t.h"
+
+#include "lb_core_edge_t.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 #define CROSS_RECORD
 #define ETAP_RING_MODE 0  // for experiment purpose only at current stage
 
-timeval_t time_now;
-void get_clock(timeval_t* ts) { memcpy(ts, &time_now, sizeof(timeval_t)); }
-
-timeval_t trace_clock = {0, 0};
-
-/* test */
+/*** legacy test code, to be refactored ***/
 #include "cuckoo/cuckoo_hash.h"
 extern struct cuckoo_hash cache_lkup_table;
 extern struct cuckoo_hash store_lkup_table;
 extern lb_state_stats_t lb_state_stats;
-lb_state_stats_t last_state_stats = {0, 0, 0};
+lb_state_stats_t last_state_stats = {0, 0, 0, 0};
+
+int cnt_timeouted;
+int DoCallTimes;
+int DoDfcTimes;
+long long DoDfcSize;
+int cnt_ip;
+int cnt_tcp;
+int cnt_icmp;
+int cnt_other;
+int err_drop_4;
+int err_drop_3;
+int err_drop_2;
+int err_drop_1;
+int client_new_stream;
+int server_new_stream;
+
+int prads_flow_cnt = 0;
 
 int mos_flow_cnt = 0;
+void etap_set_flow(int crt_flow) { mos_flow_cnt = crt_flow; }
+/*** End of legacy test code ***/
+
+/* Clock related */
+timeval_t etap_clock;
+void get_clock(timeval_t* ts) { memcpy(ts, &etap_clock, sizeof(timeval_t)); }
+timeval_t trace_clock = {0, 0};
 uint64_t rtt;
+/* end of clock */
 
 etap_controller_t* etap_controller_instance;
-
-void etap_set_flow(int crt_flow) { mos_flow_cnt = crt_flow; }
 
 rx_ring_t* etap_rx_init(const int mode) {
 	rx_ring_data_t* pData;
@@ -51,8 +73,6 @@ rx_ring_t* etap_rx_init(const int mode) {
 
 	rx_ring_t* r = (rx_ring_t*)malloc(sizeof(rx_ring_t));
 	r->rData = pData;
-
-	/* r->ecall_etap_start = &ecall_etap_start_caida; */
 
 	switch (mode) {
 		case 0:
@@ -83,12 +103,6 @@ rx_ring_t* etap_rx_init(const int mode) {
 	return r;
 }
 
-void etap_rx_deinit(rx_ring_t* p) {
-		free(p->rData->in_rbuf);
-		free(p->rData);
-		free(p);
-}
-
 etap_controller_t* etap_controller_init(const int ring_mode,
 				    const int etap_db_mode) {
 	etap_controller_t* p =
@@ -97,6 +111,7 @@ etap_controller_t* etap_controller_init(const int ring_mode,
 	p->tx_ring_instance = etap_rx_init(ring_mode);
 	// poll_driver_init();
 
+	// TODO: to be refactored ...
 	/* switch (etap_db_mode) { */
 		/* case 0: */
 			/* p->ecall_etap_start = &ecall_etap_start_caida; */
@@ -116,6 +131,7 @@ etap_controller_t* etap_controller_init(const int ring_mode,
 	return p;
 }
 
+<<<<<<< HEAD
 void etap_controller_deinit(etap_controller_t* p) {
 		etap_rx_deinit(p->rx_ring_instance);
 		etap_rx_deinit(p->tx_ring_instance);
@@ -123,33 +139,21 @@ void etap_controller_deinit(etap_controller_t* p) {
 }
 
 // This function will be called in the untrusted call "etap_init()". 
+=======
+// This function will be called in the untrusted call "lb_init()". 
+>>>>>>> 7fd056b3ae7e60de926628ed5847d8c0095f499c
 void ecall_etap_controller_init(int* ret, const int ring_mode,
 				const int etap_db_mode) {
 	*ret = 2;
 	if (etap_controller_instance == NULL) {
 		etap_controller_instance =
 		    etap_controller_init(ring_mode, etap_db_mode);
+	    // eprintf("%s etap_controller_instance initialized!\n", __func__);
 		*ret = 0;
 	} else {
 		*ret = 1;
 	}
 }
-
-int cnt_timeouted;
-int DoCallTimes;
-int DoDfcTimes;
-long long DoDfcSize;
-int cnt_ip;
-int cnt_tcp;
-int cnt_icmp;
-int cnt_other;
-int err_drop_4;
-int err_drop_3;
-int err_drop_2;
-int err_drop_1;
-int client_new_stream;
-int server_new_stream;
-
 
 static inline void rx_data_init(rx_ring_t* handle) {
 	rx_ring_data_t* dataPtr = handle->rData;
@@ -165,8 +169,6 @@ static inline void rx_data_init(rx_ring_t* handle) {
 	dataPtr->nextWrite = 0;
 	dataPtr->wBatch = 0;
 }
-
-
 
 double ecall_etap_start(int lbn_record_size,
 			      int lbn_record_per_batch) {
@@ -186,7 +188,7 @@ double ecall_etap_start(int lbn_record_size,
 	timeval_t pending_pkt_ts = {0, 0};
 
 	double total_byte = 0;
-	long long start_s, start_ns, end_s, end_ns;
+	time_t start_s, start_ns, end_s, end_ns;
 
 	// record tracking
 	int rec_idx = 0;
@@ -214,32 +216,38 @@ double ecall_etap_start(int lbn_record_size,
 			double elapsed_us = (end_s - start_s) * 1000000.0 +
 					    (end_ns - start_ns) / 1000.0;
 
-			eprintf(
-			    "Round %d - pkt %d - delay %f - tput %f \
-					\nflow %d dfc %d dfc effective %d dfc size %lld timeouted %d, \
-					\nip %d, tcp %d, icmp %d, other %d, \
-					\nerr_drop_1 %d, err_drop_2 %d, err_drop_3 %d, err_drop_4 %d\
-					\nsum %d, client %d, server %d, all %d \n\n",
-			    ++round_idx, pkt_count, elapsed_us / pkt_count,
-			    total_byte * 8.0 / elapsed_us, mos_flow_cnt,
-			    DoCallTimes, DoDfcTimes, DoDfcSize, cnt_timeouted,
-			    cnt_ip, cnt_tcp, cnt_icmp, cnt_other, err_drop_1,
-			    err_drop_2, err_drop_3, err_drop_4,
-			    cnt_tcp + cnt_icmp + cnt_other + err_drop_1 +
-				err_drop_2 + err_drop_3 + err_drop_4,
-			    client_new_stream, server_new_stream,
-			    client_new_stream + server_new_stream);
+			// eprintf(
+			//     "Round %d - pkt %d - delay %f - tput %f \
+			// 		\nflow %d dfc %d dfc effective %d dfc size %lld timeouted %d, \
+			// 		\nip %d, tcp %d, icmp %d, other %d, \
+			// 		\nerr_drop_1 %d, err_drop_2 %d, err_drop_3 %d, err_drop_4 %d\
+			// 		\nsum %d, client %d, server %d, all %d \n\n",
+			//     ++round_idx, pkt_count, elapsed_us / pkt_count,
+			//     total_byte * 8.0 / elapsed_us, mos_flow_cnt,
+			//     DoCallTimes, DoDfcTimes, DoDfcSize, cnt_timeouted,
+			//     cnt_ip, cnt_tcp, cnt_icmp, cnt_other, err_drop_1,
+			//     err_drop_2, err_drop_3, err_drop_4,
+			//     cnt_tcp + cnt_icmp + cnt_other + err_drop_1 +
+			// 	err_drop_2 + err_drop_3 + err_drop_4,
+			//     client_new_stream, server_new_stream,
+			//     client_new_stream + server_new_stream);
 
-			int cache_hit = lb_state_stats.cache_hit -
+	    	int cache_hit = lb_state_stats.cache_hit -
 					last_state_stats.cache_hit;
 			int store_hit = lb_state_stats.store_hit -
 					last_state_stats.store_hit;
-			int miss =
-			    last_state_stats.miss - last_state_stats.miss;
+			int miss = last_state_stats.miss - last_state_stats.miss;
 			int total = cache_hit + store_hit + miss;
-			eprintf("Miss rate %f \n\n",
-				1 - cache_hit * 1.0 / total);
 			last_state_stats = lb_state_stats;
+			// eprintf("Miss rate %f \n\n",
+			// 	1 - cache_hit * 1.0 / total);
+
+			eprintf(
+			    "Round %d - pkt %d - delay %f - tput %f \
+					\nflow %d cache miss rate %f \n\n",
+			    ++round_idx, pkt_count, elapsed_us / pkt_count,
+			    total_byte * 8.0 / elapsed_us, lb_state_stats.num_flow, 1 - cache_hit * 1.0 / total);
+
 			pkt_count = 0;
 
 			// etap_stopping = 1;
@@ -409,7 +417,7 @@ double ecall_etap_start_live(int lbn_record_size,
 	timeval_t pending_pkt_ts = {0, 0};
 
 	double total_byte = 0;
-	long long start_s, start_ns, end_s, end_ns;
+	time_t start_s, start_ns, end_s, end_ns;
 
 	int pkt_count = 0;
 	int round_idx = 0;
@@ -558,6 +566,7 @@ double ecall_etap_start_live(int lbn_record_size,
 	// never executed
 	return 0.0;
 }
+
 double ecall_etap_start_micro(int lbn_record_size,
 			      int lbn_record_per_batch) {
 	return 0.0;

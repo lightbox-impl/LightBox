@@ -1,20 +1,12 @@
-######## SGX SDK Settings ########
-
 ### LightBox switches ###
-LightBox ?= 0
 CAIDA ?= 1
 LIVE ?= 0
 MICRO ?= 0
 CONNECTION ?= 0
 
+######## SGX SDK Settings ########
 SGX_DEBUG = 0
 SGX_PRERELEASE = 1
-### SG-BOX switches ###
-SGBOX ?= 0
-TRACE_TRICK ?= 0
-LOG_AGENCY ?= 0
-NO_BUNDLE ?= 0
-### End ###
 
 SGX_SDK ?= /opt/intel/sgxsdk
 SGX_MODE ?= HW

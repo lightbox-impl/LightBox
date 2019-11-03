@@ -1,11 +1,10 @@
 #include "crypto_t.h"
 
-#include "sgx_trts.h"  // sgx_read_rand
+#include "lb_utils_t.h"
 
-#include "utils_t.h"
+#include <lb_config.h>
 
-/* #include "../common/lb_config.h" */
-#include "lb_config.h"
+#include <sgx_trts.h>  // sgx_read_rand
 
 #include <string.h>
 

@@ -4,7 +4,13 @@
 #include <time.h>
 #include <sys/types.h>
 #include <stdint.h>
-#include "lb_time.h"
+
+#define __USE_MISC
+
+typedef struct timeval {
+        __time_t tv_sec;
+        __time_t tv_usec;
+} timeval_t;
 
 /*** Start <bits/time.h> ***/
 typedef long long __suseconds_t;
@@ -264,4 +270,15 @@ struct ether_header
 } __attribute__((__packed__));
 /*** End <net/ethernet.h> ***/
 
+/*** Start socket.h ***/
+#define PF_INET     2   /* IP protocol family.  */
+#define AF_INET     PF_INET
+#define PF_INET6    10  /* IP version 6.  */
+#define AF_INET6    PF_INET6
+/*** End socket.h ***/
+
+/*** Start in.h ***/
+#define INET_ADDRSTRLEN 16
+#define INET6_ADDRSTRLEN 46
+/*** End in.h ***/
 #endif

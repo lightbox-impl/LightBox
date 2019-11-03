@@ -6,6 +6,4 @@ clean:
 	cd enclave && make clean
 	cd host && make clean
 
-######## Edl Header #######
-
 .PHONY: clean

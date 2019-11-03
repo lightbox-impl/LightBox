@@ -2,7 +2,9 @@
 
 extern etap_controller_t* etap_controller_instance;
 
-
+/* Now default to blocking mode becasue the etap ring is blocking.
+   TODO: elevate blocking/non-blocking logic from etap ring to the poll driver
+*/
 void poll_read_pkt(uint8_t* pkt, int* pkt_size, timeval_t* ts,etap_controller_t* etap ) {
 	rx_ring_t* rx = etap->rx_ring_instance;
 	rx->read_pkt(pkt, pkt_size, ts, rx->rData);
@@ -28,7 +30,3 @@ poll_driver_t* poll_driver_init(int mode) {
 	return pd;
 }
 
-void poll_driver_deinit(poll_driver_t* p) {
-		etap_controller_deinit(p->etap);
-		free(p);
-}

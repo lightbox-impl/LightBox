@@ -1,6 +1,8 @@
 #include "etap_u.h"
 
-/* #include "../common/lb_config.h" */
+#include "lb_core_edge_u.h"
+#include <lb_config.h>
+
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -12,8 +14,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include "lb_config.h"
 
 etap_param_t etap_args;
 int srv_fd;
@@ -46,7 +46,7 @@ int get_conf_from_peer() {
 		    "%s : no excuse for failing to receive such small piece %d "
 		    "of data!\n",
 		    __func__, ret);
-		etap_deinit();
+		etap_network_deinit();
 		exit(1);
 	} else {
 		return conf;
@@ -67,7 +67,7 @@ void configure_etap() {
 	printf("batch_size %d\n", batch_size);
 }
 
-void etap_init() {
+void etap_network_init() {
 	/* Sample code modified from
 	   Beej's guide http://beej.us/guide/bgnet/html/single/bgnet.html
 	*/
@@ -147,7 +147,8 @@ void etap_init() {
 		break;
 	}
 	configure_etap();
-	//	ecall_etap_controller_init(0, 0);
+	// not to be used here, this is enclave related
+	//ecall_etap_controller_init(0, 0);
 
 	/* init the gateway client for next middlebox */
 	// gateway_init(etap_args.record_size, etap_args.record_per_batch);
@@ -235,7 +236,7 @@ void gateway_deinit() {
 	free(client_batch_buffer);
 }
 
-void etap_deinit() {
+void etap_network_deinit() {
 	if (close(srv_fd) != 0)
 		perror("lb_net");
 	else

@@ -1,5 +1,4 @@
 ######## SGX SDK Settings ########
-
 SGX_SDK ?= /opt/intel/sgxsdk
 SGX_MODE ?= HW
 SGX_ARCH ?= x64
@@ -37,75 +36,65 @@ else
 endif
 
 
-######## App Settings ########
-
+######## Host Settings ########
 
 ifneq ($(SGX_MODE), HW)
 	Urts_Library_Name := sgx_urts_sim
 else
 	Urts_Library_Name := sgx_urts
 endif
-
-App_Include_Paths := -I$(SGX_SDK)/include 
-App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
+ 
+Host_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes
 
 # Three configuration modes - Debug, prerelease, release
 #   Debug - Macro DEBUG enabled.
 #   Prerelease - Macro NDEBUG and EDEBUG enabled.
 #   Release - Macro NDEBUG enabled.
 ifeq ($(SGX_DEBUG), 1)
-        App_C_Flags += -DDEBUG -UNDEBUG -UEDEBUG
+        Host_C_Flags += -DDEBUG -UNDEBUG -UEDEBUG
 else ifeq ($(SGX_PRERELEASE), 1)
-        App_C_Flags += -DNDEBUG -DEDEBUG -UDEBUG
+        Host_C_Flags += -DNDEBUG -DEDEBUG -UDEBUG
 else
-        App_C_Flags += -DNDEBUG -UEDEBUG -UDEBUG
+        Host_C_Flags += -DNDEBUG -UEDEBUG -UDEBUG
 endif
 
-
-# LightBox ?= 0
-# CAIDA ?= 0
-# CONNECTION ?= 0
-# MSG64 ?= 0
+# enumerating all files to make it less error-prone
+Host_C_Files := etap_u.c state_mgmt_u.c lb_utils_u.c lightbox.c
+Host_C_Objects := $(Host_C_Files:.c=.o)
 
 Enclave_Dir = ../enclave
-App_Dir = .
-Root_Dir := ../../../..
+LB_Root_Dir := ../../../..
 
-LightBox_Include_Paths := -I$(App_Dir) -I../.. -Iinclude -I$(Root_Dir)/include
+Host_Include := -I$(SGX_SDK)/include -Iinclude -I$(LB_Root_Dir)/include
+Host_C_Flags += $(Host_Include)
 
-# LightBox_FLAGS = -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DMSG64=$(MSG64)
-LightBox_FLAGS = $(LightBox_Include_Paths)
-LightBox_FLAGS += $(App_C_Flags)
+Target := lb_core
+Host_Lib := $(LB_Root_Dir)/build/lib$(Target)_u.a
+Enclave_EDL = $(Enclave_Dir)/$(Target)_edge.edl
+Edge_File := ./$(Target)_edge_u.c
+Edge_Object := ./$(Target)_edge_u.o
 
-LightBox_EDL = $(Enclave_Dir)/lb_edge.edl
-LightBox_C_Files := $(wildcard $(App_Dir)/*.c)
-LightBox_C_Objects := $(LightBox_C_Files:.c=.o)
+all: $(Host_Lib)
 
+######## Host Objects ########
 
-App_Name := $(Root_Dir)/build/liblb_core_u.a
-
-all: $(App_Name)
-
-######## App Objects ########
-
-$(App_Dir)/lb_edge_u.c: $(SGX_EDGER8R) $(LightBox_EDL)
-	@cd $(App_Dir) && $(SGX_EDGER8R) --untrusted $(LightBox_EDL) --search-path $(Enclave_Dir) --search-path $(SGX_SDK)/include
+$(Edge_File): $(SGX_EDGER8R) $(Enclave_EDL)
+	@$(SGX_EDGER8R) --untrusted $(Enclave_EDL) --search-path $(Enclave_Dir)
 	@echo "GEN  =>  $@"
 
-$(App_Dir)/lb_edge_u.o: $(App_Dir)/lb_edge_u.c
-	@$(CC) $(App_C_Flags)  -c $< -o $@
+$(Edge_Object): $(Edge_File)
+	@$(CC) $(Host_C_Flags)  -c $< -o $@
 	@echo "CC   <=  $<"
 
-$(LightBox_C_Objects):  %.o: %.c
-	@$(CC) $(LightBox_FLAGS) -c $< -o $@
+$(Host_C_Objects):  %.o: %.c
+	@$(CC) $(Host_C_Flags) -c $< -o $@
 	@echo "CC  <=  $<"
 
-$(App_Name): $(App_Dir)/lb_edge_u.o $(LightBox_C_Objects) 
-	@ar crs $(App_Name) $(LightBox_C_Objects) 
+$(Host_Lib): $(Edge_Object) $(Host_C_Objects) 
+	@ar crs -o $(Host_Lib) $(Edge_Object) $(Host_C_Objects) 
 	@echo "AR =>  $@"
-# $(App_Dir)/lb_edge_u.o
 
 .PHONY: clean
 
 clean:
-	@rm -f .config_* $(App_Name) $(LightBox_C_Objects) $(App_Dir)/lb_edge_u.* 
+	@rm -f .config_* $(Host_Lib) $(Host_C_Objects) ./$(Target)_edge_* 

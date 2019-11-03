@@ -1,0 +1,27 @@
+enclave {
+	include "bpf/sfbpf.h"
+	// Defining the struct here seems to be more portable ...
+	//struct bpf_insn {
+	//	short code;
+	//	uint32_t jt;
+	//	uint32_t jf;
+	//	uint32_t k;
+	//};
+
+	//struct sfbpf_program {
+	//	uint32_t bf_len;
+	//	struct bpf_insn* bf_insns;
+	//};
+
+	trusted {
+        // to suppress "no public root ECALL" error
+        public void ecall_dummy_entry();
+	};
+	untrusted {
+		// TODO: a "size" paramter is needed, e.g., [in, out, size = xxx] for memory copy
+		void ocall_pcap_sfbpf_compile(int pkt_hdr_len,[in, out] struct sfbpf_program* fcode,[in,string] const char* filter, int optimize);
+		//void ocall_p([in, string] const char *str);
+		// void ocall_sfbpf_filter([in, out]struct sfbpf_program * fcode,[in, out] char * p, unsigned int wirelen, unsigned int buflen, [in, out] int *ret);
+	};
+
+};

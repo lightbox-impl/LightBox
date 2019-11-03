@@ -1,12 +1,9 @@
 all:
-	cd trusted && make all
-	cd untrusted &&  make all
+	cd enclave && make all
+	cd host &&  make all
 
 clean:
-	cd trusted && make clean
-	cd untrusted && make clean
-
-
-########### Edl Header #######
+	cd enclave && make clean
+	cd host && make clean
 
 .PHONY: clean

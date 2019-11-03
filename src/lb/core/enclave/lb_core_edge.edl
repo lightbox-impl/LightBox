@@ -1,0 +1,33 @@
+
+enclave {
+    trusted { 
+		// LightBox
+        public int ecall_auth_enc([user_check]uint8_t *src, int src_len, 
+                                  [user_check]uint8_t *dst, [user_check]uint8_t *mac);
+		//public int ecall_veri_dec([user_check]uint8_t *src, int src_len, 
+        //                          [user_check]uint8_t *dst, [user_check]const uint8_t *mac);
+		public void ecall_init_aes_gcm();
+        public double ecall_etap_start(int record_size, int record_per_batch);
+		public double ecall_etap_sendto_next_box(int lbn_record_size, int lbn_record_per_batch); 
+
+        public void ecall_etap_controller_init([user_check]int* ret, int ring_mode, int etap_db_mode);
+    };
+
+    untrusted {
+        // LightBox OCALLs
+        void ocall_lb_etap_in([out, size=8]uint8_t **batch);
+		void ocall_get_rtt([out]uint64_t *rtt_enclave);
+		void ocall_lb_etap_out([out, in, size=8]uint8_t **batch);
+		void ocall_state_store_alloc([out, size=8]void **store_new);
+		void ocall_state_store_free([user_check]void *item);
+        void ocall_lb_log(int round, int pkt_count, double delay, double tput, int flow);
+
+		// Util OCALLs
+		void ocall_print_string([in, string] const char *str);
+        void ocall_get_time([out, size=8] size_t *second,
+							[out, size=8] size_t *nanosecond);
+		void ocall_sleep(size_t time_ns);
+		void ocall_random([out, size=4]uint32_t *r);
+    };
+
+};

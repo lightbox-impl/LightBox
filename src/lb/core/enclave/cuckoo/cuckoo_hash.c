@@ -22,7 +22,7 @@
 //#include <assert.h>
 
 #include "lb_type.h"
-#include "../../enclave/include/utils_t.h"
+#include "../../enclave/include/lb_utils_t.h"
 
 static inline
 void

@@ -1,6 +1,6 @@
 #include "lightbox.h"
 
-#include "lb_edge_u.h"
+#include "lb_core_edge_u.h"
 
 #include <sgx_urts.h>
 
@@ -22,10 +22,20 @@ void lb_init()
     out = fopen("lb_log.txt", "wb");
 
     /* etap */
-    etap_init();
+    etap_network_init();
+
+    sgx_status_t ret = SGX_ERROR_UNEXPECTED;
+    int etap_ctrl_init_ret = -1;
+    ret = ecall_etap_controller_init(global_eid, &etap_ctrl_init_ret, 0, 0);
+    if (ret != SGX_SUCCESS) {
+        printf("[*] ecall_etap_controller_init fail! %x\n", ret);
+    }
+    else{
+        printf("[*] ecall_etap_controller_init success!\n");
+    }
 
     /* AES_GCM keys */
-    sgx_status_t ret = SGX_ERROR_UNEXPECTED;
+    ret = SGX_ERROR_UNEXPECTED;
     ret = ecall_init_aes_gcm(global_eid);
     if (ret != SGX_SUCCESS) {
         printf("[*] ecall_init_aes_gcm fail with error %d\n", ret);
@@ -38,7 +48,7 @@ void lb_deinit()
     fclose(out);
 
     /* etap module */
-    etap_deinit();
+    etap_network_deinit();
 
     pthread_kill(mb_trd, SIGKILL);
 }
@@ -47,20 +57,31 @@ void lb_deinit()
 void *etap_thread(void *tput)
 {
     sgx_status_t ret = SGX_ERROR_UNEXPECTED;
-    //double rlt = 0;
+    // now default CAIDA mode ...
     ret = ecall_etap_start(global_eid, tput, etap_args.record_size, etap_args.record_per_batch);
+    //TODO: refactor the test mode selection logic, may roll back to previous version
+// #if CAIDA == 1
+//     ret = ecall_etap_start(global_eid, tput, etap_args.record_size, etap_args.record_per_batch);
+// #elif LIVE == 1
+//     ret = ecall_etap_start_live(global_eid, tput, etap_args.record_size, etap_args.record_per_batch);
+// #elif MICRO == 1
+//     ret = ecall_etap_start_micro(global_eid, tput, etap_args.record_size, etap_args.record_per_batch);
+// #else
+//     printf("Error test mode!\n");
+//     abort();
+// #endif
     if (ret != SGX_SUCCESS) {
-        printf("[*] etap_thread fail! %x\n", ret);
-        pthread_exit(NULL);
+        printf("[*] ecall_etap_start fail! %x\n", ret);
     }
+
     pthread_exit(NULL);
 }
 
 /* test... */
-void lb_run(mb_fun_t mb_thread)
+void lb_run(mb_fun_t mb_entry)
 {
     /* run mb thread */
-    pthread_create(&mb_trd, NULL, mb_thread, NULL);
+    pthread_create(&mb_trd, NULL, mb_entry, NULL);
 
     /* run etap thread */
     // loop for test cases where multiple rounds of transmission are needed.
