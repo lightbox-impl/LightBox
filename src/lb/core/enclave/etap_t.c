@@ -131,17 +131,13 @@ etap_controller_t* etap_controller_init(const int ring_mode,
 	return p;
 }
 
-<<<<<<< HEAD
 void etap_controller_deinit(etap_controller_t* p) {
 		etap_rx_deinit(p->rx_ring_instance);
 		etap_rx_deinit(p->tx_ring_instance);
 		free(p);
 }
 
-// This function will be called in the untrusted call "etap_init()". 
-=======
 // This function will be called in the untrusted call "lb_init()". 
->>>>>>> 7fd056b3ae7e60de926628ed5847d8c0095f499c
 void ecall_etap_controller_init(int* ret, const int ring_mode,
 				const int etap_db_mode) {
 	*ret = 2;
