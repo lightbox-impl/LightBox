@@ -2,9 +2,10 @@
 #include <stdarg.h>
 #include <stdio.h> /* vsnprintf */
 
-#include "../../libpcap/trusted/pcap.h"
+#include "../../libpcap/enclave/pcap_t.h"
 #include "Enclave.h"
-#include "Enclave_t.h" /* print_string */
+// #include "Enclave_t.h" [> print_string <]
+#include "lb_mos_edge_t.h" /* print_string */
 
 extern "C" {
 #include "../../../core/enclave/include/etap_t.h"

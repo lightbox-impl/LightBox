@@ -1,5 +1,5 @@
 #include "../include/sgx/sgxFunc.h"
-#include "../../Enclave_t.h"
+#include "../../lb_mos_edge_t.h"
 
 // TODO etap_t.h may not need to include
 // #include "../../../../../lb_core/enclave/include/etap_t.h"
@@ -122,10 +122,10 @@ unsigned long htonl(unsigned long int h)
 	return BigLittleSwap32(h);
 }
 
-unsigned long ntohl(unsigned long int n)
-{
-	return BigLittleSwap32(n);
-}
+/* unsigned long ntohl(unsigned long int n) */
+/* { */
+	/* return BigLittleSwap32(n); */
+/* } */
 
 unsigned short htons(unsigned short int h)
 {

@@ -1,4 +1,4 @@
-#include "Enclave_u.h"
+#include "lb_mos_edge_u.h"
 
 #include <stdlib.h>
 void ocall_malloc(void** pointer, int size)

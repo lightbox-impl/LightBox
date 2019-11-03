@@ -40,7 +40,7 @@
 #include "sgx_urts.h"
 #include "sgx_uae_service.h"
 #include "App.h"
-#include "Enclave_u.h"
+#include "lb_mos_edge_u.h"
 
 #include <ctime>
 #include <random>

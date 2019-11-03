@@ -117,8 +117,8 @@ all:  $(App_Name)
 
 ######## App Objects ########
 
-$(App_Dir)/Enclave_u.c: $(SGX_EDGER8R) ../trusted/Enclave.edl
-	@cd $(App_Dir) && $(SGX_EDGER8R) --untrusted ../trusted/Enclave.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
+$(App_Dir)/Enclave_u.c: $(SGX_EDGER8R) ../enclave/lb_mos_edge.edl
+	@cd $(App_Dir) && $(SGX_EDGER8R) --untrusted ../enclave/lb_mos_edge.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
 $(App_Dir)/Enclave_u.o: $(App_Dir)/Enclave_u.c

@@ -15,7 +15,7 @@
 #include <string.h>
 //#include <pcap.h>
 
-#include "../../../libpcap/trusted/pcap.h"
+#include "../../../libpcap/enclave/pcap_t.h"
 
 /*----------------------------------------------------------------------------*/
 struct pcap_private_context {

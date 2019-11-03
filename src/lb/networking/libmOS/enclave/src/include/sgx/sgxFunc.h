@@ -3,7 +3,7 @@
 
 #define __WORDSIZE 64
 
-#include "../../../../../libpcap/trusted/pcap.h"
+#include "../../../../../libpcap/enclave/pcap_t.h"
 #include "../../../Enclave.h"
 #include <stdint.h>
 #include <string.h>
@@ -16,10 +16,10 @@ int geteuid();
 int usleep(int __useconds);
 
 /* Internet address.  */
-typedef uint32_t in_addr_t;
-struct in_addr {
-    in_addr_t s_addr;
-};
+// typedef uint32_t in_addr_t;
+// struct in_addr {
+    // in_addr_t s_addr;
+// };
 
 typedef uint32_t socklen_t;
 
@@ -137,30 +137,30 @@ struct iphdr {
     /*The options start here. */
 };
 
-struct tcphdr {
-    u_int16_t source;
-    u_int16_t dest;
-    u_int32_t seq;
-    u_int32_t ack_seq;
-    u_int16_t res1 : 4,
-	doff : 4,
-	fin : 1,
-	syn : 1,
-	rst : 1,
-	psh : 1,
-	ack : 1,
-	urg : 1,
-	ece : 1,
-	cwr : 1;
-    u_int16_t window;
-    u_int16_t check;
-    u_int16_t urg_ptr;
-};
+// struct tcphdr {
+    // u_int16_t source;
+    // u_int16_t dest;
+    // u_int32_t seq;
+    // u_int32_t ack_seq;
+    // u_int16_t res1 : 4,
+	// doff : 4,
+	// fin : 1,
+	// syn : 1,
+	// rst : 1,
+	// psh : 1,
+	// ack : 1,
+	// urg : 1,
+	// ece : 1,
+	// cwr : 1;
+    // u_int16_t window;
+    // u_int16_t check;
+    // u_int16_t urg_ptr;
+// };
 
 #define BigLittleSwap16(A) ((((unsigned short)(A)&0xff00) >> 8) | (((unsigned short)(A)&0x00ff) << 8))
 #define BigLittleSwap32(A) ((((unsigned long)(A)&0xff000000) >> 24) | (((unsigned long)(A)&0x00ff0000) >> 8) | (((unsigned long)(A)&0x0000ff00) << 8) | (((unsigned long)(A)&0x000000ff) << 24))
 unsigned long htonl(unsigned long int h);
-unsigned long ntohl(unsigned long int n);
+// unsigned long ntohl(unsigned long int n);
 unsigned short htons(unsigned short int h);
 unsigned short ntohs(unsigned short int n);
 

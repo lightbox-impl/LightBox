@@ -163,8 +163,8 @@ all: $(Enclave_Name)
 
 ######## Enclave Objects ########
 
-$(Enclave_Dir)/Enclave_t.c: $(SGX_EDGER8R) $(Enclave_Dir)/libmos.edl
-	@cd $(Enclave_Dir) && $(SGX_EDGER8R) --trusted ../enclave/libmos.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
+$(Enclave_Dir)/Enclave_t.c: $(SGX_EDGER8R) $(Enclave_Dir)/lb_mos_edge.edl
+	@cd $(Enclave_Dir) && $(SGX_EDGER8R) --trusted ../enclave/lb_mos_edge.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
 $(Enclave_Dir)/Enclave_t.o: $(Enclave_Dir)/Enclave_t.c
