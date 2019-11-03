@@ -1,3 +1,5 @@
+/* Generic wrapper for LightBox instances */
+
 #ifndef LIGHTBOX_H
 #define LIGHTBOX_H
 

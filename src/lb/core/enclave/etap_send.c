@@ -1,11 +1,13 @@
-#include <stdlib.h>
-#include <string.h>
-
 #include "crypto_t.h"
 #include "etap_t.h"
 #include "rx_ring_opt.h"
 #include "state_mgmt_t.h"
-#include "utils_t.h"
+#include "lb_utils_t.h"
+
+#include "lb_core_edge_t.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 extern etap_controller_t* etap_controller_instance;
 
@@ -74,7 +76,7 @@ void prepare_batch(rx_ring_t* handle, int lbn_record_size,
 		}
 
 		while (1) {
-			handle->read_pkt(&pkt, &size, &ts, handle->rData);
+			handle->read_pkt(pkt, &size, &ts, handle->rData);
 			// TODO maybe add some pkt empty checking later, now
 			// we'll just be blocked at read_pkt();
 			pkt_and_ts_size = sizeof(ts) + size;

@@ -3,7 +3,6 @@
 #include "sgx_trts.h" // sgx_read_rand
 
 #include "enclave_utils.h"
-
 #include "../lightbox/lb_config.h"
 
 #include <string.h>

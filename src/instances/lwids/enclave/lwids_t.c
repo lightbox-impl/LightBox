@@ -1,38 +1,3 @@
-/********************************************************************************
- * Copyright (c) 2011, Chema Garcia                                             *
- * All rights reserved.                                                         *
- *                                                                              *
- * Redistribution and use in source and binary forms, with or                   *
- * without modification, are permitted provided that the following              *
- * conditions are met:                                                          *
- *                                                                              *
- *    * Redistributions of source code must retain the above                    *
- *      copyright notice, this list of conditions and the following             *
- *      disclaimer.                                                             *
- *                                                                              *
- *    * Redistributions in binary form must reproduce the above                 *
- *      copyright notice, this list of conditions and the following             *
- *      disclaimer in the documentation and/or other materials provided         *
- *      with the distribution.                                                  *
- *                                                                              *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"  *
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE    *
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE   *
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE    *
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR          *
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF         *
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS     *
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN      *
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)      *
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE   *
- * POSSIBILITY OF SUCH DAMAGE.                                                  *
- ********************************************************************************/
-
- /*
-  * This example save the data sent by each peer in a separated file called: [src_ip]:[src_port]-[dst_ip]:[dst_port]
-  */
-
-
 #include "pattern_matching.h"
 #include "../common/lwids_type.h"
 
@@ -449,46 +414,6 @@ void ecall_lb_lwids_run()
 }
 
 /* Test */
-#ifdef MSDOS /* must be 32-bit */
-typedef long          bpf_int32;
-typedef unsigned long bpf_u_int32;
-#else
-typedef	int bpf_int32;
-typedef	u_int bpf_u_int32;
-#endif
-
-/* From <bits/types.h> */
-//typedef long int __suseconds_t;
-/* A time value that is accurate to the nearest
-microsecond but also has a range of years.  */
-typedef struct _timeval
-{
-    __time_t tv_sec;		/* Seconds.  */
-    __suseconds_t tv_usec;	/* Microseconds.  */
-} timeval;
-
-/*
-* Generic per-packet information, as supplied by libpcap.
-*
-* The time stamp can and should be a "struct timeval", regardless of
-* whether your system supports 32-bit tv_sec in "struct timeval",
-* 64-bit tv_sec in "struct timeval", or both if it supports both 32-bit
-* and 64-bit applications.  The on-disk format of savefiles uses 32-bit
-* tv_sec (and tv_usec); this structure is irrelevant to that.  32-bit
-* and 64-bit versions of libpcap, even if they're on the same platform,
-* should supply the appropriate version of "struct timeval", even if
-* that's not what the underlying packet capture mechanism supplies.
-*/
-typedef struct _pcap_pkthdr {
-    timeval ts;	/* time stamp */
-    bpf_u_int32 caplen;	/* length of portion present */
-    bpf_u_int32 len;	/* length this packet (off wire) */
-} pcap_pkthdr;
-
-typedef struct {
-    uint8_t data[MAX_FRAME_SIZE];
-} packet_t;
-
 void ecall_process_test_round(void *_pkt_buffer, void *_pkt_hdr)
 {
     //eprintf("LightBox %d CONNECTION %d CAIDA %d\n", LightBox, CONNECTION, CAIDA);

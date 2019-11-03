@@ -1,22 +1,17 @@
 #include "state_mgmt_t.h"
 
-#include "cuckoo/cuckoo_hash.h"
-
 #include "crypto_t.h"
-
-#include "lb_edge_t.h"
-#include "utils_t.h"
+#include "lb_core_edge_t.h"
+#include "lb_utils_t.h"
+#include "cuckoo/cuckoo_hash.h"
 
 #include <string.h>
 #include <stdlib.h>
 
-//#define SGX_PAGING
-// #define CONNECTION 0
-// #define CAIDA 1
 #define LKUP_DUAL
 
 /* statistics of lb_state */
-lb_state_stats_t lb_state_stats = { 0, 0, 0 };
+lb_state_stats_t lb_state_stats = { 0, 0, 0, 0 };
 
 #define LKUP_CAP_POW 19 // capacity = 2^(CAP_POW+2)
 struct cuckoo_hash grand_lkup_table;
@@ -129,6 +124,7 @@ void init_state_mgmt()
     lb_state_stats.cache_hit = 0;
     lb_state_stats.store_hit = 0;
     lb_state_stats.miss = 0;
+    lb_state_stats.num_flow = 0;
 }
 
 void deinit_state_mgmt()
@@ -217,14 +213,14 @@ void _push_to_front(state_entry_t *entry) {
 
 state_entry_t* _drop_from_rear() {
 	/*if (_state_cache_rear->idx != _state_cache_rear->lkup->key.dst_ip) {
-		eprintf("catch you inside %d %d\n",
+		eprintf("catched inside %d %d\n",
 			_state_cache_rear->idx, _state_cache_rear->lkup->key.dst_ip);
 	}
 
 	state_entry_t *prev = _state_cache_rear->prev;
 	if (prev->idx != prev->lkup->key.dst_ip)
 	{
-		eprintf("catch you prev %d %d\n",
+		eprintf("catch prev %d %d\n",
 			prev->idx, prev->lkup->key.dst_ip);
 	}
 
@@ -240,7 +236,7 @@ state_entry_t* _drop_from_rear() {
 	}
 	else {
 		//if (_state_cache_rear->prev->idx != _state_cache_rear->prev->lkup->key.dst_ip) {
-		//	eprintf("catch you before evict %d %d %d %d\n",
+		//	eprintf("catched before evict %d %d %d %d\n",
 		//		_state_cache_rear->prev->idx, _state_cache_rear->prev->lkup->key.dst_ip,
 		//		_state_cache_rear->prev->prev->idx, _state_cache_rear->prev->prev->lkup->key.dst_ip);
 		//}
@@ -250,7 +246,7 @@ state_entry_t* _drop_from_rear() {
 		_state_cache_rear->next = 0;
 
 		//if (_state_cache_rear->idx != _state_cache_rear->lkup->key.dst_ip) {
-		//	eprintf("catch you after evict %d %d\n",
+		//	eprintf("catched after evict %d %d\n",
 		//		_state_cache_rear->idx, _state_cache_rear->lkup->key.dst_ip);
 		//}
 		//eprintf("[*] %p %p\n", state_cache_rear, evicted);
@@ -276,11 +272,6 @@ void print_cache()
 	state_entry_t *it = _state_cache_front;
 	if (!it)
 		return;
-	/*eprintf("cache: %p", it);
-	while (it->next) {
-		eprintf(" --> %p", it->next);
-		it = it->next;
-	}*/
 	eprintf("===============================\n");
 	eprintf("cache: %d", it->idx);
 	while (it != _state_cache_rear) {
@@ -362,6 +353,7 @@ flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_flow_st
 			victim->within_enclave = 0;
 			state_entry_t *store_new = 0;
 			//eprintf("ocall_state_store_new\n");
+			// TODO: legacy code, this flag should never be used
 #ifndef SGX_PAGING
 			ocall_state_store_alloc((void **)&store_new);
 #else
@@ -405,6 +397,7 @@ flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_flow_st
 		}
 
         ++lb_state_stats.miss;
+        ++lb_state_stats.num_flow;
 		return ft_miss;
 	}
 }
@@ -434,6 +427,7 @@ flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_flow_st
 		return ft_cache_hit;
 	}
 	else {
+		// This is a local optimization, not to be confused with the fast lookup strategy in paper
 		// fast lookup without re-hashing
 		lkup_entry_t *store_lkup_entry = cuckoo_hash_fast_lookup(&store_lkup_table, fid, KEY_LEN);
 
@@ -556,10 +550,12 @@ flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_flow_st
 			}
 
             ++lb_state_stats.miss;
+            ++lb_state_stats.num_flow;
 			return ft_miss;
 		}
 	}
 }
+// temporary trick for mOS
 flow_tracking_status flow_tracking_no_creation(const fid_t *fid, state_entry_t **out_flow_state, time_t ts, int idx)
 {
 	static state_entry_t swap_buffer;
@@ -647,6 +643,7 @@ flow_tracking_status flow_tracking_no_creation(const fid_t *fid, state_entry_t *
 	}
 }
 #else
+// TBC: why is this necessary?
 // two-way lkup for CAIDA trace contaning both client and server data
 flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_state, time_t ts, int idx)
 {
@@ -829,6 +826,7 @@ flow_tracking_status flow_tracking(const fid_t *fid, state_entry_t **out_state, 
 			}
 
             ++lb_state_stats.miss;
+            ++lb_state_stats.num_flow;
 			return ft_miss;
 		}
 	}
@@ -850,10 +848,12 @@ flow_tracking_status stop_tracking(const fid_t *fid)
 			add_to_free(tracked);
 			/*if ((cache_size - 1) != state_cache_size())
 				eprintf("wrong cache %d %d\n", cache_size, state_cache_size());*/
+			--lb_state_stats.num_flow;
 			return ft_stop_cache;
 		}
 		else {
 			ocall_state_store_free(tracked);
+			--lb_state_stats.num_flow;
 			return ft_stop_store;
 		}
 	}
@@ -872,6 +872,7 @@ flow_tracking_status stop_tracking(const fid_t *fid)
 
 		add_to_free(tracked);
 		cuckoo_hash_remove(&cache_lkup_table, cache_lkup_entry);
+		--lb_state_stats.num_flow;
 		return ft_stop_cache;
 	}
 	// in store
@@ -883,6 +884,7 @@ flow_tracking_status stop_tracking(const fid_t *fid)
 			state_entry_t *tracked = (state_entry_t *)store_lkup_entry->value;
 			ocall_state_store_free(tracked);
 			cuckoo_hash_remove(&store_lkup_table, store_lkup_entry);
+			--lb_state_stats.num_flow;
 			return ft_stop_store;
 		}
 		else {
@@ -907,10 +909,13 @@ void check_expiration(time_t crt_time, int timeout)
 			// safe to remove while iterating
 			cuckoo_hash_remove(&store_lkup_table, state->lkup);
 			ocall_state_store_free(state);
+			--lb_state_stats.num_flow;
 		}
 	}
 }
 #endif
+
+/* Legacy test code to be refactored */
 
 // try generating "size" number of "idx", of which "miss_rate" 
 // of them fall outside the range of [0, (1-miss_rate)*CACHE_CAP]
@@ -940,7 +945,7 @@ void test_insertion(const fid_t fid_list[], int num_fid)
 	flow_tracking_status status = ft_init;
 	int cached = 0, stored = 0, missed = 0;
 
-	long long  start_s, start_ns, end_s, end_ns;
+	time_t start_s, start_ns, end_s, end_ns;
 	time_t ts = 0;
 
 	/* Initial insertion */
@@ -984,7 +989,7 @@ void test_random_lkup(const fid_t fid_list[], int num_fid,
 					  int test_size, double hitrate)
 {
 	// test results
-	int start_s, start_ns, end_s, end_ns;
+	time_t start_s, start_ns, end_s, end_ns;
 	int cached = 0, stored = 0, missed = 0;
 	
 	// function arguments
@@ -1045,7 +1050,7 @@ void test_deletion(const fid_t fid_list[], int num_fid, int test_size)
 	flow_tracking_status status = ft_init;
 	int stop_in_cache = 0, stop_in_store = 0, stop_inexist = 0;
 
-	int start_s, start_ns, end_s, end_ns;
+	time_t start_s, start_ns, end_s, end_ns;
 
 	int i;
 
@@ -1125,7 +1130,7 @@ void test_deletion(const fid_t fid_list[], int num_fid, int test_size)
 
 void test_timing()
 {
-	long long  start_s, start_ns, end_s, end_ns;
+	time_t start_s, start_ns, end_s, end_ns;
 	int tri = 1000000;
 	int i;
 	double prec = 0;

@@ -1,0 +1,42 @@
+
+enclave {
+	// Import the Ocalls for trusted mutex
+	from "sgx_tstdc.edl" import *;
+    from "../../../../src/lb/core/enclave/lb_core_edge.edl" import *;
+    from "../../../../src/lb/networking/libpcap/enclave/lb_pcap_edge.edl" import *;
+	
+    trusted { 
+		public int ecall_prads_initialize([user_check]void *global_config, 
+                                          int _nets, [user_check]void *_network,
+                                          [user_check]void *_os_asset_pool, [user_check]void *_serv_asset_pool, [user_check]void *_asset_pool);
+		public void ecall_prads_gameover();
+		public uint64_t ecall_prads_cxtrackerid();
+
+        // log agency
+        // public void ecall_log_flush_timeout([out, size=buf_len]void *out_buffer, int buf_len);
+
+		// state management test
+		// public void ecall_state_test();
+
+		// entry point of lightbox prads
+		public void ecall_lb_prads_run();
+
+        //public void ecall_process_test_round([user_check]void *pkt, [user_check]void *hdr); 
+    };
+
+    untrusted {
+        // state orchestrator
+        //void ocall_secure_state_swap([in, out, size=512, count=bundle_size]void *_bundled_state,
+        //                            [in, size=16, count=bundle_size]void *_bundled_id,
+        //                            [out, size=4, count=bundle_size]int *is_server,
+        //                            int bundle_size);
+
+        // Host memory allocation, trick for asset
+        void *ocall_calloc(int size);
+        void ocall_free([user_check]void *ptr);
+
+        // log agency
+        //void ocall_log_flush_full([in, size=buf_len]void *buffer, int buf_len);
+    };
+
+};

@@ -9,9 +9,9 @@ typedef struct {
 	int record_per_batch;
 } etap_param_t;
 
-void etap_init();
+void etap_network_init();
 
-void etap_deinit();
+void etap_network_deinit();
 
 int etap_testrun();
 

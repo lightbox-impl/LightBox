@@ -5,17 +5,18 @@
 extern "C" {
 #endif
 
+// #include "poll.h"
+#include "state_mgmt_t.h"
+#include "lb_utils_t.h"
+
+#include <lb_config.h>
+#include <linux_type_ports.h>
+
+#include <sgx_thread.h>
+
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
-
-#include "lb_config.h"
-#include "lb_time.h"
-#include "lb_type.h"
-// #include "poll.h"
-#include "sgx_thread.h"
-#include "state_mgmt_t.h"
-#include "utils_t.h"
 
 #define PKT_RINFBUF_CAP 256
 #define NEXT(n) (n + 1) % PKT_RINFBUF_CAP
@@ -81,8 +82,6 @@ typedef struct poll_driver {
 etap_controller_t* etap_controller_init(const int ring_mode,
 					const int etap_db_mode);
 
-void etap_controller_deinit(etap_controller_t* p);
-
 rx_ring_t* etap_rx_init(const int mode);
 
 void get_clock(timeval_t* ts);
@@ -94,18 +93,16 @@ void ecall_etap_controller_init(int* ret, const int ring_mode,
 
 double ecall_etap_start(int lbn_record_size, int lbn_record_per_batch);
 
-double ecall_etap_start_live(int lbn_record_size,
-			     int lbn_record_per_batch);
+// double ecall_etap_start_live(int lbn_record_size,
+// 			     int lbn_record_per_batch);
 
-double ecall_etap_start_micro(int lbn_record_size,
-			      int lbn_record_per_batch);
+// double ecall_etap_start_micro(int lbn_record_size,
+// 			      int lbn_record_per_batch);
 
 double ecall_etap_sendto_next_box(int lbn_record_size,
 				  int lbn_record_per_batch);
 
 poll_driver_t* poll_driver_init();
-
-void poll_driver_deinit(poll_driver_t* p);
 
 void prepare_batch(rx_ring_t* handle, int lbn_record_size, int lbn_record_per_batch);
 #ifdef __cplusplus

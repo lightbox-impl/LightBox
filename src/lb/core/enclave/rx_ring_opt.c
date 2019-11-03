@@ -1,7 +1,8 @@
 #include "rx_ring_opt.h"
 
-extern timeval_t time_now;
-extern timeval_t trace_clock;
+extern timeval_t etap_clock;
+
+/* To be refactored ... */
 
 void read_pkt_lockless_cache_efficient(uint8_t* pkt, int* size, timeval_t* ts,
 				       rx_ring_data_t* data) {
@@ -39,11 +40,11 @@ void write_pkt_lockless_cache_efficient(const uint8_t* pkt, int pkt_size,
 	/* in_rbuf[nextWrite].ts = ts; */
 	memcpy(&data->in_rbuf[data->nextWrite], &ts, sizeof(timeval_t));
 
-	/* time_now = ts; */
-	memcpy(&time_now, &ts, sizeof(ts));
+	/* etap_clock = ts; */
+	memcpy(&etap_clock, &ts, sizeof(ts));
 
 	/* trace_clock.tv_sec = ts; // second only */
-	memcpy(&trace_clock, &ts, sizeof(ts));
+	// memcpy(&trace_clock, &ts, sizeof(ts));
 
 	data->nextWrite = afterNextWrite;
 	(data->wBatch)++;
@@ -78,8 +79,8 @@ void write_pkt_lockless(const uint8_t* pkt, int pkt_size, timeval_t ts,
 	/* in_rbuf[write].ts = ts; */
 	memcpy(&(data->in_rbuf[data->write].ts), &ts, sizeof(ts));
 
-	/* time_now = ts; */
-	memcpy(&time_now, &ts, sizeof(ts));
+	/* etap_clock = ts; */
+	memcpy(&etap_clock, &ts, sizeof(ts));
 
 	data->write = NEXT(data->write);
 }

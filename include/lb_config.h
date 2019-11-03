@@ -11,8 +11,8 @@
 #define MAC_SIZE 16
 
 /* Config for LightBox State Management */
-//#define FLOW_STATE_SIZE 5872//432
-#define FLOW_STATE_SIZE 7656//11848//104
+#define FLOW_STATE_SIZE 440 // for PRADS
+//7656//11848//104
 
 /* Lightbox simulation mode */
 #define LB_SIM
