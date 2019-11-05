@@ -69,7 +69,7 @@
 #define lex_cleanup sf_lex_cleanup
 #define sappend sf_append
 
-#define pcap_parse sfbpf_parse
+#define pcap_parse sfxbpf_parse
 
 #define pcap_lval sfbpf_lval
 

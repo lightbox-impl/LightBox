@@ -295,6 +295,6 @@ union YYSTYPE
 
 extern __thread YYSTYPE sfbpf_lval;
 
-int sfbpf_parse (void);
+int sfxbpf_parse (void);
 
 #endif /* !YY_SFBPF_Y_TAB_H_INCLUDED  */

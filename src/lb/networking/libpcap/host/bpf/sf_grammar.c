@@ -60,7 +60,7 @@
 
 
 /* Substitute the variable and function names.  */
-#define yyparse         sfbpf_parse
+#define yyparse         sfxbpf_parse
 #define yylex           sfbpf_lex
 #define yyerror         sfbpf_error
 #define yydebug         sfbpf_debug
@@ -233,7 +233,7 @@ yyerror(const char *msg)
 int yyparse(void);
 
 int
-sfbpf_parse()
+sfxbpf_parse()
 {
 	return (yyparse());
 }
