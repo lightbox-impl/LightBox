@@ -76,27 +76,18 @@ rx_ring_t* etap_rx_init(const int mode) {
 
 	switch (mode) {
 		case 0:
-			r->read_pkt = &read_pkt_lockless_cache_efficient;
-			r->write_pkt = &write_pkt_lockless_cache_efficient;
+			r->read_pkt = &read_pkt;
+			r->write_pkt = &write_pkt;
 			break;
 
 		case 1:
-			r->read_pkt = &read_pkt_lockless;
-			r->write_pkt = &write_pkt_lockless;
+			r->read_pkt = &read_pkt_nonblock;
+			r->write_pkt = &write_pkt_nonblock;
 			break;
-
-		case 2:
-			r->read_pkt = &read_pkt_lock;
-			r->write_pkt = &write_pkt_lock;
-			break;
-
-		case 3:
-			r->read_pkt = &read_pkt_lockless_cache_efficient_nonblock;
-			r->write_pkt = &write_pkt_lockless_cache_efficient_nonblock;
 
 		default:
-			r->read_pkt = &read_pkt_lockless_cache_efficient;
-			r->write_pkt = &write_pkt_lockless_cache_efficient;
+			r->read_pkt = &read_pkt;
+			r->write_pkt = &write_pkt;
 			break;
 	}
 
@@ -171,6 +162,8 @@ static inline void rx_data_init(rx_ring_t* handle) {
 	dataPtr->nextWrite = 0;
 	dataPtr->wBatch = 0;
 }
+
+#if CAIDA == 1
 
 double ecall_etap_start(int lbn_record_size,
 			      int lbn_record_per_batch) {
@@ -396,6 +389,10 @@ double ecall_etap_start(int lbn_record_size,
 		}
 	}
 }
+
+#endif
+
+#if LIVE == 1
 // this should be called only once
 double ecall_etap_start_live(int lbn_record_size,
 			     int lbn_record_per_batch) {
@@ -569,8 +566,5 @@ double ecall_etap_start_live(int lbn_record_size,
 	return 0.0;
 }
 
-double ecall_etap_start_micro(int lbn_record_size,
-			      int lbn_record_per_batch) {
-	return 0.0;
-}
+#endif
 
