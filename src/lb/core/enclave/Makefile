@@ -87,7 +87,7 @@ LIVE ?= 0
 MICRO ?= 0
 CONNECTION ?= 0
 
-Enclave_C_Flags += -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DLIVE=$(LIVE) -DMICRO=$(MICRO) -DLOCK -DCACHE_EFFICIENT
+Enclave_C_Flags += -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DLIVE=$(LIVE) -DMICRO=$(MICRO) -DLOCKLESS -DCACHE_EFFICIENT
 
 Target := lb_core
 Enclave_Lib := $(LB_Root_Dir)/build/lib$(Target)_t.a

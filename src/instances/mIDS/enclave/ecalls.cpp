@@ -288,7 +288,7 @@ int mOsIDS(const char* config_file_path)
     printf("tcp_recv_vars is %d\n", sizeof(struct tcp_recv_vars));
 
 
-	char* fname = "./trusted/mos.conf";
+	char* fname = "./enclave/mos.conf";
 
 	int ret = mtcp_init(fname);
 	if (ret)

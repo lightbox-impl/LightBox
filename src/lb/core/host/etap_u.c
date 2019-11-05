@@ -291,7 +291,7 @@ void ocall_lb_etap_in(uint8_t **batch) {
 				expect_rtt_byte -=
 					recv(srv_fd, &rtt, expect_rtt_byte, 0);
 			}
-			printf("Current rtt is %lu\n", rtt);
+			/* printf("Current rtt is %lu\n", rtt); */
 
 		} 
 

@@ -106,25 +106,6 @@ etap_controller_t* etap_controller_init(const int ring_mode,
 	    (etap_controller_t*)malloc(sizeof(etap_controller_t));
 	p->rx_ring_instance = etap_rx_init(ring_mode);
 	p->tx_ring_instance = etap_rx_init(ring_mode);
-	// poll_driver_init();
-
-	// TODO: to be refactored ...
-	/* switch (etap_db_mode) { */
-		/* case 0: */
-			/* p->ecall_etap_start = &ecall_etap_start_caida; */
-			/* break; */
-		/* case 1: */
-			/* p->ecall_etap_start = &ecall_etap_start_live; */
-			/* break; */
-		/* case 2: */
-			/* p->ecall_etap_start = &ecall_etap_start_micro; */
-			/* break; */
-
-		/* default: */
-			/* p->ecall_etap_start = &ecall_etap_start_caida; */
-			/* break; */
-	/* } */
-
 	return p;
 }
 
@@ -394,7 +375,7 @@ double ecall_etap_start(int lbn_record_size,
 
 #if LIVE == 1
 // this should be called only once
-double ecall_etap_start_live(int lbn_record_size,
+double ecall_etap_start(int lbn_record_size,
 			     int lbn_record_per_batch) {
 	eprintf("etapn started record %d rec_per_bat %d!\n", lbn_record_size,
 		lbn_record_per_batch);
