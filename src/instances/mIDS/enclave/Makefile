@@ -135,11 +135,11 @@ all: $(Signed_Enclave_Name)
 
 ######## Enclave Objects ########
 
-$(Enclave_Dir)/Enclave_t.c: $(SGX_EDGER8R) $(Enclave_Dir)/Enclave.edl
-	@cd $(Enclave_Dir) && $(SGX_EDGER8R) --trusted ../trusted/Enclave.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
+$(Enclave_Dir)/mids_edge_t.c: $(SGX_EDGER8R) $(Enclave_Dir)/mids_edge.edl
+	@cd $(Enclave_Dir) && $(SGX_EDGER8R) --trusted ../enclave/mids_edge.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
-$(Enclave_Dir)/Enclave_t.o: $(Enclave_Dir)/Enclave_t.c
+$(Enclave_Dir)/mids_edge_t.o: $(Enclave_Dir)/mids_edge_t.c
 	@$(CC) $(Enclave_C_Flags) -c $< -o $@
 	@echo "CC   <=  $<"
 
@@ -147,7 +147,7 @@ $(Enclave_Dir)/%.o: $(Enclave_Dir)/%.cpp
 	@$(CXX) $(Enclave_Cpp_Flags) -c $< -o $@
 	@echo "CXX  <=  $<"
 
-$(Enclave_Name): $(Enclave_Dir)/Enclave_t.o $(Enclave_Cpp_Objects) $(MTCP_LIB) $(DFC_Cpp_Objects) $(MOS_Lib) $(Pcap_Lib)
+$(Enclave_Name): $(Enclave_Dir)/mids_edge_t.o $(Enclave_Cpp_Objects) $(MTCP_LIB) $(DFC_Cpp_Objects) $(MOS_Lib) $(Pcap_Lib)
 	@$(CXX) $^ -o $@ $(Enclave_Link_Flags) 
 	@echo "LINK =>  $@"
 
@@ -158,5 +158,5 @@ $(Signed_Enclave_Name): $(Enclave_Name)
 .PHONY: clean edl
 
 clean:
-	@rm -f $(Enclave_Name) $(Signed_Enclave_Name) $(Enclave_Cpp_Objects) $(Enclave_Dir)/Enclave_t.* $(MOS_C_Deps) $(MOS_C_Objs) $(MTCP_LIB) $(DFC_Cpp_Objects) 
+	@rm -f $(Enclave_Name) $(Signed_Enclave_Name) $(Enclave_Cpp_Objects) $(Enclave_Dir)/mids_edge_t.* $(MOS_C_Deps) $(MOS_C_Objs) $(MTCP_LIB) $(DFC_Cpp_Objects) 
 

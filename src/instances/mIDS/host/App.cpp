@@ -38,7 +38,7 @@
 #define MAX_PATH FILENAME_MAX
 
 #include "App.h"
-#include "Enclave_u.h"
+#include "mids_edge_u.h"
 #include "sgx_uae_service.h"
 #include "sgx_urts.h"
 

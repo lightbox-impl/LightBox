@@ -132,10 +132,10 @@ unsigned short htons(unsigned short int h)
 	return BigLittleSwap16(h);
 }
 
-unsigned short ntohs(unsigned short int n)
-{
-	return BigLittleSwap16(n);
-}
+/* unsigned short ntohs(unsigned short int n) */
+/* { */
+	/* return BigLittleSwap16(n); */
+/* } */
 
 
 // bpf.h
@@ -151,12 +151,12 @@ int sfbpf_compile(int snaplen_arg, int linktype_arg, struct sfbpf_program *progr
 
 	return ret;
 }
-u_int sfbpf_filter(const struct sfbpf_insn *pc, const u_char *p, u_int wirelen, u_int buflen)
-{
-	u_int ret;
-	ocall_sfbpf_filter((int*)&ret, (const char*)pc, (const char*)p, wirelen, buflen);
-	return ret;
-}
+/* u_int sfbpf_filter(const struct sfbpf_insn *pc, const u_char *p, u_int wirelen, u_int buflen) */
+/* { */
+	/* u_int ret; */
+	/* ocall_sfbpf_filter((int*)&ret, (const char*)pc, (const char*)p, wirelen, buflen); */
+	/* return ret; */
+/* } */
 void sfbpf_freecode(struct sfbpf_program *program)
 {
 	return;

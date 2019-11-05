@@ -3,9 +3,9 @@
 #include <stdio.h> /* vsnprintf */
 
 #include "Enclave.h"
-#include "Enclave_t.h" /* print_string */
+#include "mids_edge_t.h" /* print_string */
 
-#include "../../../lb/networking/libpcap/trusted/pcap.h"
+#include "../../../lb/networking/libpcap/enclave/pcap_t.h"
 extern "C" {
 #include "../../../lb/core/enclave/include/etap_t.h"
 }

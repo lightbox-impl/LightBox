@@ -50,7 +50,7 @@ endif
 
 Root_Dir := ../../../..
 LightBox_Dir := $(Root_Dir)/src/lb/core
-LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../ -I$(Root_Dir)/include -I$(LightBox_Dir)/host/include
+LightBox_Include := -I$(LightBox_Dir)/host -I$(LightBox_Dir)/../ -I$(Root_Dir)/include -I$(LightBox_Dir)/host/include -I../../../../src/lb/networking/libpcap/enclave
 LightBox_Flag := -DUSE_ETAP 
 # -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) 
 LightBox_Lib := $(Root_Dir)/build/liblb_core_u.a
@@ -119,11 +119,11 @@ all: .config_$(Build_Mode)_$(SGX_ARCH) $(App_Name)
 
 ######## App Objects ########
 
-$(App_Dir)/Enclave_u.c: $(SGX_EDGER8R) ../trusted/Enclave.edl
-	@cd $(App_Dir) && $(SGX_EDGER8R) --untrusted ../trusted/Enclave.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
+$(App_Dir)/mids_edge_u.c: $(SGX_EDGER8R) ../enclave/mids_edge.edl
+	@cd $(App_Dir) && $(SGX_EDGER8R) --untrusted ../enclave/mids_edge.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
-$(App_Dir)/Enclave_u.o: $(App_Dir)/Enclave_u.c
+$(App_Dir)/mids_edge_u.o: $(App_Dir)/mids_edge_u.c
 	@$(CC) $(App_C_Flags) -c $< -o $@
 	@echo "CC   <=  $<"
 
@@ -151,12 +151,12 @@ $(DFC_Cpp_Objects): %.o: %.cpp
 #	@echo "MOS_CC  <=  $<"
 #	@$(CC) $(MOS_C_Flags) $(MOS_C_Include) -c $< -o $@
 
-$(App_Name): $(App_Dir)/Enclave_u.o $(App_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp_Objects)#$(App_Dir)/mosTest.o
+$(App_Name): $(App_Dir)/mids_edge_u.o $(App_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp_Objects)#$(App_Dir)/mosTest.o
 	@$(CXX) $^ -o $@ $(App_Link_Flags)
 	@echo "LINK =>  $@"
 
 .config_$(Build_Mode)_$(SGX_ARCH): ../enclave.signed.so
-	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_Cpp_Objects) $(App_Dir)/Enclave_u.* $(Enclave_Cpp_Objects) $(Enclave_Ntoh_C_Objects) trusted/Enclave_t.*
+	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_Cpp_Objects) $(App_Dir)/mids_edge_u.* $(Enclave_Cpp_Objects) $(Enclave_Ntoh_C_Objects) trusted/Enclave_t.*
 	@touch .config_$(Build_Mode)_$(SGX_ARCH)
 	
 .PHONY: clean edl

@@ -103,6 +103,12 @@ rx_ring_t* etap_rx_init(const int mode) {
 	return r;
 }
 
+void etap_rx_deinit(rx_ring_t* p) {
+	free(p->rData->in_rbuf);
+	free(p->rData);
+	free(p);
+}
+
 etap_controller_t* etap_controller_init(const int ring_mode,
 				    const int etap_db_mode) {
 	etap_controller_t* p =

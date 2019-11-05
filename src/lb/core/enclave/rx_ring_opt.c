@@ -93,10 +93,10 @@ int write_pkt_lockless_cache_efficient_nonblock(const uint8_t* pkt, int pkt_size
 	memcpy(&data->in_rbuf[data->nextWrite], &ts, sizeof(timeval_t));
 
 	/* time_now = ts; */
-	memcpy(&time_now, &ts, sizeof(ts));
+	memcpy(&etap_clock, &ts, sizeof(ts));
 
 	/* trace_clock.tv_sec = ts; // second only */
-	memcpy(&trace_clock, &ts, sizeof(ts));
+	/* memcpy(&trace_clock, &ts, sizeof(ts)); */
 
 	data->nextWrite = afterNextWrite;
 	(data->wBatch)++;

@@ -83,7 +83,14 @@ int pcap_loop(pcap_t* p, int cnt, pcap_handler callback, u_char* useless) {
 int pcap_compile(pcap_t* handle, struct sfbpf_program* fp, const char* str,
 		 int optimize, bpf_u_int32 netmask) {
 #define DUMMY_PKT_HDR_LEN  0
-	ocall_pcap_sfbpf_compile(DUMMY_PKT_HDR_LEN, fp, str, optimize);
+	struct sfbpf_program **program;
+	ocall_pcap_sfbpf_compile(DUMMY_PKT_HDR_LEN, program, str, optimize);
+
+	struct sfbpf_program tmp_fcode;
+	struct sfbpf_program* host_fcode = *program;
+	memcpy(tmp_fcode.bf_insns, host_fcode->bf_insns, sizeof(struct sfbpf_insn));
+	tmp_fcode.bf_len = host_fcode->bf_len;
+	fp = &tmp_fcode;
 	return 0;
 }
 

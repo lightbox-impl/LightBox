@@ -1,10 +1,10 @@
 all:
-	cd trusted && make all
-	cd untrusted && make all
+	cd enclave && make all
+	cd host && make all
 
 clean:
-	cd trusted && make clean
-	cd untrusted && make clean
+	cd enclave && make clean
+	cd host && make clean
 
 ######## Edl Header #######
 edl:untrusted/Enclave_u.c trusted/Enclave_t.c

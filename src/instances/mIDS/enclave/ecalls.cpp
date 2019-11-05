@@ -1,6 +1,6 @@
 
 #include "Enclave.h"
-#include "Enclave_t.h"
+#include "mids_edge_t.h"
 #include "dfc/dfc_adaptor.h"
 
 #include <cstring> //strlen
