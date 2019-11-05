@@ -95,11 +95,11 @@ all: .config_$(Build_Mode)_$(SGX_ARCH) $(App_Name)
 
 ######## App Objects ########
 
-$(App_Dir)/lwids_edl_u.c: $(SGX_EDGER8R) ../enclave/lwids_edl.edl
-	@cd $(App_Dir) && $(SGX_EDGER8R) --untrusted ../enclave/lwids_edl.edl --search-path ../enclave --search-path $(SGX_SDK)/include
+$(App_Dir)/lwids_edge_u.c: $(SGX_EDGER8R) ../enclave/lwids_edge.edl
+	@cd $(App_Dir) && $(SGX_EDGER8R) --untrusted ../enclave/lwids_edge.edl --search-path ../enclave --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
-$(App_Dir)/lwids_edl_u.o: $(App_Dir)/lwids_edl_u.c
+$(App_Dir)/lwids_edge_u.o: $(App_Dir)/lwids_edge_u.c
 	@$(CC) $(App_C_Flags) -c $< -o $@
 	@echo "CC   <=  $<"
 
@@ -107,15 +107,15 @@ $(App_Dir)/%.o: $(App_Dir)/%.c
 	@$(CC) $(App_C_Flags) -c $< -o $@
 	@echo "CC  <=  $<"
 
-$(App_Name): $(App_Dir)/lwids_edl_u.o $(App_C_Objects) 
+$(App_Name): $(App_Dir)/lwids_edge_u.o $(App_C_Objects) 
 	@$(CC) $^ -o $@ $(App_Link_Flags)
 	@echo "LINK =>  $@"
 
 .config_$(Build_Mode)_$(SGX_ARCH): ../enclave.signed.so
-	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_C_Objects) $(App_Dir)/lwids_edl_u.* $(Enclave_Cpp_Objects) $(Enclave_Ntoh_C_Objects) trusted/lwids_edl_t.*
+	@rm -f .config_* $(App_Name) $(Enclave_Name) $(Signed_Enclave_Name) $(App_C_Objects) $(App_Dir)/lwids_edge_u.* $(Enclave_Cpp_Objects) $(Enclave_Ntoh_C_Objects) trusted/lwids_edge_t.*
 	@touch .config_$(Build_Mode)_$(SGX_ARCH)
 	
 .PHONY: clean edl
 
 clean:
-	@rm -f .config_* $(App_Name) $(App_C_Objects) $(App_Dir)/lwids_edl_u.* 
+	@rm -f .config_* $(App_Name) $(App_C_Objects) $(App_Dir)/lwids_edge_u.* 

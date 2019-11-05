@@ -3,11 +3,12 @@
 
 #include <enclave/lb_edge_t.h>
 #include <lb_type.h>
-#include <enclave/include/utils_t.h>
+#include <enclave/include/lb_utils_t.h>
 #include <enclave/include/etap_t.h>
 #include <enclave/include/state_mgmt_t.h>
 #include <networking/libntoh/include/libntoh.h>
 #include <linux_type_ports.h>
+#include <stdint.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +17,16 @@
 #ifndef __FAVOR_BSD
 # define __FAVOR_BSD
 #endif
+
+typedef struct {
+    uint8_t data[MAX_FRAME_SIZE];
+} packet_t;
+
+typedef struct pcap_pkthdr {
+        struct timeval ts;      /* time stamp */
+        uint32_t caplen;     /* length of portion present */
+        uint32_t len;        /* length this packet (off wire) */
+} pcap_pkthdr;
 
 /* G L O B A L */
 lwids_param_t *lwids_args;

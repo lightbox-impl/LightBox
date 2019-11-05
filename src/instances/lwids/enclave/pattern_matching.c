@@ -1,6 +1,6 @@
 #include "pattern_matching.h"
 
-#include <enclave/include/utils_t.h>
+#include <enclave/include/lb_utils_t.h>
 
 #include <string.h>
 

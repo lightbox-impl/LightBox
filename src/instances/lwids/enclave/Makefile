@@ -127,11 +127,11 @@ all: $(Signed_Enclave_Name)
 
 ######## Enclave Objects ########
 
-$(Enclave_Dir)/lwids_edl_t.c: $(SGX_EDGER8R) $(Enclave_Dir)/lwids_edl.edl
-	@cd $(Enclave_Dir) && $(SGX_EDGER8R) --trusted ../enclave/lwids_edl.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
+$(Enclave_Dir)/lwids_edge_t.c: $(SGX_EDGER8R) $(Enclave_Dir)/lwids_edge.edl
+	@cd $(Enclave_Dir) && $(SGX_EDGER8R) --trusted ../enclave/lwids_edge.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
-$(Enclave_Dir)/lwids_edl_t.o: $(Enclave_Dir)/lwids_edl_t.c
+$(Enclave_Dir)/lwids_edge_t.o: $(Enclave_Dir)/lwids_edge_t.c
 	@$(CC) $(Enclave_C_Flags) -c $< -o $@
 	@echo "CC   <=  $<"
 
@@ -139,7 +139,7 @@ $(Enclave_Dir)/%.o: $(Enclave_Dir)/%.c
 	@$(CC) $(Enclave_C_Flags) -c $< -o $@
 	@echo "CC  <=  $<"
 
-$(Enclave_Name): $(Enclave_Dir)/lwids_edl_t.o $(Enclave_Cpp_Objects)  
+$(Enclave_Name): $(Enclave_Dir)/lwids_edge_t.o $(Enclave_Cpp_Objects)  
 	@$(CC) $^ -o $@ $(Enclave_Link_Flags) 
 	@echo "LINK =>  $@"
 
@@ -150,4 +150,4 @@ $(Signed_Enclave_Name): $(Enclave_Name)
 .PHONY: clean edl
 
 clean:
-	@rm -f $(Enclave_Name) $(Signed_Enclave_Name) $(Enclave_Cpp_Objects) $(Enclave_Dir)/lwids_edl_t.*  
+	@rm -f $(Enclave_Name) $(Signed_Enclave_Name) $(Enclave_Cpp_Objects) $(Enclave_Dir)/lwids_edge_t.*  
