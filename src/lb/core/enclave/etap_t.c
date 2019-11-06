@@ -49,6 +49,8 @@ uint64_t rtt;
 /* end of clock */
 
 etap_controller_t* etap_controller_instance;
+rx_ring_data_t* global_rx_data;
+rx_ring_data_t* global_tx_data;
 
 rx_ring_t* etap_rx_init(const int mode) {
 	rx_ring_data_t* pData;
@@ -106,6 +108,10 @@ etap_controller_t* etap_controller_init(const int ring_mode,
 	    (etap_controller_t*)malloc(sizeof(etap_controller_t));
 	p->rx_ring_instance = etap_rx_init(ring_mode);
 	p->tx_ring_instance = etap_rx_init(ring_mode);
+
+
+	global_rx_data = etap_rx_init(ring_mode)->rData;
+	global_tx_data = etap_rx_init(ring_mode)->rData;
 	return p;
 }
 
@@ -148,8 +154,6 @@ static inline void rx_data_init(rx_ring_t* handle) {
 
 double ecall_etap_start(int lbn_record_size,
 			      int lbn_record_per_batch) {
-	rx_ring_t* handle = etap_controller_instance->rx_ring_instance;
-	rx_data_init(handle);
 	
 	static uint8_t dec_record[1024 * 16];  // 64KB
 
@@ -269,12 +273,12 @@ double ecall_etap_start(int lbn_record_size,
 					pending_pkt_ts.tv_usec += rtt % (uint64_t)1e6;
 					pending_pkt_ts.tv_sec += rtt / (uint64_t) 1e6;
 					// write to etap ring
-					handle->write_pkt(
+					write_pkt(
 					    pending_ts_pkt +
 						sizeof(pending_pkt_ts),
 					    pending_ts_pkt_size -
 						sizeof(pending_pkt_ts),
-					    pending_pkt_ts, handle->rData);
+					    pending_pkt_ts);
 					// TODO tx write pkt?
 					total_byte += pending_ts_pkt_size;
 					++pkt_count;
@@ -310,14 +314,14 @@ double ecall_etap_start(int lbn_record_size,
 							pending_pkt_ts.tv_sec += rtt / (uint64_t) 1e6;
 
 							// write to etap ring
-							handle->write_pkt(
+							write_pkt(
 							    crt_pos +
 								sizeof(
 								    pending_pkt_ts),
 							    pending_ts_pkt_size -
 								sizeof(
 								    pending_pkt_ts),
-							    pending_pkt_ts, handle->rData);
+							    pending_pkt_ts);
 
 							// legacy : ts bytes are
 							// counted
@@ -379,9 +383,6 @@ double ecall_etap_start(int lbn_record_size,
 			     int lbn_record_per_batch) {
 	eprintf("etapn started record %d rec_per_bat %d!\n", lbn_record_size,
 		lbn_record_per_batch);
-	rx_ring_t* handle = etap_controller_instance->rx_ring_instance;
-
-	rx_data_init(handle);
 
 	static uint8_t dec_record[1024 * 16];  // 64KB
 
@@ -444,11 +445,11 @@ double ecall_etap_start(int lbn_record_size,
 				memcpy(&pending_pkt_ts, pending_ts_pkt,
 				       sizeof(pending_pkt_ts));
 				// write to etap ring
-				handle->write_pkt(
+				write_pkt(
 				    pending_ts_pkt + sizeof(pending_pkt_ts),
 				    pending_ts_pkt_size -
 					sizeof(pending_pkt_ts),
-				    pending_pkt_ts, handle->rData);
+				    pending_pkt_ts);
 				// TODO tx write pkt?
 				total_byte += pending_ts_pkt_size;
 				++pkt_count;
@@ -470,12 +471,12 @@ double ecall_etap_start(int lbn_record_size,
 						       sizeof(pending_pkt_ts));
 
 						// write to etap ring
-						handle->write_pkt(
+						write_pkt(
 						    crt_pos +
 							sizeof(pending_pkt_ts),
 						    pending_ts_pkt_size -
 							sizeof(pending_pkt_ts),
-						    pending_pkt_ts, handle->rData);
+						    pending_pkt_ts);
 
 						// legacy : ts bytes are counted
 						total_byte +=

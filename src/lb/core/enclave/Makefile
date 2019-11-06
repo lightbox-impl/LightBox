@@ -73,7 +73,7 @@ else
 endif
 Crypto_Library_Name := sgx_tcrypto
 
-Enclave_C_Files := crypto_t.c etap_send.c etap_t.c poll.c rx_ring_opt_lock.c rx_ring_opt_lockless.c rx_ring_opt_lockless_cache_efficient.c state_mgmt_t.c lb_utils_t.c cuckoo/cuckoo_hash.c cuckoo/lookup3.c
+Enclave_C_Files := crypto_t.c etap_send.c etap_t.c poll.c rx_ring_opt_global.c tx_ring_opt_global.c state_mgmt_t.c lb_utils_t.c cuckoo/cuckoo_hash.c cuckoo/lookup3.c
 Enclave_C_Objects := $(Enclave_C_Files:.c=.o)
 
 LB_Root_Dir := ../../../..
@@ -87,7 +87,7 @@ LIVE ?= 0
 MICRO ?= 0
 CONNECTION ?= 0
 
-Enclave_C_Flags += -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DLIVE=$(LIVE) -DMICRO=$(MICRO) -DLOCKLESS -DCACHE_EFFICIENT
+Enclave_C_Flags += -DLightBox=$(LightBox) -DCONNECTION=$(CONNECTION) -DCAIDA=$(CAIDA) -DLIVE=$(LIVE) -DMICRO=$(MICRO) -DGLOBAL#-DLOCKLESS -DCACHE_EFFICIENT
 
 Target := lb_core
 Enclave_Lib := $(LB_Root_Dir)/build/lib$(Target)_t.a

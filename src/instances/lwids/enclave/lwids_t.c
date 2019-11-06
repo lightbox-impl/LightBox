@@ -391,7 +391,7 @@ void ecall_lb_lwids_run()
 
     struct ip	*ip;
     while (1) {
-        pd->read_pkt(pkt, &pkt_len, &wall_clock, pd->etap);
+        pd->read_pkt(pkt, &pkt_len, &wall_clock);
 
 #if CAIDA==1
         ip = (struct ip*)pkt;

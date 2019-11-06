@@ -174,9 +174,9 @@ void* middlebox_thread(void* useless) {
 void* etap_send_thread(void* tput) {
     sgx_status_t ret = SGX_ERROR_UNEXPECTED;
     // printf("entered etap_send_thread\n");
-    ret = ecall_etap_sendto_next_box(global_eid, (double*)tput,
-				     etap_args.record_size,
-				     etap_args.record_per_batch);
+	ret = ecall_etap_sendto_next_box(global_eid, (double*)tput,
+					 etap_args.record_size,
+					 etap_args.record_per_batch);
     if (ret != SGX_SUCCESS) {
 	printf("[*] etap_send_thread fail! %x\n", ret);
 	pthread_exit(NULL);

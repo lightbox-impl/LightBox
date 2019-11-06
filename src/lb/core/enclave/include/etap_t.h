@@ -62,8 +62,8 @@ typedef struct rx_ring_data {
 
 typedef struct rx_ring {
 	rx_ring_data_t* rData;
-	int (*read_pkt)(uint8_t*, int*, timeval_t*, rx_ring_data_t*);
-	int (*write_pkt)(const uint8_t*, int, timeval_t, rx_ring_data_t*);
+	int (*read_pkt)(uint8_t*, int*, timeval_t*);
+	int (*write_pkt)(const uint8_t*, int, timeval_t);
 } rx_ring_t;
 
 typedef struct etap_controller {
@@ -75,8 +75,8 @@ typedef struct etap_controller {
 
 typedef struct poll_driver {
 	etap_controller_t* etap;
-	void (*read_pkt)(uint8_t*, int*, timeval_t*, etap_controller_t* etap);
-	void (*write_pkt)(const uint8_t*, int, timeval_t, etap_controller_t* etap);
+	int (*read_pkt)(uint8_t*, int*, timeval_t*);
+	int (*write_pkt)(const uint8_t*, int, timeval_t);
 } poll_driver_t;
 
 etap_controller_t* etap_controller_init(const int ring_mode,

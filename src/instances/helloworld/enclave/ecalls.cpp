@@ -1,7 +1,4 @@
-
 #include "Enclave.h"
-// #include "Enclave_t.h"
-
 #include <cstring>  //strlen
 
 extern "C" {
@@ -19,8 +16,8 @@ void ecall_mb() {
     ;
 
     while (1) {
-	pd->read_pkt(pkt_buffer, &size, &ts, pd->etap);
-	pd->write_pkt(pkt_buffer, size, ts, pd->etap);
+	pd->read_pkt(pkt_buffer, &size, &ts);
+	pd->write_pkt(pkt_buffer, size, ts);
     }
 }
 }

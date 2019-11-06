@@ -76,7 +76,7 @@ void prepare_batch(rx_ring_t* handle, int lbn_record_size,
 		}
 
 		while (1) {
-			handle->read_pkt(pkt, &size, &ts, handle->rData);
+			read_pkt_tx(pkt, &size, &ts);
 			// TODO maybe add some pkt empty checking later, now
 			// we'll just be blocked at read_pkt();
 			pkt_and_ts_size = sizeof(ts) + size;
