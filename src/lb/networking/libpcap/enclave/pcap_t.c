@@ -28,8 +28,10 @@ pcap_t singular_handle;
 const uint8_t* pcap_next(pcap_t* handle, struct pcap_pkthdr* header) {
     static uint8_t pktData[8192];
     // read_pkt needs to be defined, currently a bit ugly ...
-    read_pkt(pktData, &header->len, (timeval_t*)&header->ts);
+    read_pkt(pktData, &header->caplen, (timeval_t*)&header->ts);
     header->len = header->caplen;
+	/* eprintf("header len is %d, caplen is %d\n", header->len, header->caplen); */
+	/* eprintf("pkt content is %s\n", pktData); */
     if (header->len > 0 && header->caplen < 8192) {
 	if (handle->hasFcode) {
 	    /* ocall_p("line 20\n"); */
