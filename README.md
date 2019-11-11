@@ -12,13 +12,7 @@ The project is still under development. All core functionalities have been imple
 
 Recommended environment: Ubuntu 18.04 LTS with gcc version 7.4.0 or higher. The CPU has to be SGX-enabled.
 
-This software requires the following libraries:
-
-* [Intel SGX](https://software.intel.com/en-us/sgx)
-
-### Installation
-
-- Environment setup: 
+- Set up necessary dependency: 
 
 ```shell
 sudo apt-get update
