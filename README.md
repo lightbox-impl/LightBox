@@ -15,7 +15,6 @@ Recommended environment: Ubuntu 18.04 LTS with gcc version 7.4.0 or higher. The 
 This software requires the following libraries:
 
 * [Intel SGX](https://software.intel.com/en-us/sgx)
-* [libpcap] (https://www.tcpdump.org/)
 
 ### Installation
 
@@ -23,7 +22,7 @@ This software requires the following libraries:
 
 ```shell
 sudo apt-get update
-sudo apt-get install build-essential git 
+sudo apt-get install build-essential git libpcap-dev
 ```
 - SGX installation:
 
