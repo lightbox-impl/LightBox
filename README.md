@@ -1,23 +1,23 @@
 # LightBox
-Full-stack protected stateful middlebox at lightning speed
 
-## Getting Started 
+Full-stack protected stateful middlebox at lightning speed.
 
-LightBox is developed and tested on ubuntu machine only at current stage. Other Linux distribution may enter some small issues. 
+### Development Stage
 
-## Publication 
-Huayi Duan, Cong Wang, Xingliang Yuan, Yajin Zhou, Qian Wang, and Kui Ren. 2019. LightBox: Full-stack Protected Stateful Middlebox at Lightning Speed. In 2019 ACM SIGSAC Conference on Computer and Communications Security (CCS’19), November 11–15, 2019, London, United Kingdom.  
+The project is still under development. All core functionalities have been implemented and tested on Ubuntu 18.04 LTS with Intel SGX Linux SDK 2.6.
+
+## Build
 
 ### Prerequisites  
 
-Recommended Environments: Ubuntu 18.04 LTS with gcc version 7.4.0 or higher.   
-The CPU has to support Intel Software Guard Extensions. The recommended environment is Ubuntu 18.04 LTS with gcc version 7.4.0 or higher. 
+Recommended environment: Ubuntu 18.04 LTS with gcc version 7.4.0 or higher. The CPU has to be SGX-enabled.
 
-This software requires the following libraries:  
+This software requires the following libraries:
+
 * [Intel SGX](https://software.intel.com/en-us/sgx)
 * [libpcap] (https://www.tcpdump.org/)
 
-## Installation
+### Installation
 
 - Environment setup: 
 
@@ -25,43 +25,30 @@ This software requires the following libraries:
 sudo apt-get update
 sudo apt-get install build-essential git 
 ```
-
 - SGX installation:
 
-You need to enable SGX follow the [Intel_SGX_Installation_Guide_Linux](https://download.01.org/intel-sgx/linux-2.1/docs/Intel_SGX_Installation_Guide_Linux_2.1_Open_Source.pdf)
+Please follow the instructions at [Intel(R) Software Guard Extensions for Linux* OS](https://github.com/intel/linux-sgx)
 
-- Mode
-There are several different mode for LightBox to run. The default mode is **CAIDA**. You can switch to different mode by modifying corresponding variable in Makefile scripts. 
-
-## Compiling
+### Compilation
 ```bash
-git clone https://github.com/XXXXXXX
+git clone [this repo]
 cd LightBox
 make
 ```
 
-## etap Usage
-We encapsulate the network communication parts of LightBox into etap (a virtual network interface). The packet I/O APIs are  designed like this:
+## Components
+There are currently four sample middleboxes at src/instances
 
-```c
-poll_driver_t* pd = poll_driver_init();
-
-pd->read_pkt(pkt_buffer, &pkt_size, &time_stamp, pd->etap);
-pd->write_pkt(pkt_buffer, pkt_size, time_stamp, pd->etap);
-```
-
-## Gateway Client
-
-## Application
 - helloworld
 - lwIDS
 - mIDS
-- prads
+- PRADS
 
+The sample gateway is also provided at src/gateway_cli
 
 ## Maintainer
 - Ruochen Wang, City University of Hong Kong, ruochwang2-c@cityu.edu.hk
-- Huayi Duan, City University of Hong Kong, hduan2-c@my.cityu.edu.hk
+- Huayi Duan, City University of Hong Kong, hy.duan@my.cityu.edu.hk
 
 
 
