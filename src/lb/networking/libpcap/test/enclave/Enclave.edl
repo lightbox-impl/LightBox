@@ -1,0 +1,21 @@
+
+enclave 
+{
+
+	from "../../../../../src/lb_core/enclave/lb_edge.edl" import *;
+	from "../../trusted/lb_edge.edl" import *;
+	include "../../trusted/bpf/sfbpf.h"
+	from "sgx_tstdc.edl" import sgx_thread_wait_untrusted_event_ocall, sgx_thread_set_untrusted_event_ocall, sgx_thread_setwait_untrusted_events_ocall, sgx_thread_set_multiple_untrusted_events_ocall;
+
+    trusted 
+    {
+		public void ecall_text(void);
+		
+    };
+	
+    untrusted 
+	{
+		void ocall_print([in, string] const char * str);
+	};
+
+};
