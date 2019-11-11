@@ -32,7 +32,7 @@
 #include "../../core/enclave/include/crypto_t.h"
 #include "../../core/enclave/include/state_mgmt_t.h"
 #include "../../core/enclave/include/lb_utils_t.h"
-#include "../../core/enclave/lb_edge_t.h"
+#include "../../core/enclave/lb_core_edge_t.h"
 
 #include "linux_type_ports.h"
 

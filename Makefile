@@ -5,10 +5,10 @@ SRC_DIR = src
 .PHONY: clean  
 
 all: 
-	mkdir build
+	mkdir -p build
 	$(MAKE) -C $(SRC_DIR)
 clean:
 	$(MAKE) -C $(SRC_DIR) clean
-	rmdir build
+	rm -rf build
 
 

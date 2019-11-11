@@ -162,4 +162,4 @@ $(App_Name): $(App_Dir)/mids_edge_u.o $(App_Cpp_Objects) $(MOS_C_Objs) $(DFC_Cpp
 .PHONY: clean edl
 
 clean:
-	@rm -f .config_* $(App_Name) $(App_Cpp_Objects) $(App_Dir)/Enclave_u.* $(MOS_C_Objs) $(DFC_Cpp_Objects)
+	@rm -f .config_* $(App_Name) $(App_Cpp_Objects) $(App_Dir)/mids_edge_u.* $(MOS_C_Objs) $(DFC_Cpp_Objects)

@@ -65,7 +65,7 @@ Crypto_Library_Name := sgx_tcrypto
 
 Root_Dir := ../../../..
 LightBox_Dir := $(Root_Dir)/src/lb/core
-LightBox_Include := -I$(LightBox_Dir)/enclave  -I$(LightBox_Dir)/../ -I$(Root_Dir)/include
+LightBox_Include := -I$(LightBox_Dir)/enclave  -I$(LightBox_Dir)/../ -I$(Root_Dir)/include -I../../../lb/core/enclave/include/
 LightBox_Lib := $(Root_Dir)/build/liblb_core_t.a
 LightBox_Flag := -DLightBox=${LightBox} -DCAIDA=$(CAIDA) -DUSE_ETAP -DMSG64=0  -DCONNECTION=$(CONNECTION)
 Build_Lib_Dir := $(Root_Dir)/build

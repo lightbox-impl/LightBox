@@ -84,7 +84,7 @@ DFC_Cpp_Flags := -march=native -msse4
 
 LightBox_Dir := ../../../../src/lb_core
 Root_Dir := ../../../../..
-LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../ -I$(Root_Dir)/include
+LightBox_Include := -I$(LightBox_Dir)/enclave -I$(LightBox_Dir)/enclave/cuckoo -I$(LightBox_Dir)/../ -I$(Root_Dir)/include -I../../../core/enclave/include/
 LightBox_Flag := -DLightBox=$(LightBox) -DCAIDA=$(CAIDA) -DTRACE_CLOCK=$(TRACE_CLOCK) -DFIX_TIMEOUT=$(FIX_TIMEOUT) -DSGX_HANDLE_WEIRD_PKT #-DUSE_ETAP -DSGX_DEBUG_PIN -DALLOW_PKT_DROP #-DSGX_DEBUG_TIME
 LightBox_Lib := $(Root_Dir)/build/liblb_core_t.a
 
@@ -195,5 +195,5 @@ $(MOS_C_Deps): %.d: %.c
 .PHONY: clean edl
 
 clean:
-	@rm -f $(Enclave_Name) $(Signed_Enclave_Name) $(Enclave_Cpp_Objects) $(Enclave_Dir)/Enclave_t.* $(MOS_C_Deps) $(MOS_C_Objs) $(MTCP_LIB) $(DFC_Cpp_Objects) 
+	@rm -f $(Enclave_Name) $(Signed_Enclave_Name) $(Enclave_Cpp_Objects) $(Enclave_Dir)/lb_mos_edge_t.* $(MOS_C_Deps) $(MOS_C_Objs) $(MTCP_LIB) $(DFC_Cpp_Objects) 
 

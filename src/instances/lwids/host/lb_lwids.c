@@ -1,6 +1,6 @@
 #include "../common/lwids_type.h"
 
-#include <host/lb_edge_u.h>
+#include "lwids_edge_u.h"
 #include <host/include/lightbox.h>
 
 #include <getopt.h>

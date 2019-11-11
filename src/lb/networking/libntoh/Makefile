@@ -69,7 +69,7 @@ Enclave_Cpp_Flags := $(Enclave_C_Flags) -nostdinc++ -std=c++11 -Wno-write-string
 SGXNtoh_Dir := $(Enclave_Dir)
 Root_Dir := ../../../..
 
-SGXNtoh_Include_Paths := -I$(SGXNtoh_Dir) -I../.. -Iinclude/ -I$(Root_Dir)/include
+SGXNtoh_Include_Paths := -I$(SGXNtoh_Dir) -I../.. -Iinclude/ -I$(Root_Dir)/include -I../../core/enclave/include/
 SGXNtoh_C_Files := $(wildcard $(SGXNtoh_Dir)/*.c) 
 SGXNtoh_C_Objects := $(SGXNtoh_C_Files:.c=.o)
 

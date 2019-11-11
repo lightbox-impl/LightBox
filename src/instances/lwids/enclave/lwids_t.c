@@ -1,7 +1,7 @@
 #include "pattern_matching.h"
 #include "../common/lwids_type.h"
 
-#include <enclave/lb_edge_t.h>
+#include <enclave/lwids_edge_t.h>
 #include <lb_type.h>
 #include <enclave/include/lb_utils_t.h>
 #include <enclave/include/etap_t.h>
