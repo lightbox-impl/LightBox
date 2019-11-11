@@ -14,22 +14,18 @@
 #define TIME_ELAPSED_IN_NS(s_sec, s_ns, e_sec, e_ns) \
 	((e_sec - s_sec) * 1000000000.0 + (e_ns - s_ns))
 
-
-// typedef struct timeval {
-		// __time_t tv_sec;
-		// __time_t tv_usec;
-// } timeval_t;
-
-
 typedef struct flow_state {
 	char raw[FLOW_STATE_SIZE];
 } flow_state_t;
 
 typedef struct cuckoo_hash_item lkup_entry_t;
 
+// To be refactored: 
+// 1) now shared by flow cache and store for quick prototyping
+// 2) some testing field should be removed
+// 3) some fields should be moved to lkup_entry
 typedef struct state_entry {
 	flow_state_t state;
-	// long state_pad;
 
 	// for single lkup
 	int within_enclave;
@@ -52,6 +48,9 @@ typedef struct state_entry {
 	/* These two variables collectivley make expiration decision */
 	time_t last_access_time;
 	int to_end;  // controlled by MB specific logic
+
+	// count
+	// int swap_count;
 } state_entry_t;
 
 #endif
