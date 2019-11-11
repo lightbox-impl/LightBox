@@ -124,6 +124,8 @@ int write_pkt_nonblock(const uint8_t* pkt, int pkt_size, timeval_t ts) {
 #endif
 
 
+#ifndef GLOBAL
+
 #ifndef LOCKLESS
 #include "rx_ring_opt.h"
 
@@ -417,3 +419,4 @@ int write_pkt_nonblock(const uint8_t* pkt, int pkt_size, timeval_t ts,
 #endif
 #endif
 
+#endif /* GLOBAL */
