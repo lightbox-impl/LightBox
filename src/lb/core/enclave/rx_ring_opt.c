@@ -43,6 +43,7 @@ int read_pkt(uint8_t* pkt, int* size, timeval_t* ts) {
 	read = nextRead;
 	rBatch = 0;
     }
+	return 0;
 }
 
 int write_pkt(const uint8_t* pkt, int pkt_size, timeval_t ts) {
@@ -54,13 +55,29 @@ int write_pkt(const uint8_t* pkt, int pkt_size, timeval_t ts) {
 	localRead = read;
     }
 
-    memcpy(in_rbuf[nextWrite].pkt, pkt, pkt_size);
-    in_rbuf[nextWrite].size = pkt_size;
+/* TODO: debuging this part.  */
+	/* static int counter = 1; */
+	/* eprintf("write pkt count %d\n", counter++); */
+	// static uint8_t buffer[1514];
+	/* eprintf("in wpkt, pkt size %d\n", pkt_size); */
+	rbuf_pkt_t* cur_pkt = &(in_rbuf[nextWrite]);
+	/* memcpy(cur_pkt->pkt, pkt, pkt_size); */
+	cur_pkt->size = pkt_size;
+	cur_pkt->ts.tv_sec = ts.tv_sec;
+	cur_pkt->ts.tv_usec = ts.tv_usec;
+	memcpy(cur_pkt->pkt, pkt, pkt_size);
+	
+    /* memcpy(in_rbuf[nextWrite].pkt, pkt, pkt_size); */
+    /* in_rbuf[nextWrite].size = pkt_size; */
     /* in_rbuf[nextWrite].ts = ts; */
-    memcpy(&in_rbuf[nextWrite], &ts, sizeof(timeval_t));
+	/* memcpy(&(in_rbuf[nextWrite].ts), &ts, sizeof(ts)); */
+	/* in_rbuf[nextWrite].ts.tv_sec = ts.tv_sec; */
+	/* in_rbuf[nextWrite].ts.tv_usec = ts.tv_usec; */
+	/* eprintf("copied ts\n"); */
 
     /* etap_clock = ts; */
-    memcpy(&etap_clock, &ts, sizeof(ts));
+	memcpy(&etap_clock, &ts, sizeof(ts));
+	/* eprintf("copied clock\n"); */
 
     /* trace_clock.tv_sec = ts; // second only */
     // memcpy(&trace_clock, &ts, sizeof(ts));
@@ -71,6 +88,7 @@ int write_pkt(const uint8_t* pkt, int pkt_size, timeval_t ts) {
 	write = nextWrite;
 	wBatch = 0;
     }
+	return 0;
 }
 
 int read_pkt_nonblock(uint8_t* pkt, int* size, timeval_t* ts) {

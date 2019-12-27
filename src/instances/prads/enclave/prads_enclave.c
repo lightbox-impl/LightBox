@@ -15,6 +15,7 @@
 #include <lb_config.h>
 #include <lb_type.h>
 #include <lb_utils_t.h>
+#include "state_mgmt_t.h"
 
 // #include "log_agency_t.h"
 
@@ -48,6 +49,7 @@ int ecall_prads_initialize(void* global_config, int _nets, void* _network,
 
   // init_logging_agency();
 
+  init_state_mgmt();
   eprintf("flow-related data structure size %d %d %d \n", sizeof(state_entry_t), sizeof(flow_state_t), sizeof(connection));
 
   return 0;

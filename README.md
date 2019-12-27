@@ -6,6 +6,8 @@ Full-stack protected stateful middlebox at lightning speed.
 
 The project is still under development. All core functionalities have been implemented and tested on Ubuntu 18.04 LTS with Intel SGX Linux SDK 2.6.
 
+**Notice**: This project currently has a critical bug in the etap component, which is causing segment fault while receiving packets. We are doing our best to fix the bug at this stage. 
+
 ## Build
 
 ### Prerequisites  
